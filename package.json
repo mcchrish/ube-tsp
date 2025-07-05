@@ -1,0 +1,49 @@
+{
+  "name": "y",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/src/main.js",
+  "exports": {
+    ".": {
+      "types": "./dist/src/main.d.ts",
+      "default": "./dist/src/main.js"
+    },
+    "./testing": {
+      "types": "./dist/src/testing/main.d.ts",
+      "default": "./dist/src/testing/main.js"
+    }
+  },
+  "peerDependencies": {
+    "@typespec/compiler": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@typescript-eslint/eslint-plugin": "^8.15.0",
+    "@typescript-eslint/parser": "^8.15.0",
+    "@typespec/compiler": "^1.1.0",
+    "eslint": "^9.15.0",
+    "prettier": "^3.3.3",
+    "@alloy-js/cli": ">=0.17.0",
+    "@alloy-js/rollup-plugin": "^0.1.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.9"
+  },
+  "scripts": {
+    "build": "alloy build",
+    "watch": "tsc --watch",
+    "test": "node --test",
+    "compile": "npm run build && tsp compile .",
+    "lint": "eslint src/ test/ --report-unused-disable-directives --max-warnings=0",
+    "lint:fix": "eslint . --report-unused-disable-directives --fix",
+    "format": "prettier .  --write",
+    "format:check": "prettier --check ."
+  },
+  "private": true,
+  "dependencies": {
+    "@typespec/http": "^1.1.0",
+    "@typespec/openapi": "^1.1.0",
+    "@typespec/emitter-framework": "^0.8.0",
+    "@alloy-js/core": "^0.17.0",
+    "@alloy-js/typescript": "^0.17.0"
+  }
+}

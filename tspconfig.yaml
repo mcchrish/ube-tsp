@@ -1,0 +1,2 @@
+emit:
+  - "./dist/src/emitter.js"
