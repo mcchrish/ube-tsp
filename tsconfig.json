@@ -1,20 +1,21 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "useDefineForClassFields": true,
+    "lib": ["es2023", "DOM"],
     "module": "NodeNext",
-    "jsx": "react-jsx",
-    "jsxImportSource": "@alloy-js/core",
     "moduleResolution": "NodeNext",
-    "lib": ["ES2022"],
-    "rootDir": ".",
-    "outDir": "dist",
-    "sourceMap": true,
-    "declaration": true,
+    "target": "es2022",
+    "strict": true,
     "skipLibCheck": true,
-
-    /* Linting */
-    "strict": true
+    "isolatedModules": true,
+    "declaration": true,
+    "sourceMap": true,
+    "declarationMap": true,
+    "jsx": "preserve",
+    "jsxImportSource": "@alloy-js/core",
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "incremental": true
   },
-  "include": ["src", "test"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "dist", "test/**/*"]
 }

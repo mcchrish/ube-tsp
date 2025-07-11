@@ -3,6 +3,9 @@ import { getModels, getOperations, mapTypeSpecToTypeScript } from "./lib.js";
 import { $query, $path, $header } from "@typespec/http";
 
 export async function $onEmit(context: EmitContext) {
+  // Create output directories
+  await context.program.host.mkdirp(`${context.emitterOutputDir}/api/operations`);
+  
   const models = getModels(context);
   let schemasContent = "";
 

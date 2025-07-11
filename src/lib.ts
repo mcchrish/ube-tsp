@@ -1,129 +1,12 @@
-import { EmitContext, Model, Program, Type, navigateProgram, ListenerFlow, Operation } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
-
-export function getModels(context: EmitContext): readonly Model[] {
-  const models: Model[] = [];
-
-  function collectType(type: Type) {
-    if (shouldReference(context.program, type)) {
-      if (type.kind === "Model") {
-        models.push(type);
-      }
-    }
-  }
-
-  const globalNs = context.program.getGlobalNamespaceType();
-
-  navigateProgram(
-    context.program,
-    {
-      namespace(n) {
-        if (n !== globalNs && !$(context.program).type.isUserDefined(n)) {
-          return ListenerFlow.NoRecursion;
-        }
-      },
-      model: collectType,
-      enum: collectType,
-      union: collectType,
-      scalar: collectType,
-    },
-    { includeTemplateDeclaration: false },
-  );
-
-  return models;
-}
-
-export function getOperations(context: EmitContext): readonly Operation[] {
-  const operations: Operation[] = [];
-
-  function collectOperation(operation: Operation) {
-    operations.push(operation);
-  }
-
-  const globalNs = context.program.getGlobalNamespaceType();
-
-  navigateProgram(
-    context.program,
-    {
-      namespace(n) {
-        if (n !== globalNs && !$(context.program).type.isUserDefined(n)) {
-          return ListenerFlow.NoRecursion;
-        }
-      },
-      operation: collectOperation,
-    },
-    { includeTemplateDeclaration: false },
-  );
-
-  return operations;
-}
-
-export function shouldReference(
-  program: Program,
-  type: Type,
-) {
-  return (
-    isDeclaration(program, type) &&
-    !isBuiltIn(program, type)
-  );
-}
-
-export function isDeclaration(program: Program, type: Type): boolean {
-  switch (type.kind) {
-    case "Namespace":
-    case "Interface":
-    case "Operation":
-    case "EnumMember":
-      return false;
-    case "UnionVariant":
-      return false;
-
-    case "Model":
-      if (
-        ($(program).array.is(type) || $(program).record.is(type)) &&
-        isBuiltIn(program, type)
-      ) {
-        return false;
-      }
-
-      return Boolean(type.name);
-    case "Union":
-      return Boolean(type.name);
-    case "Enum":
-      return true;
-    case "Scalar":
-      return true;
-    default:
-      return false;
-  }
-}
-
-export function isBuiltIn(program: Program, type: Type) {
-  if (type.kind === "ModelProperty" && type.model) {
-    type = type.model;
-  }
-
-  if (!("namespace" in type) || type.namespace === undefined) {
-    return false;
-  }
-
-  const globalNs = program.getGlobalNamespaceType();
-  let tln = type.namespace;
-  if (tln === globalNs) {
-    return false;
-  }
-
-  while (tln.namespace !== globalNs) {
-    tln = tln.namespace!;
-  }
-
-  return tln === globalNs.namespaces.get("TypeSpec");
-}
+import { Type, EmitContext, Model, Operation, navigateProgram } from "@typespec/compiler";
 
 export function mapTypeSpecToTypeScript(type: Type): string {
   switch (type.kind) {
     case "Model":
-      return type.name;
+      if (type.name === "Array" && type.indexer) {
+        return `${mapTypeSpecToTypeScript(type.indexer.value)}[]`;
+      }
+      return type.name || "Record<string, unknown>";
     case "Scalar":
       switch (type.name) {
         case "string":
@@ -141,4 +24,53 @@ export function mapTypeSpecToTypeScript(type: Type): string {
     default:
       return "any";
   }
+}
+
+export function getModels(context: EmitContext): Model[] {
+  const models: Model[] = [];
+  
+  navigateProgram(context.program, {
+    model(model) {
+      if (model.name && 
+          !model.name.startsWith("_") && 
+          !isBuiltInType(model.name) &&
+          model.namespace?.name !== "TypeSpec" &&
+          model.namespace?.name !== "TypeSpec.Http") {
+        models.push(model);
+      }
+    }
+  });
+  
+  return models;
+}
+
+function isBuiltInType(name: string): boolean {
+  const builtInTypes = [
+    "ServiceOptions", "DiscriminatedOptions", "ExampleOptions", "OperationExample",
+    "VisibilityFilter", "Array", "EnumMember", "Namespace", "Model", "Scalar",
+    "Enum", "Union", "ModelProperty", "Operation", "Interface", "UnionVariant",
+    "StringTemplate", "LocationHeader", "HeaderOptions", "OkResponse", "CreatedResponse",
+    "AcceptedResponse", "NoContentResponse", "MovedResponse", "NotModifiedResponse",
+    "BadRequestResponse", "UnauthorizedResponse", "ForbiddenResponse", "NotFoundResponse",
+    "ConflictResponse", "HttpPartOptions", "Link", "Record", "CookieOptions",
+    "QueryOptions", "PathOptions", "PatchOptions", "BasicAuth", "BearerAuth",
+    "AuthorizationCodeFlow", "ImplicitFlow", "PasswordFlow", "ClientCredentialsFlow",
+    "NoAuth", "ApplyMergePatchOptions"
+  ];
+  
+  return builtInTypes.includes(name);
+}
+
+export function getOperations(context: EmitContext): Operation[] {
+  const operations: Operation[] = [];
+  
+  navigateProgram(context.program, {
+    operation(operation) {
+      if (operation.name) {
+        operations.push(operation);
+      }
+    }
+  });
+  
+  return operations;
 }

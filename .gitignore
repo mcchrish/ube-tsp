@@ -7,3 +7,12 @@ dist/
 
 # Dependency directories
 node_modules/
+
+# Example and test output directories
+example/
+test-specs/output/
+**/output/
+
+# Documentation files
+GEMINI.md
+readme.md
