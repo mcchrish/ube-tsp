@@ -1,0 +1,3 @@
+emit:
+  - "../dist/src/emitter.js"
+output-dir: "{project-root}/output"
