@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest";
-import { readGeneratedFile } from "./utils.jsx";
-import { compilePetsApi } from "./pets-helpers.jsx";
+import { describe, it, expect } from 'vitest';
+import { readGeneratedFile } from './utils.jsx';
+import { compilePetsApi } from './pets-helpers.jsx';
 
-describe("Type Mapping", () => {
-  describe("Scalar Types", () => {
-    it("should map TypeSpec scalars to TypeScript types", async () => {
+describe('Type Mapping', () => {
+  describe('Scalar Types', () => {
+    it('should map TypeSpec scalars to TypeScript types', async () => {
       const runner = await compilePetsApi(`
         model ScalarTypes {
           stringProp: string;
@@ -23,20 +23,20 @@ describe("Type Mapping", () => {
         }
       `);
 
-      const content = await readGeneratedFile(runner, "api/schemas.ts");
-      
-      expect(content).toContain("stringProp: string");
-      expect(content).toContain("int32Prop: number");
-      expect(content).toContain("int64Prop: number");
-      expect(content).toContain("float32Prop: number");
-      expect(content).toContain("float64Prop: number");
-      expect(content).toContain("booleanProp: boolean");
-      expect(content).toContain("optionalString?: string");
+      const content = await readGeneratedFile(runner, 'api/schemas.ts');
+
+      expect(content).toContain('stringProp: string');
+      expect(content).toContain('int32Prop: number');
+      expect(content).toContain('int64Prop: number');
+      expect(content).toContain('float32Prop: number');
+      expect(content).toContain('float64Prop: number');
+      expect(content).toContain('booleanProp: boolean');
+      expect(content).toContain('optionalString?: string');
     });
   });
 
-  describe("Array Types", () => {
-    it("should map TypeSpec arrays to TypeScript arrays", async () => {
+  describe('Array Types', () => {
+    it('should map TypeSpec arrays to TypeScript arrays', async () => {
       const runner = await compilePetsApi(`
         model ArrayTypes {
           stringArray: string[];
@@ -51,16 +51,16 @@ describe("Type Mapping", () => {
         }
       `);
 
-      const content = await readGeneratedFile(runner, "api/schemas.ts");
-      
-      expect(content).toContain("stringArray: string[]");
-      expect(content).toContain("numberArray: number[]");
-      expect(content).toContain("petArray: Pet[]");
+      const content = await readGeneratedFile(runner, 'api/schemas.ts');
+
+      expect(content).toContain('stringArray: string[]');
+      expect(content).toContain('numberArray: number[]');
+      expect(content).toContain('petArray: Pet[]');
     });
   });
 
-  describe("Union Types", () => {
-    it("should map TypeSpec unions to TypeScript union types", async () => {
+  describe('Union Types', () => {
+    it('should map TypeSpec unions to TypeScript union types', async () => {
       const runner = await compilePetsApi(`
         model UnionTypes {
           status: "active" | "inactive" | "pending";
@@ -74,15 +74,15 @@ describe("Type Mapping", () => {
         }
       `);
 
-      const content = await readGeneratedFile(runner, "api/schemas.ts");
-      
-      expect(content).toContain("status: \"active\" | \"inactive\" | \"pending\"");
-      expect(content).toContain("idOrName: string | number");
+      const content = await readGeneratedFile(runner, 'api/schemas.ts');
+
+      expect(content).toContain('status: "active" | "inactive" | "pending"');
+      expect(content).toContain('idOrName: string | number');
     });
   });
 
-  describe("Nested Models", () => {
-    it("should handle nested model references", async () => {
+  describe('Nested Models', () => {
+    it('should handle nested model references', async () => {
       const runner = await compilePetsApi(`
         model Address {
           street: string;
@@ -109,13 +109,13 @@ describe("Type Mapping", () => {
         }
       `);
 
-      const content = await readGeneratedFile(runner, "api/schemas.ts");
-      
-      expect(content).toContain("export interface Address");
-      expect(content).toContain("export interface Owner");
-      expect(content).toContain("export interface PetWithOwner");
-      expect(content).toContain("address: Address");
-      expect(content).toContain("owner: Owner");
+      const content = await readGeneratedFile(runner, 'api/schemas.ts');
+
+      expect(content).toContain('export interface Address');
+      expect(content).toContain('export interface Owner');
+      expect(content).toContain('export interface PetWithOwner');
+      expect(content).toContain('address: Address');
+      expect(content).toContain('owner: Owner');
     });
   });
 });

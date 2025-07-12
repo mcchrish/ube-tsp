@@ -1,32 +1,46 @@
-import { createTestLibrary, createTestWrapper, createTestHost } from "@typespec/compiler/testing";
-import { HttpTestLibrary } from "@typespec/http/testing";
-import { fileURLToPath } from "url";
+import {
+  createTestWrapper,
+  createTestHost as coreCreateTestHost,
+} from '@typespec/compiler/testing';
+import { HttpTestLibrary } from '@typespec/http/testing';
+import { TypeScriptEmitterTestLibrary } from '../dist/src/testing/index.js';
 
-export const EmitterTestLibrary = createTestLibrary({
-  name: "TypeScript Emitter Test Library",
-  packageRoot: fileURLToPath(new URL("../", import.meta.url)),
-  emitters: {
-    "typespec-typescript-emitter": await import("../dist/src/emitter.js"),
-  },
-});
-
-export async function createTypeScriptEmitterTestRunner() {
-  const host = await createTestHost({
-    libraries: [EmitterTestLibrary, HttpTestLibrary],
+export async function createTestHost(includeHttp = true) {
+  return coreCreateTestHost({
+    libraries: [
+      TypeScriptEmitterTestLibrary,
+      ...(includeHttp ? [HttpTestLibrary] : []),
+    ],
   });
+}
+
+export async function createTestRunner(
+  emitterOptions = {},
+  includeHttp = true,
+) {
+  const host = await createTestHost(includeHttp);
+
+  const importAndUsings = includeHttp
+    ? `import "@typespec/http"; using TypeSpec.Http;\n`
+    : ``;
 
   return createTestWrapper(host, {
-    wrapper: (code) => code,
+    wrapper: (code) => `${importAndUsings} ${code}`,
     compilerOptions: {
-      emit: ["typespec-typescript-emitter"],
+      emit: ['typespec-typescript-emitter'],
       options: {
-        "typespec-typescript-emitter": {},
+        'typespec-typescript-emitter': { ...emitterOptions },
       },
     },
   });
 }
 
-export async function readGeneratedFile(runner: any, path: string): Promise<string> {
-  const { text } = await runner.program.host.readFile(path);
+export async function readGeneratedFile(
+  runner: any,
+  path: string,
+): Promise<string> {
+  const { text } = await runner.program.host.readFile(
+    `typespec-typescript-emitter/${path}`,
+  );
   return text;
 }

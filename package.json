@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "description": "A TypeSpec emitter that generates clean TypeScript code with flat file structure using Alloy-JS",
   "type": "module",
-  "main": "dist/src/emitter.js",
+  "main": "dist/src/main.js",
   "exports": {
     ".": {
-      "types": "./dist/src/emitter.d.ts",
-      "default": "./dist/src/emitter.js"
+      "types": "./dist/src/main.d.ts",
+      "default": "./dist/src/main.js"
     }
   },
   "typespec": {
@@ -43,17 +43,16 @@
     "@typespec/emitter-framework": ">=0.8.0"
   },
   "devDependencies": {
+    "@alloy-js/cli": ">=0.17.0",
+    "@alloy-js/rollup-plugin": "^0.1.0",
     "@types/node": "latest",
-    "@typescript-eslint/eslint-plugin": "^8.15.0",
-    "@typescript-eslint/parser": "^8.15.0",
     "@typespec/compiler": "^1.1.0",
     "@typespec/http": "^1.1.0",
     "@typespec/openapi": "^1.1.0",
     "eslint": "^9.15.0",
     "prettier": "^3.3.3",
-    "@alloy-js/cli": ">=0.17.0",
-    "@alloy-js/rollup-plugin": "^0.1.0",
     "typescript": "^5.8.2",
+    "typescript-eslint": "^8.36.0",
     "vitest": "^3.0.9"
   },
   "scripts": {
@@ -69,8 +68,8 @@
     "prepublishOnly": "npm run build && npm run test && npm run lint"
   },
   "dependencies": {
-    "@typespec/emitter-framework": "^0.8.0",
-    "@alloy-js/core": "^0.17.0",
-    "@alloy-js/typescript": "^0.17.0"
+    "@alloy-js/core": ">=0.17.0",
+    "@alloy-js/typescript": ">=0.17.0",
+    "@typespec/emitter-framework": ">=0.8.0"
   }
 }

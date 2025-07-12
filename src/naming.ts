@@ -1,4 +1,4 @@
-import { Operation, Model, Type } from "@typespec/compiler";
+import { Operation, Model, Type } from '@typespec/compiler';
 
 /**
  * Naming strategy for consistent file and type naming
@@ -36,9 +36,7 @@ export class NamingStrategy {
    * Convert PascalCase to kebab-case
    */
   static kebabCase(str: string): string {
-    return str
-      .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
-      .toLowerCase();
+    return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
   }
 
   /**
@@ -47,7 +45,7 @@ export class NamingStrategy {
   static pascalCase(str: string): string {
     return str
       .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join('');
   }
 
@@ -70,16 +68,16 @@ export class NamingStrategy {
    */
   static getInterfaceName(type: Type): string {
     switch (type.kind) {
-      case "Model":
-        return type.name || "UnnamedModel";
-      case "Union":
-        return type.name || "UnnamedUnion";
-      case "Enum":
-        return type.name || "UnnamedEnum";
-      case "Scalar":
-        return type.name || "UnnamedScalar";
+      case 'Model':
+        return type.name || 'UnnamedModel';
+      case 'Union':
+        return type.name || 'UnnamedUnion';
+      case 'Enum':
+        return type.name || 'UnnamedEnum';
+      case 'Scalar':
+        return type.name || 'UnnamedScalar';
       default:
-        return "UnknownType";
+        return 'UnknownType';
     }
   }
 
@@ -113,15 +111,15 @@ export class NamingStrategy {
    * Generate operation constant names
    */
   static getOperationIdConstName(): string {
-    return "operationId";
+    return 'operationId';
   }
 
   static getMethodConstName(): string {
-    return "method";
+    return 'method';
   }
 
   static getPathConstName(): string {
-    return "path";
+    return 'path';
   }
 
   /**
@@ -144,15 +142,13 @@ export class NamingStrategy {
    */
   static sanitizeIdentifier(name: string): string {
     // Remove invalid characters and ensure it starts with a letter or underscore
-    return name
-      .replace(/[^a-zA-Z0-9_$]/g, '')
-      .replace(/^[0-9]/, '_$&');
+    return name.replace(/[^a-zA-Z0-9_$]/g, '').replace(/^[0-9]/, '_$&');
   }
 
   /**
    * Get the common types file name
    */
   static getCommonTypesFileName(): string {
-    return "common.types.ts";
+    return 'common.types.ts';
   }
 }

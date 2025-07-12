@@ -3,7 +3,7 @@
  */
 export function CommonTypesGenerator() {
   let result = '';
-  
+
   result += '/**\n';
   result += ' * Common types and utilities shared across all generated files\n';
   result += ' */\n';
@@ -13,7 +13,8 @@ export function CommonTypesGenerator() {
   result += '/**\n';
   result += ' * HTTP methods supported by the API\n';
   result += ' */\n';
-  result += "export type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE';\n";
+  result +=
+    "export type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE';\n";
   result += '\n';
 
   // Status Codes
@@ -50,7 +51,8 @@ export function CommonTypesGenerator() {
   result += '/**\n';
   result += ' * Parameter location types\n';
   result += ' */\n';
-  result += "export type ParameterLocation = 'query' | 'path' | 'header' | 'cookie' | 'body';\n";
+  result +=
+    "export type ParameterLocation = 'query' | 'path' | 'header' | 'cookie' | 'body';\n";
   result += '\n';
 
   // API Error Interface
@@ -65,6 +67,6 @@ export function CommonTypesGenerator() {
   result += '  /** Additional error details */\n';
   result += '  details?: Record<string, unknown>;\n';
   result += '}\n';
-  
+
   return result;
 }

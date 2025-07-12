@@ -1,2 +1,2 @@
 emit:
-  - "./dist/src/emitter.js"
+  - './dist/src/emitter.js'

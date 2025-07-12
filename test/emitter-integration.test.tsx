@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
-import { readGeneratedFile } from "./utils.jsx";
-import { compilePetsApi } from "./pets-helpers.jsx";
+import { describe, it, expect } from 'vitest';
+import { readGeneratedFile } from './utils.jsx';
+import { compilePetsApi } from './pets-helpers.jsx';
 
-describe("Emitter Integration", () => {
-  it("should generate complete API structure for Pets API", async () => {
+describe('Emitter Integration', () => {
+  it('should generate complete API structure for Pets API', async () => {
     const runner = await compilePetsApi(`
       @route("/pets")
       interface Pets {
@@ -29,30 +29,35 @@ describe("Emitter Integration", () => {
     `);
 
     // Test schemas.ts generation
-    const schemasContent = await readGeneratedFile(runner, "api/schemas.ts");
-    expect(schemasContent).toContain("export interface Pet");
-    expect(schemasContent).toContain("export interface CreatePetRequest");
+    const schemasContent = await readGeneratedFile(runner, 'api/schemas.ts');
+    expect(schemasContent).toContain('export interface Pet');
+    expect(schemasContent).toContain('export interface CreatePetRequest');
 
     // Test individual operation files
     const operations = [
-      "listPets",
-      "createPet", 
-      "getPet",
-      "updatePet",
-      "deletePet",
-      "searchPets"
+      'listPets',
+      'createPet',
+      'getPet',
+      'updatePet',
+      'deletePet',
+      'searchPets',
     ];
 
     for (const operation of operations) {
-      const operationContent = await readGeneratedFile(runner, `api/operations/${operation}.ts`);
-      expect(operationContent).toContain(`export const operationId = '${operation}' as const`);
-      expect(operationContent).toContain("export const method =");
-      expect(operationContent).toContain("export const path =");
-      expect(operationContent).toContain("export const operation = {");
+      const operationContent = await readGeneratedFile(
+        runner,
+        `api/operations/${operation}.ts`,
+      );
+      expect(operationContent).toContain(
+        `export const operationId = '${operation}' as const`,
+      );
+      expect(operationContent).toContain('export const method =');
+      expect(operationContent).toContain('export const path =');
+      expect(operationContent).toContain('export const operation = {');
     }
   });
 
-  it("should handle complex API with multiple interfaces", async () => {
+  it('should handle complex API with multiple interfaces', async () => {
     const runner = await compilePetsApi(`
       model Store {
         id: int32;
@@ -79,29 +84,44 @@ describe("Emitter Integration", () => {
       }
     `);
 
-    const schemasContent = await readGeneratedFile(runner, "api/schemas.ts");
-    expect(schemasContent).toContain("export interface Store");
-    expect(schemasContent).toContain("export interface Pet");
-    expect(schemasContent).toContain("export interface CreatePetRequest");
+    const schemasContent = await readGeneratedFile(runner, 'api/schemas.ts');
+    expect(schemasContent).toContain('export interface Store');
+    expect(schemasContent).toContain('export interface Pet');
+    expect(schemasContent).toContain('export interface CreatePetRequest');
 
     // Test store operations
-    const listStoresContent = await readGeneratedFile(runner, "api/operations/listStores.ts");
-    expect(listStoresContent).toContain("export const path = '/stores' as const");
+    const listStoresContent = await readGeneratedFile(
+      runner,
+      'api/operations/listStores.ts',
+    );
+    expect(listStoresContent).toContain(
+      "export const path = '/stores' as const",
+    );
     expect(listStoresContent).toContain("export const method = 'GET' as const");
 
-    const createStoreContent = await readGeneratedFile(runner, "api/operations/createStore.ts");
-    expect(createStoreContent).toContain("export const path = '/stores' as const");
-    expect(createStoreContent).toContain("export const method = 'POST' as const");
-    expect(createStoreContent).toContain("export interface RequestBody");
+    const createStoreContent = await readGeneratedFile(
+      runner,
+      'api/operations/createStore.ts',
+    );
+    expect(createStoreContent).toContain(
+      "export const path = '/stores' as const",
+    );
+    expect(createStoreContent).toContain(
+      "export const method = 'POST' as const",
+    );
+    expect(createStoreContent).toContain('export interface RequestBody');
 
     // Test pet operations
-    const listPetsContent = await readGeneratedFile(runner, "api/operations/listPets.ts");
+    const listPetsContent = await readGeneratedFile(
+      runner,
+      'api/operations/listPets.ts',
+    );
     expect(listPetsContent).toContain("export const path = '/pets' as const");
-    expect(listPetsContent).toContain("export interface QueryParams");
-    expect(listPetsContent).toContain("storeId?: number");
+    expect(listPetsContent).toContain('export interface QueryParams');
+    expect(listPetsContent).toContain('storeId?: number');
   });
 
-  it("should generate proper TypeScript imports and exports", async () => {
+  it('should generate proper TypeScript imports and exports', async () => {
     const runner = await compilePetsApi(`
       @route("/pets")
       interface Pets {
@@ -110,14 +130,17 @@ describe("Emitter Integration", () => {
       }
     `);
 
-    const operationContent = await readGeneratedFile(runner, "api/operations/getPet.ts");
-    
+    const operationContent = await readGeneratedFile(
+      runner,
+      'api/operations/getPet.ts',
+    );
+
     // Check that all exports are properly declared
-    expect(operationContent).toContain("export const operationId");
-    expect(operationContent).toContain("export const method");
-    expect(operationContent).toContain("export const path");
-    expect(operationContent).toContain("export interface PathParams");
-    expect(operationContent).toContain("export type Response200");
-    expect(operationContent).toContain("export const operation");
+    expect(operationContent).toContain('export const operationId');
+    expect(operationContent).toContain('export const method');
+    expect(operationContent).toContain('export const path');
+    expect(operationContent).toContain('export interface PathParams');
+    expect(operationContent).toContain('export type Response200');
+    expect(operationContent).toContain('export const operation');
   });
 });

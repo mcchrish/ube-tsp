@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
-import { readGeneratedFile } from "./utils.jsx";
-import { compilePetsApi } from "./pets-helpers.jsx";
+import { describe, it, expect } from 'vitest';
+import { readGeneratedFile } from './utils.js';
+import { compilePetsApi } from './pets-helpers.js';
 
-describe("Schema Generation", () => {
-  it("should generate Pet interface in schemas.ts", async () => {
+describe('Schema Generation', () => {
+  it('should generate Pet interface in schemas.ts', async () => {
     const runner = await compilePetsApi(`
       @route("/pets")
       interface Pets {
@@ -12,16 +12,16 @@ describe("Schema Generation", () => {
       }
     `);
 
-    const content = await readGeneratedFile(runner, "api/schemas.ts");
-    
-    expect(content).toContain("export interface Pet");
-    expect(content).toContain("id: number");
-    expect(content).toContain("name: string");
-    expect(content).toContain("tag?: string");
-    expect(content).toContain("status: \"available\" | \"pending\" | \"sold\"");
+    const content = await readGeneratedFile(runner, 'api/schemas.ts');
+
+    expect(content).toContain('export interface Pet');
+    expect(content).toContain('id: number');
+    expect(content).toContain('name: string');
+    expect(content).toContain('tag?: string');
+    expect(content).toContain('status: "available" | "pending" | "sold"');
   });
 
-  it("should generate CreatePetRequest interface in schemas.ts", async () => {
+  it('should generate CreatePetRequest interface in schemas.ts', async () => {
     const runner = await compilePetsApi(`
       @route("/pets")
       interface Pets {
@@ -30,14 +30,14 @@ describe("Schema Generation", () => {
       }
     `);
 
-    const content = await readGeneratedFile(runner, "api/schemas.ts");
-    
-    expect(content).toContain("export interface CreatePetRequest");
-    expect(content).toContain("name: string");
-    expect(content).toContain("tag?: string");
+    const content = await readGeneratedFile(runner, 'api/schemas.ts');
+
+    expect(content).toContain('export interface CreatePetRequest');
+    expect(content).toContain('name: string');
+    expect(content).toContain('tag?: string');
   });
 
-  it("should handle complex nested models", async () => {
+  it('should handle complex nested models', async () => {
     const runner = await compilePetsApi(`
       model Owner {
         id: int32;
@@ -59,11 +59,11 @@ describe("Schema Generation", () => {
       }
     `);
 
-    const content = await readGeneratedFile(runner, "api/schemas.ts");
-    
-    expect(content).toContain("export interface Owner");
-    expect(content).toContain("export interface PetWithOwner");
-    expect(content).toContain("owner: Owner");
-    expect(content).toContain("tags: string[]");
+    const content = await readGeneratedFile(runner, 'api/schemas.ts');
+
+    expect(content).toContain('export interface Owner');
+    expect(content).toContain('export interface PetWithOwner');
+    expect(content).toContain('owner: Owner');
+    expect(content).toContain('tags: string[]');
   });
 });

@@ -1,16 +1,28 @@
-import { Operation, ModelProperty, Program, Type } from "@typespec/compiler";
-import { getHttpOperation, HttpOperation } from "@typespec/http";
-import { getOperationId, getExternalDocs, getExtensions } from "@typespec/openapi";
+import { Operation, ModelProperty, Program, Type } from '@typespec/compiler';
+import { getHttpOperation, HttpOperation } from '@typespec/http';
+import {
+  getOperationId,
+  getExternalDocs,
+  getExtensions,
+} from '@typespec/openapi';
 
 /**
  * HTTP Method types
  */
-export type HTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD" | "OPTIONS" | "TRACE";
+export type HTTPMethod =
+  | 'GET'
+  | 'POST'
+  | 'PUT'
+  | 'PATCH'
+  | 'DELETE'
+  | 'HEAD'
+  | 'OPTIONS'
+  | 'TRACE';
 
 /**
  * Parameter location types
  */
-export type ParameterLocation = "query" | "path" | "header" | "cookie" | "body";
+export type ParameterLocation = 'query' | 'path' | 'header' | 'cookie' | 'body';
 
 /**
  * Parameter information
@@ -55,9 +67,12 @@ export interface OperationInfo {
 /**
  * Extract comprehensive operation information including OpenAPI metadata
  */
-export function extractOperationInfo(program: Program, operation: Operation): OperationInfo {
+export function extractOperationInfo(
+  program: Program,
+  operation: Operation,
+): OperationInfo {
   const httpOperation = getHttpOperation(program, operation);
-  
+
   if (!httpOperation) {
     throw new Error(`Operation ${operation.name} is not an HTTP operation`);
   }
@@ -67,10 +82,10 @@ export function extractOperationInfo(program: Program, operation: Operation): Op
   const extensions = getExtensions(program, operation);
 
   const operationInfo: OperationInfo = {
-    name: operation.name || "unnamed",
+    name: operation.name || 'unnamed',
     operationId,
-    method: (httpOperation[0]?.verb?.toUpperCase() || "GET") as HTTPMethod,
-    path: httpOperation[0]?.path || "",
+    method: (httpOperation[0]?.verb?.toUpperCase() || 'GET') as HTTPMethod,
+    path: httpOperation[0]?.path || '',
     summary: undefined,
     description: undefined,
     parameters: extractParameters(program, operation, httpOperation[0]),
@@ -85,7 +100,11 @@ export function extractOperationInfo(program: Program, operation: Operation): Op
 /**
  * Extract parameter information from operation
  */
-function extractParameters(program: Program, operation: Operation, httpOperation: any): ParameterInfo[] {
+function extractParameters(
+  program: Program,
+  operation: Operation,
+  httpOperation: any,
+): ParameterInfo[] {
   const parameters: ParameterInfo[] = [];
 
   if (!httpOperation || !httpOperation.parameters) {
@@ -94,20 +113,20 @@ function extractParameters(program: Program, operation: Operation, httpOperation
 
   // Extract parameters from HTTP operation metadata
   for (const param of httpOperation.parameters.parameters || []) {
-    let location: ParameterLocation = "query";
-    
+    let location: ParameterLocation = 'query';
+
     switch (param.type) {
-      case "path":
-        location = "path";
+      case 'path':
+        location = 'path';
         break;
-      case "query":
-        location = "query";
+      case 'query':
+        location = 'query';
         break;
-      case "header":
-        location = "header";
+      case 'header':
+        location = 'header';
         break;
-      case "cookie":
-        location = "cookie";
+      case 'cookie':
+        location = 'cookie';
         break;
     }
 
@@ -123,8 +142,8 @@ function extractParameters(program: Program, operation: Operation, httpOperation
   // Handle body parameters
   if (httpOperation.parameters.body) {
     parameters.push({
-      name: "body",
-      location: "body",
+      name: 'body',
+      location: 'body',
       type: httpOperation.parameters.body.type,
       optional: false,
       description: undefined,
@@ -137,7 +156,11 @@ function extractParameters(program: Program, operation: Operation, httpOperation
 /**
  * Extract response information from operation
  */
-function extractResponses(program: Program, operation: Operation, httpOperation: any): ResponseInfo[] {
+function extractResponses(
+  program: Program,
+  operation: Operation,
+  httpOperation: any,
+): ResponseInfo[] {
   const responses: ResponseInfo[] = [];
 
   // Default response
@@ -153,7 +176,9 @@ function extractResponses(program: Program, operation: Operation, httpOperation:
 /**
  * Group parameters by location
  */
-export function groupParametersByLocation(parameters: ParameterInfo[]): Record<ParameterLocation, ParameterInfo[]> {
+export function groupParametersByLocation(
+  parameters: ParameterInfo[],
+): Record<ParameterLocation, ParameterInfo[]> {
   const grouped: Record<ParameterLocation, ParameterInfo[]> = {
     query: [],
     path: [],
@@ -172,15 +197,18 @@ export function groupParametersByLocation(parameters: ParameterInfo[]): Record<P
 /**
  * Check if operation has parameters of a specific location
  */
-export function hasParametersOfLocation(parameters: ParameterInfo[], location: ParameterLocation): boolean {
-  return parameters.some(param => param.location === location);
+export function hasParametersOfLocation(
+  parameters: ParameterInfo[],
+  location: ParameterLocation,
+): boolean {
+  return parameters.some((param) => param.location === location);
 }
 
 /**
  * Get status codes from responses
  */
 export function getStatusCodes(responses: ResponseInfo[]): number[] {
-  return responses.map(r => r.statusCode).sort((a, b) => a - b);
+  return responses.map((r) => r.statusCode).sort((a, b) => a - b);
 }
 
 /**
@@ -193,15 +221,21 @@ export function getUniqueStatusCodes(responses: ResponseInfo[]): number[] {
 /**
  * Check if operation has a specific status code
  */
-export function hasStatusCode(responses: ResponseInfo[], statusCode: number): boolean {
-  return responses.some(r => r.statusCode === statusCode);
+export function hasStatusCode(
+  responses: ResponseInfo[],
+  statusCode: number,
+): boolean {
+  return responses.some((r) => r.statusCode === statusCode);
 }
 
 /**
  * Get response by status code
  */
-export function getResponseByStatusCode(responses: ResponseInfo[], statusCode: number): ResponseInfo | undefined {
-  return responses.find(r => r.statusCode === statusCode);
+export function getResponseByStatusCode(
+  responses: ResponseInfo[],
+  statusCode: number,
+): ResponseInfo | undefined {
+  return responses.find((r) => r.statusCode === statusCode);
 }
 
 /**

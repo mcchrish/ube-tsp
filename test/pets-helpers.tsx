@@ -1,11 +1,8 @@
-import { createTypeScriptEmitterTestRunner } from "./utils.jsx";
+import { createTestRunner } from './utils.js';
 
 export async function compilePetsApi(source: string) {
-  const runner = await createTypeScriptEmitterTestRunner();
+  const runner = await createTestRunner();
   await runner.compile(`
-    import "@typespec/http";
-    using TypeSpec.Http;
-    
     @service
     namespace PetStore;
     
