@@ -1,5 +1,5 @@
-import { Operation, ModelProperty, Program, Type } from '@typespec/compiler';
-import { getHttpOperation, HttpOperation } from '@typespec/http';
+import { Operation, Program, Type } from '@typespec/compiler';
+import { getHttpOperation } from '@typespec/http';
 import {
   getOperationId,
   getExternalDocs,
@@ -142,7 +142,7 @@ function extractParameters(
   // Handle body parameters
   if (httpOperation.parameters.body) {
     parameters.push({
-      name: 'body',
+      name: httpOperation.parameters.body.property?.name || 'body',
       location: 'body',
       type: httpOperation.parameters.body.type,
       optional: false,

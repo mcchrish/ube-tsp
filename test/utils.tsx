@@ -3,7 +3,7 @@ import {
   createTestHost as coreCreateTestHost,
 } from '@typespec/compiler/testing';
 import { HttpTestLibrary } from '@typespec/http/testing';
-import { TypeScriptEmitterTestLibrary } from '../dist/src/testing/index.js';
+import { TypeScriptEmitterTestLibrary } from '../src/testing/index.js';
 
 export async function createTestHost(includeHttp = true) {
   return coreCreateTestHost({
@@ -27,9 +27,9 @@ export async function createTestRunner(
   return createTestWrapper(host, {
     wrapper: (code) => `${importAndUsings} ${code}`,
     compilerOptions: {
-      emit: ['typespec-typescript-emitter'],
+      emit: ['typespec-typescript'],
       options: {
-        'typespec-typescript-emitter': { ...emitterOptions },
+        'typespec-typescript': { ...emitterOptions },
       },
     },
   });

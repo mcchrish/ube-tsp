@@ -1,25 +1,26 @@
-import { Children, Refkey } from '@alloy-js/core';
-import * as ts from '@alloy-js/typescript';
+import { Children } from '@alloy-js/core';
 import { Type } from '@typespec/compiler';
 
 export interface TypeScriptTypeProps {
   readonly type: Type;
-  readonly typeRefkeys?: Map<string, Refkey>;
 }
 
 /**
  * Maps TypeSpec types to TypeScript type expressions
  */
 export function TypeScriptType(props: TypeScriptTypeProps): Children {
-  const { type, typeRefkeys } = props;
+  const { type } = props;
 
   switch (type.kind) {
     case 'Scalar':
       return mapScalarType(type);
     case 'Model':
-      return mapModelType(type, typeRefkeys);
+      return mapModelType(type);
     case 'Union':
-      return mapUnionType(type, typeRefkeys);
+      return mapUnionType(type);
+    case 'Intrinsic':
+      // Handle TypeSpec intrinsic types like void
+      return type.name || 'any';
     default:
       return 'any';
   }
@@ -49,24 +50,29 @@ function mapScalarType(type: any): Children {
   }
 }
 
-function mapModelType(type: any, typeRefkeys?: Map<string, Refkey>): Children {
+function mapModelType(type: any): Children {
   // Handle Array model specially
   if (type.name === 'Array' && type.indexer) {
-    const elementType = mapTypeFromValue(type.indexer.value, typeRefkeys);
-    return `${elementType}[]`;
+    const elementTypeString = mapTypeFromValue(type.indexer.value);
+    return `${elementTypeString}[]`;
   }
 
-  // Check if we have a refkey for this model type
-  if (type.name && typeRefkeys?.has(type.name)) {
-    const refkey = typeRefkeys.get(type.name)!;
-    return <ts.Reference refkey={refkey} />;
+  // For all other models, flatten to inline object type
+  if (type.properties) {
+    const properties = [];
+    for (const [name, prop] of type.properties) {
+      const propType = mapTypeFromValue(prop.type);
+      const optional = prop.optional ? '?' : '';
+      properties.push(`  ${name}${optional}: ${propType};`);
+    }
+    return `{\n${properties.join('\n')}\n}`;
   }
 
-  // Regular model reference
+  // Fallback for models without properties
   return type.name || 'Record<string, unknown>';
 }
 
-function mapUnionType(type: any, typeRefkeys?: Map<string, Refkey>): Children {
+function mapUnionType(type: any): Children {
   const variants = [...type.variants.values()];
 
   const mappedVariants = variants.map((variant) => {
@@ -82,7 +88,7 @@ function mapUnionType(type: any, typeRefkeys?: Map<string, Refkey>): Children {
           return `${variant.type.value}`;
         default:
           // For other types (models, scalars, etc.), use standard mapping
-          return mapTypeFromValue(variant.type, typeRefkeys);
+          return mapTypeFromValue(variant.type);
       }
     }
 
@@ -93,17 +99,16 @@ function mapUnionType(type: any, typeRefkeys?: Map<string, Refkey>): Children {
   return mappedVariants.join(' | ');
 }
 
-function mapTypeFromValue(
-  type: any,
-  typeRefkeys?: Map<string, Refkey>,
-): string {
+function mapTypeFromValue(type: any): string {
   switch (type.kind) {
     case 'Scalar':
       return mapScalarType(type) as string;
     case 'Model':
-      return mapModelType(type, typeRefkeys) as string;
+      return mapModelType(type) as string;
     case 'Union':
-      return mapUnionType(type, typeRefkeys) as string;
+      return mapUnionType(type) as string;
+    case 'Intrinsic':
+      return type.name || 'any';
     default:
       return 'any';
   }

@@ -1,4 +1,4 @@
-import * as ay from '@alloy-js/core';
+// import * as ay from '@alloy-js/core';
 import { ModelProperty } from '@typespec/compiler';
 import { mapTypeSpecToTypeScript } from '../lib.js';
 

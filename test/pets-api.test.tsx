@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readGeneratedFile } from './utils.jsx';
 import { compilePetsApi } from './pets-helpers.jsx';
+import { formatExpectedOperation, EXPECTED_OPERATIONS } from './expected-outputs.js';
 
 describe('Pets API Operations', () => {
   describe('Path Parameters', () => {
@@ -18,11 +19,8 @@ describe('Pets API Operations', () => {
         'api/operations/getPet.ts',
       );
 
-      expect(content).toContain("export const operationId = 'getPet' as const");
-      expect(content).toContain("export const method = 'GET' as const");
-      expect(content).toContain("export const path = '/pets/{petId}' as const");
-      expect(content).toContain('export interface PathParams');
-      expect(content).toContain('petId: number');
+      const expected = formatExpectedOperation(EXPECTED_OPERATIONS.getPet());
+      expect(content.trim()).toBe(expected.trim());
     });
   });
 
@@ -41,14 +39,8 @@ describe('Pets API Operations', () => {
         'api/operations/listPets.ts',
       );
 
-      expect(content).toContain(
-        "export const operationId = 'listPets' as const",
-      );
-      expect(content).toContain("export const method = 'GET' as const");
-      expect(content).toContain("export const path = '/pets' as const");
-      expect(content).toContain('export interface QueryParams');
-      expect(content).toContain('status?: string');
-      expect(content).toContain('limit?: number');
+      const expected = formatExpectedOperation(EXPECTED_OPERATIONS.listPets());
+      expect(content.trim()).toBe(expected.trim());
     });
   });
 
@@ -67,13 +59,8 @@ describe('Pets API Operations', () => {
         'api/operations/createPet.ts',
       );
 
-      expect(content).toContain(
-        "export const operationId = 'createPet' as const",
-      );
-      expect(content).toContain("export const method = 'POST' as const");
-      expect(content).toContain("export const path = '/pets' as const");
-      expect(content).toContain('export interface RequestBody');
-      expect(content).toContain('pet: CreatePetRequest');
+      const expected = formatExpectedOperation(EXPECTED_OPERATIONS.createPet());
+      expect(content.trim()).toBe(expected.trim());
     });
 
     it('should generate RequestBody interface for updatePet operation', async () => {
@@ -90,15 +77,8 @@ describe('Pets API Operations', () => {
         'api/operations/updatePet.ts',
       );
 
-      expect(content).toContain(
-        "export const operationId = 'updatePet' as const",
-      );
-      expect(content).toContain("export const method = 'PUT' as const");
-      expect(content).toContain("export const path = '/pets/{petId}' as const");
-      expect(content).toContain('export interface PathParams');
-      expect(content).toContain('petId: number');
-      expect(content).toContain('export interface RequestBody');
-      expect(content).toContain('pet: Pet');
+      const expected = formatExpectedOperation(EXPECTED_OPERATIONS.updatePet());
+      expect(content.trim()).toBe(expected.trim());
     });
   });
 
@@ -118,15 +98,8 @@ describe('Pets API Operations', () => {
         'api/operations/searchPets.ts',
       );
 
-      expect(content).toContain(
-        "export const operationId = 'searchPets' as const",
-      );
-      expect(content).toContain("export const method = 'GET' as const");
-      expect(content).toContain("export const path = '/pets/search' as const");
-      expect(content).toContain('export interface HeaderParams');
-      expect(content).toContain('authorization: string');
-      expect(content).toContain('export interface QueryParams');
-      expect(content).toContain('q: string');
+      const expected = formatExpectedOperation(EXPECTED_OPERATIONS.searchPets());
+      expect(content.trim()).toBe(expected.trim());
     });
   });
 
@@ -150,19 +123,35 @@ describe('Pets API Operations', () => {
         runner,
         'api/operations/getPet.ts',
       );
-      expect(getPetContent).toContain('export type Response200 = Pet');
+      const expectedGetPet = formatExpectedOperation(EXPECTED_OPERATIONS.getPet());
+      expect(getPetContent.trim()).toBe(expectedGetPet.trim());
 
+      // Create a simple listPets expectation for this test (no query params)
+      const expectedListPets = formatExpectedOperation({
+        imports: ['import type { Pet } from "../schemas.js";'],
+        operationId: 'listPets',
+        method: 'GET',
+        path: '/pets',
+        responseType: 'Pet[]',
+        operationConfig: {
+          operationId: 'listPets',
+          method: 'GET',
+          path: '/pets',
+          responses: [200]
+        }
+      });
       const listPetsContent = await readGeneratedFile(
         runner,
         'api/operations/listPets.ts',
       );
-      expect(listPetsContent).toContain('export type Response200 = Pet[]');
+      expect(listPetsContent.trim()).toBe(expectedListPets.trim());
 
       const deletePetContent = await readGeneratedFile(
         runner,
         'api/operations/deletePet.ts',
       );
-      expect(deletePetContent).toContain('export type Response200 = void');
+      const expectedDeletePet = formatExpectedOperation(EXPECTED_OPERATIONS.deletePet());
+      expect(deletePetContent.trim()).toBe(expectedDeletePet.trim());
     });
   });
 
@@ -181,14 +170,8 @@ describe('Pets API Operations', () => {
         'api/operations/getPet.ts',
       );
 
-      expect(content).toContain('export const operation = {');
-      expect(content).toContain("operationId: 'getPet'");
-      expect(content).toContain("method: 'GET'");
-      expect(content).toContain("path: '/pets/{petId}'");
-      expect(content).toContain('parameters: {');
-      expect(content).toContain('path: true');
-      expect(content).toContain('responses: [200]');
-      expect(content).toContain('} as const');
+      const expected = formatExpectedOperation(EXPECTED_OPERATIONS.getPet());
+      expect(content.trim()).toBe(expected.trim());
     });
   });
 });

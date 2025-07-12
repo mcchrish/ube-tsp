@@ -8,7 +8,7 @@ import {
 } from '@typespec/compiler';
 
 export const $lib = createTypeSpecLibrary({
-  name: 'typespec-typescript-emitter',
+  name: 'ts-sketch',
   diagnostics: {},
 });
 

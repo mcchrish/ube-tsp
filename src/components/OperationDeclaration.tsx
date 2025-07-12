@@ -12,30 +12,16 @@ import { TypeScriptType } from './TypeScriptType.jsx';
 export interface OperationDeclarationProps {
   readonly operation: Operation;
   readonly program: Program;
-  readonly typeRefkeys: Map<string, Refkey>;
 }
 
 /**
  * Generates operation files with comprehensive method details, parameters, and response types
  */
 export function OperationDeclaration(props: OperationDeclarationProps) {
-  const { operation, program, typeRefkeys } = props;
+  const { operation, program } = props;
 
   const operationInfo = extractOperationInfo(program, operation);
   const groupedParams = groupParametersByLocation(operationInfo.parameters);
-
-  // Collect referenced types for imports
-  const referencedTypes = new Set<string>();
-
-  // Check response types for referenced models
-  operationInfo.responses.forEach((response) => {
-    if (response.type.kind === 'Model' && response.type.name) {
-      referencedTypes.add(response.type.name);
-    }
-  });
-
-  // TODO: Add imports for referenced types like Pet
-  // For now, skip import generation due to API uncertainty
 
   const elements = [];
 
@@ -72,7 +58,7 @@ export function OperationDeclaration(props: OperationDeclarationProps) {
             <ts.InterfaceMember
               name={param.name}
               type={
-                <TypeScriptType type={param.type} typeRefkeys={typeRefkeys} />
+                <TypeScriptType type={param.type} />
               }
               optional={param.optional}
             />
@@ -90,7 +76,7 @@ export function OperationDeclaration(props: OperationDeclarationProps) {
             <ts.InterfaceMember
               name={param.name}
               type={
-                <TypeScriptType type={param.type} typeRefkeys={typeRefkeys} />
+                <TypeScriptType type={param.type} />
               }
               optional={param.optional}
             />
@@ -108,7 +94,7 @@ export function OperationDeclaration(props: OperationDeclarationProps) {
             <ts.InterfaceMember
               name={param.name}
               type={
-                <TypeScriptType type={param.type} typeRefkeys={typeRefkeys} />
+                <TypeScriptType type={param.type} />
               }
               optional={param.optional}
             />
@@ -126,7 +112,7 @@ export function OperationDeclaration(props: OperationDeclarationProps) {
             <ts.InterfaceMember
               name={param.name}
               type={
-                <TypeScriptType type={param.type} typeRefkeys={typeRefkeys} />
+                <TypeScriptType type={param.type} />
               }
               optional={param.optional}
             />
@@ -140,30 +126,57 @@ export function OperationDeclaration(props: OperationDeclarationProps) {
   operationInfo.responses.forEach((response) => {
     elements.push(
       <ts.TypeDeclaration name={`Response${response.statusCode}`} export>
-        <TypeScriptType type={response.type} typeRefkeys={typeRefkeys} />
+        <TypeScriptType type={response.type} />
       </ts.TypeDeclaration>,
     );
   });
 
   // Add operation configuration
+  const operationParts = [
+    `operationId: '${operationInfo.operationId || operationInfo.name}',`,
+    `method: '${operationInfo.method}',`,
+    `path: '${operationInfo.path}',`,
+  ];
+
+  if (operationInfo.summary) {
+    operationParts.push(`summary: '${operationInfo.summary}',`);
+  }
+  if (operationInfo.description) {
+    operationParts.push(`description: '${operationInfo.description}',`);
+  }
+  if (operationInfo.tags?.length) {
+    operationParts.push(`tags: [${operationInfo.tags.map((t) => `'${t}'`).join(', ')}],`);
+  }
+
+  const parameterParts = [];
+  if (hasParametersOfLocation(operationInfo.parameters, 'path')) {
+    parameterParts.push('path: true,');
+  }
+  if (hasParametersOfLocation(operationInfo.parameters, 'query')) {
+    parameterParts.push('query: true,');
+  }
+  if (hasParametersOfLocation(operationInfo.parameters, 'header')) {
+    parameterParts.push('header: true,');
+  }
+  if (hasParametersOfLocation(operationInfo.parameters, 'body')) {
+    parameterParts.push('body: true,');
+  }
+
+  operationParts.push(`parameters: {
+    ${parameterParts.join('\n    ')}
+  },`);
+
+  operationParts.push(`responses: [${operationInfo.responses.map((r) => r.statusCode).join(', ')}],`);
+
+  if (operationInfo.externalDocs) {
+    operationParts.push(`externalDocs: { url: '${operationInfo.externalDocs.url}', description: '${operationInfo.externalDocs.description || ''}' },`);
+  }
+
   elements.push(
     <ts.VarDeclaration
       name="operation"
       initializer={`{
-  operationId: '${operationInfo.operationId || operationInfo.name}',
-  method: '${operationInfo.method}',
-  path: '${operationInfo.path}',
-  ${operationInfo.summary ? `summary: '${operationInfo.summary}',` : ''}
-  ${operationInfo.description ? `description: '${operationInfo.description}',` : ''}
-  ${operationInfo.tags?.length ? `tags: [${operationInfo.tags.map((t) => `'${t}'`).join(', ')}],` : ''}
-  parameters: {
-    ${hasParametersOfLocation(operationInfo.parameters, 'path') ? 'path: true,' : ''}
-    ${hasParametersOfLocation(operationInfo.parameters, 'query') ? 'query: true,' : ''}
-    ${hasParametersOfLocation(operationInfo.parameters, 'header') ? 'header: true,' : ''}
-    ${hasParametersOfLocation(operationInfo.parameters, 'body') ? 'body: true,' : ''}
-  },
-  responses: [${operationInfo.responses.map((r) => r.statusCode).join(', ')}],
-  ${operationInfo.externalDocs ? `externalDocs: { url: '${operationInfo.externalDocs.url}', description: '${operationInfo.externalDocs.description || ''}' },` : ''}
+  ${operationParts.join('\n  ')}
 } as const`}
       const
       export
