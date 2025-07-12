@@ -73,15 +73,19 @@ export function extractOperationInfo(
 ): OperationInfo {
   const [httpOperation] = getHttpOperation(program, operation);
 
-  const operationId = getOperationId(program, operation);
+  const operationId =
+    getOperationId(program, operation) ??
+    (operation.namespace?.name
+      ? `${operation.namespace.name}_${operation.name}`
+      : operation.name);
   const externalDocs = getExternalDocs(program, operation);
   const extensions = getExtensions(program, operation);
 
   const operationInfo: OperationInfo = {
-    name: operation.name || 'unnamed',
+    name: operation.name,
     operationId,
-    method: (httpOperation.verb?.toUpperCase() || 'GET') as HTTPMethod,
-    path: httpOperation.path || '',
+    method: httpOperation.verb.toUpperCase() as HTTPMethod,
+    path: httpOperation.path,
     summary: undefined,
     description: undefined,
     parameters: extractParameters(httpOperation),
@@ -104,7 +108,7 @@ function extractParameters(httpOperation: HttpOperation): ParameterInfo[] {
   }
 
   // Extract parameters from HTTP operation metadata
-  for (const param of httpOperation.parameters.parameters || []) {
+  for (const param of httpOperation.parameters.parameters) {
     let location: ParameterLocation = 'query';
 
     switch (param.type) {

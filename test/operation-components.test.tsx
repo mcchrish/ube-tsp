@@ -4,10 +4,6 @@ import {
   readAndValidateSection,
   createEmitterTestRunner,
 } from './utils.jsx';
-import {
-  EXPECTED_OPERATIONS,
-  EXPECTED_SECTIONS,
-} from './expected-operations.js';
 
 describe('Operation Components', () => {
   describe('Complete Operation Validation', () => {
@@ -33,11 +29,27 @@ describe('Operation Components', () => {
         }
       `);
 
-      await readAndValidateComplete(
-        runner,
-        'createPet',
-        EXPECTED_OPERATIONS.createPet,
-      );
+      const expectedOutput = `export interface CreatePetTypes {
+  pathParams?: never;
+  queryParams?: never;
+  headers?: never;
+  body: { pet: { name: string; tag?: string } };
+  responses: { 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" } };
+};
+export const createPet = {
+  operationId: 'createPet',
+  method: 'POST' as const,
+  path: '/pets',
+  parameterTypes: {
+    hasPathParams: false,
+    hasQueryParams: false,
+    hasHeaders: false,
+    hasBody: true
+  },
+  statusCodes: [200]
+} as const;`;
+
+      await readAndValidateComplete(runner, 'createPet', expectedOutput);
     });
 
     it('should generate complete GetPet operation exactly', async () => {
@@ -57,11 +69,27 @@ describe('Operation Components', () => {
         }
       `);
 
-      await readAndValidateComplete(
-        runner,
-        'getPet',
-        EXPECTED_OPERATIONS.getPet,
-      );
+      const expectedOutput = `export interface GetPetTypes {
+  pathParams: { petId: number };
+  queryParams?: never;
+  headers?: never;
+  body?: never;
+  responses: { 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" } };
+};
+export const getPet = {
+  operationId: 'getPet',
+  method: 'GET' as const,
+  path: '/pets/{petId}',
+  parameterTypes: {
+    hasPathParams: true,
+    hasQueryParams: false,
+    hasHeaders: false,
+    hasBody: false
+  },
+  statusCodes: [200]
+} as const;`;
+
+      await readAndValidateComplete(runner, 'getPet', expectedOutput);
     });
 
     it('should generate complete UpdatePet operation exactly', async () => {
@@ -81,11 +109,27 @@ describe('Operation Components', () => {
         }
       `);
 
-      await readAndValidateComplete(
-        runner,
-        'updatePet',
-        EXPECTED_OPERATIONS.updatePet,
-      );
+      const expectedOutput = `export interface UpdatePetTypes {
+  pathParams: { petId: number };
+  queryParams?: never;
+  headers?: never;
+  body: { pet: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" } };
+  responses: { 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" } };
+};
+export const updatePet = {
+  operationId: 'updatePet',
+  method: 'PUT' as const,
+  path: '/pets/{petId}',
+  parameterTypes: {
+    hasPathParams: true,
+    hasQueryParams: false,
+    hasHeaders: false,
+    hasBody: true
+  },
+  statusCodes: [200]
+} as const;`;
+
+      await readAndValidateComplete(runner, 'updatePet', expectedOutput);
     });
 
     it('should generate complete DeletePet operation exactly', async () => {
@@ -98,11 +142,27 @@ describe('Operation Components', () => {
         }
       `);
 
-      await readAndValidateComplete(
-        runner,
-        'deletePet',
-        EXPECTED_OPERATIONS.deletePet,
-      );
+      const expectedOutput = `export interface DeletePetTypes {
+  pathParams: { petId: number };
+  queryParams?: never;
+  headers?: never;
+  body?: never;
+  responses: { 204: void };
+};
+export const deletePet = {
+  operationId: 'deletePet',
+  method: 'DELETE' as const,
+  path: '/pets/{petId}',
+  parameterTypes: {
+    hasPathParams: true,
+    hasQueryParams: false,
+    hasHeaders: false,
+    hasBody: false
+  },
+  statusCodes: [204]
+} as const;`;
+
+      await readAndValidateComplete(runner, 'deletePet', expectedOutput);
     });
 
     it('should generate complete ListPets operation with query parameters exactly', async () => {
@@ -122,11 +182,27 @@ describe('Operation Components', () => {
         }
       `);
 
-      await readAndValidateComplete(
-        runner,
-        'listPets',
-        EXPECTED_OPERATIONS.listPets,
-      );
+      const expectedOutput = `export interface ListPetsTypes {
+  pathParams?: never;
+  queryParams: { status?: string; limit?: number };
+  headers?: never;
+  body?: never;
+  responses: { 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" }[] };
+};
+export const listPets = {
+  operationId: 'listPets',
+  method: 'GET' as const,
+  path: '/pets',
+  parameterTypes: {
+    hasPathParams: false,
+    hasQueryParams: true,
+    hasHeaders: false,
+    hasBody: false
+  },
+  statusCodes: [200]
+} as const;`;
+
+      await readAndValidateComplete(runner, 'listPets', expectedOutput);
     });
 
     it('should generate complete SearchPets operation with query and header parameters exactly', async () => {
@@ -150,11 +226,27 @@ describe('Operation Components', () => {
         }
       `);
 
-      await readAndValidateComplete(
-        runner,
-        'searchPets',
-        EXPECTED_OPERATIONS.searchPets,
-      );
+      const expectedOutput = `export interface SearchPetsTypes {
+  pathParams?: never;
+  queryParams: { q: string; category?: string };
+  headers: { authorization: string };
+  body?: never;
+  responses: { 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" }[] };
+};
+export const searchPets = {
+  operationId: 'searchPets',
+  method: 'GET' as const,
+  path: '/pets/search',
+  parameterTypes: {
+    hasPathParams: false,
+    hasQueryParams: true,
+    hasHeaders: true,
+    hasBody: false
+  },
+  statusCodes: [200]
+} as const;`;
+
+      await readAndValidateComplete(runner, 'searchPets', expectedOutput);
     });
   });
 
@@ -181,10 +273,18 @@ describe('Operation Components', () => {
         }
       `);
 
+      const expectedInterfaceSection = `export interface CreatePetTypes {
+  pathParams?: never;
+  queryParams?: never;
+  headers?: never;
+  body: { pet: { name: string; tag?: string } };
+  responses: { 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" } };
+};`;
+
       await readAndValidateSection(
         runner,
         'createPet',
-        EXPECTED_SECTIONS.createPetInterface,
+        expectedInterfaceSection,
         'interface section',
       );
     });
@@ -206,10 +306,18 @@ describe('Operation Components', () => {
         }
       `);
 
+      const expectedInterfaceSection = `export interface GetPetTypes {
+  pathParams: { petId: number };
+  queryParams?: never;
+  headers?: never;
+  body?: never;
+  responses: { 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" } };
+};`;
+
       await readAndValidateSection(
         runner,
         'getPet',
-        EXPECTED_SECTIONS.getPetInterface,
+        expectedInterfaceSection,
         'interface section',
       );
     });
@@ -238,10 +346,23 @@ describe('Operation Components', () => {
         }
       `);
 
+      const expectedConfigSection = `export const createPet = {
+  operationId: 'createPet',
+  method: 'POST' as const,
+  path: '/pets',
+  parameterTypes: {
+    hasPathParams: false,
+    hasQueryParams: false,
+    hasHeaders: false,
+    hasBody: true
+  },
+  statusCodes: [200]
+} as const;`;
+
       await readAndValidateSection(
         runner,
         'createPet',
-        EXPECTED_SECTIONS.createPetConfig,
+        expectedConfigSection,
         'config section',
       );
     });
@@ -270,10 +391,17 @@ describe('Operation Components', () => {
         }
       `);
 
+      const expectedParameterTypesSection = `parameterTypes: {
+    hasPathParams: false,
+    hasQueryParams: false,
+    hasHeaders: false,
+    hasBody: true
+  }`;
+
       await readAndValidateSection(
         runner,
         'createPet',
-        EXPECTED_SECTIONS.parameterTypesWithBody,
+        expectedParameterTypesSection,
         'parameterTypes section',
       );
     });
@@ -295,10 +423,17 @@ describe('Operation Components', () => {
         }
       `);
 
+      const expectedParameterTypesSection = `parameterTypes: {
+    hasPathParams: true,
+    hasQueryParams: false,
+    hasHeaders: false,
+    hasBody: false
+  }`;
+
       await readAndValidateSection(
         runner,
         'getPet',
-        EXPECTED_SECTIONS.parameterTypesWithPath,
+        expectedParameterTypesSection,
         'parameterTypes section',
       );
     });
@@ -320,10 +455,17 @@ describe('Operation Components', () => {
         }
       `);
 
+      const expectedParameterTypesSection = `parameterTypes: {
+    hasPathParams: false,
+    hasQueryParams: true,
+    hasHeaders: false,
+    hasBody: false
+  }`;
+
       await readAndValidateSection(
         runner,
         'listPets',
-        EXPECTED_SECTIONS.parameterTypesWithQuery,
+        expectedParameterTypesSection,
         'parameterTypes section',
       );
     });
@@ -345,12 +487,20 @@ describe('Operation Components', () => {
         }
       `);
 
+      const expectedParameterTypesSection = `parameterTypes: {
+    hasPathParams: true,
+    hasQueryParams: false,
+    hasHeaders: false,
+    hasBody: true
+  }`;
+
       await readAndValidateSection(
         runner,
         'updatePet',
-        EXPECTED_SECTIONS.parameterTypesWithPathAndBody,
+        expectedParameterTypesSection,
         'parameterTypes section',
       );
     });
   });
 });
+

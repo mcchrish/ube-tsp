@@ -102,21 +102,17 @@ function createParameterMember(
  * Creates a response member using proper Alloy patterns with support for multiple status codes
  */
 function createResponseMember(responses: ResponseInfo[]) {
-  let responseType: string;
+  let responseType: ay.Children;
 
   if (responses.length === 0) {
-    responseType = '{ 200: void }';
-  } else if (responses.length === 1) {
-    // Single response - maintain backward compatibility
-    const response = responses[0];
-    responseType = `{ ${response.statusCode}: ${mapTypeSpecToTypeScript(response.type)} }`;
+    responseType = <ts.InterfaceMember name="200" type="void" />;
   } else {
-    // Multiple responses - generate object with all status codes
-    const responseEntries = responses.map(
-      (response) =>
-        `${response.statusCode}: ${mapTypeSpecToTypeScript(response.type)}`,
-    );
-    responseType = `{ ${responseEntries.join('; ')} }`;
+    responseType = responses.map((response) => (
+      <ts.InterfaceMember
+        name={response.statusCode.toString()}
+        type={mapTypeSpecToTypeScript(response.type)}
+      />
+    ));
   }
 
   return (

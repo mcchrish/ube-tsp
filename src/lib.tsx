@@ -1,3 +1,5 @@
+import { Children } from '@alloy-js/core';
+import { ArrayExpression } from '@alloy-js/typescript';
 import {
   Type,
   EmitContext,
@@ -14,11 +16,15 @@ export const $lib = createTypeSpecLibrary({
 
 export const { reportDiagnostic, createDiagnostic } = $lib;
 
-export function mapTypeSpecToTypeScript(type: Type): string {
+export function mapTypeSpecToTypeScript(type: Type): Children {
   switch (type.kind) {
     case 'Model':
       if (type.name === 'Array' && type.indexer) {
-        return `${mapTypeSpecToTypeScript(type.indexer.value)}[]`;
+        return (
+          <ArrayExpression>
+            {mapTypeSpecToTypeScript(type.indexer.value)}
+          </ArrayExpression>
+        );
       }
       return type.name || 'Record<string, unknown>';
     case 'Scalar':
