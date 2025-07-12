@@ -35,11 +35,15 @@ export async function $onEmit(context: EmitContext) {
 
 
 /**
- * Collects all the operations defined in the spec
+ * Collects all user-defined operations from the TypeSpec program
+ * Filters out built-in library operations and focuses on API definitions
  */
 function getAllOperations(program: Program): Operation[] {
   const operations: Operation[] = [];
 
+  /**
+   * Collects operations that have valid names for code generation
+   */
   function collectOperation(operation: Operation) {
     if (operation.name) {
       operations.push(operation);
@@ -48,11 +52,13 @@ function getAllOperations(program: Program): Operation[] {
 
   const globalNs = program.getGlobalNamespaceType();
 
+  // Navigate the program to find all operations, excluding built-in libraries
   navigateProgram(
     program,
     {
-      namespace(n) {
-        if (n !== globalNs && !$(program).type.isUserDefined(n)) {
+      namespace(namespace) {
+        // Skip built-in namespaces to avoid generating code for library types
+        if (namespace !== globalNs && !$(program).type.isUserDefined(namespace)) {
           return ListenerFlow.NoRecursion;
         }
       },

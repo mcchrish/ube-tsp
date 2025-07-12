@@ -1,4 +1,5 @@
 import { Children } from '@alloy-js/core';
+import * as ts from '@alloy-js/typescript';
 import { Type } from '@typespec/compiler';
 
 export interface TypeScriptTypeProps {
@@ -6,11 +7,18 @@ export interface TypeScriptTypeProps {
 }
 
 /**
- * Maps TypeSpec types to TypeScript type expressions
+ * Maps TypeSpec types to TypeScript type expressions using proper Alloy patterns
  */
 export function TypeScriptType(props: TypeScriptTypeProps): Children {
   const { type } = props;
 
+  return mapTypeToAlloyComponent(type);
+}
+
+/**
+ * Core type mapping function that returns appropriate Alloy components or strings
+ */
+function mapTypeToAlloyComponent(type: any): Children {
   switch (type.kind) {
     case 'Scalar':
       return mapScalarType(type);
@@ -51,21 +59,21 @@ function mapScalarType(type: any): Children {
 }
 
 function mapModelType(type: any): Children {
-  // Handle Array model specially
+  // Handle Array model specially - use string format for inline types
   if (type.name === 'Array' && type.indexer) {
-    const elementTypeString = mapTypeFromValue(type.indexer.value);
+    const elementTypeString = mapTypeToString(type.indexer.value);
     return `${elementTypeString}[]`;
   }
 
-  // For all other models, flatten to inline object type
+  // For all other models, create inline object type with proper formatting
   if (type.properties) {
     const properties = [];
     for (const [name, prop] of type.properties) {
-      const propType = mapTypeFromValue(prop.type);
+      const propType = mapTypeToString(prop.type);
       const optional = prop.optional ? '?' : '';
-      properties.push(`  ${name}${optional}: ${propType};`);
+      properties.push(`${name}${optional}: ${propType}`);
     }
-    return `{\n${properties.join('\n')}\n}`;
+    return `{ ${properties.join('; ')} }`;
   }
 
   // Fallback for models without properties
@@ -88,7 +96,7 @@ function mapUnionType(type: any): Children {
           return `${variant.type.value}`;
         default:
           // For other types (models, scalars, etc.), use standard mapping
-          return mapTypeFromValue(variant.type);
+          return mapTypeToString(variant.type);
       }
     }
 
@@ -99,17 +107,19 @@ function mapUnionType(type: any): Children {
   return mappedVariants.join(' | ');
 }
 
+/**
+ * Helper function that always returns string representation of types
+ * Used when we need consistent string output for inline type generation
+ */
+function mapTypeToString(type: any): string {
+  const result = mapTypeToAlloyComponent(type);
+  return typeof result === 'string' ? result : String(result);
+}
+
+/**
+ * Legacy function for backward compatibility
+ * @deprecated Use mapTypeToString instead
+ */
 function mapTypeFromValue(type: any): string {
-  switch (type.kind) {
-    case 'Scalar':
-      return mapScalarType(type) as string;
-    case 'Model':
-      return mapModelType(type) as string;
-    case 'Union':
-      return mapUnionType(type) as string;
-    case 'Intrinsic':
-      return type.name || 'any';
-    default:
-      return 'any';
-  }
+  return mapTypeToString(type);
 }
