@@ -1,12 +1,24 @@
 import * as ts from '@alloy-js/typescript';
 import * as ay from '@alloy-js/core';
-import { Operation, Program } from '@typespec/compiler';
+import { Operation, Program, Type } from '@typespec/compiler';
 import {
   extractOperationInfo,
   groupParametersByLocation,
   hasParametersOfLocation,
 } from '../openapi-utils.js';
 import { TypeScriptType } from './TypeScriptType.jsx';
+
+// Import the ParameterInfo type from openapi-utils
+import type { ParameterInfo, ResponseInfo } from '../openapi-utils.js';
+
+interface OperationInfo {
+  operationId?: string;
+  name: string;
+  method: string;
+  path: string;
+  parameters: ParameterInfo[];
+  responses: ResponseInfo[];
+}
 
 export interface OperationDeclarationProps {
   readonly operation: Operation;
@@ -55,7 +67,7 @@ export function OperationDeclaration(props: OperationDeclarationProps) {
 /**
  * Creates a parameter member for the interface using proper Alloy patterns
  */
-function createParameterMember(name: string, params: any[], hasParams: boolean) {
+function createParameterMember(name: string, params: ParameterInfo[], hasParams: boolean) {
   if (hasParams && params.length > 0) {
     const parameterType = createParameterObjectType(params);
     return (
@@ -79,7 +91,7 @@ function createParameterMember(name: string, params: any[], hasParams: boolean) 
 /**
  * Creates a response member using proper Alloy patterns
  */
-function createResponseMember(responses: any[]) {
+function createResponseMember(responses: ResponseInfo[]) {
   const responseType = responses.length > 0 
     ? `{ 200: ${getTypeString(responses[0].type)} }`
     : '{ 200: void }';
@@ -96,7 +108,7 @@ function createResponseMember(responses: any[]) {
 /**
  * Creates a parameter object type string from parameter array
  */
-function createParameterObjectType(params: any[]): string {
+function createParameterObjectType(params: ParameterInfo[]): string {
   const properties = params.map(param => {
     const optional = param.optional ? '?' : '';
     return `${param.name}${optional}: ${getTypeString(param.type)}`;
@@ -108,14 +120,14 @@ function createParameterObjectType(params: any[]): string {
  * Helper function to get TypeScript type string from TypeSpec type
  * (Reusing TypeScriptType component logic as string)
  */
-function getTypeString(type: any): string {
+function getTypeString(type: Type): string {
   return TypeScriptType({ type }) as string;
 }
 
 /**
  * Creates the runtime config object using structured Alloy components
  */
-function createConfigObject(operationInfo: any): string {
+function createConfigObject(operationInfo: OperationInfo): string {
   return `{
   operationId: '${operationInfo.operationId || operationInfo.name}',
   method: '${operationInfo.method}' as const,

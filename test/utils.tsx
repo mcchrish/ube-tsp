@@ -5,6 +5,16 @@ import {
 import { HttpTestLibrary } from '@typespec/http/testing';
 import { TypeScriptEmitterTestLibrary } from '../src/testing/index.js';
 
+// Type for the test runner object
+interface TestRunner {
+  program: {
+    host: {
+      readFile: (path: string) => Promise<{ text: string }>;
+    };
+  };
+  compile: (code: string) => Promise<void>;
+}
+
 export async function createTestHost(includeHttp = true) {
   return coreCreateTestHost({
     libraries: [
@@ -36,7 +46,7 @@ export async function createTestRunner(
 }
 
 export async function readGeneratedFile(
-  runner: any,
+  runner: TestRunner,
   path: string,
 ): Promise<string> {
   const { text } = await runner.program.host.readFile(
@@ -49,7 +59,7 @@ export async function readGeneratedFile(
  * Read a specific operation file
  */
 export async function readOperationFile(
-  runner: any,
+  runner: TestRunner,
   operationName: string,
 ): Promise<string> {
   return readGeneratedFile(runner, `api/operations/${operationName}.ts`);
@@ -207,7 +217,7 @@ ${actualOutput}`);
  * Read operation file and validate it matches expected output exactly
  */
 export async function readAndValidateComplete(
-  runner: any,
+  runner: TestRunner,
   operationName: string,
   expectedOutput: string
 ): Promise<void> {
@@ -219,7 +229,7 @@ export async function readAndValidateComplete(
  * Read operation file and validate a specific section appears correctly
  */
 export async function readAndValidateSection(
-  runner: any,
+  runner: TestRunner,
   operationName: string,
   expectedSection: string,
   sectionDescription: string

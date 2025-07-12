@@ -83,7 +83,7 @@ function UnionType(props: {
   refkey?: Refkey;
   export?: boolean;
 }) {
-  const { union, name, refkey, export: shouldExport } = props;
+  const { name, refkey, export: shouldExport } = props;
 
   return (
     <ts.TypeDeclaration

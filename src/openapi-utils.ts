@@ -103,6 +103,7 @@ export function extractOperationInfo(
 function extractParameters(
   program: Program,
   operation: Operation,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   httpOperation: any,
 ): ParameterInfo[] {
   const parameters: ParameterInfo[] = [];
@@ -159,6 +160,7 @@ function extractParameters(
 function extractResponses(
   program: Program,
   operation: Operation,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   httpOperation: any,
 ): ResponseInfo[] {
   const responses: ResponseInfo[] = [];

@@ -1,5 +1,4 @@
 import { Children } from '@alloy-js/core';
-import * as ts from '@alloy-js/typescript';
 import { Type } from '@typespec/compiler';
 
 export interface TypeScriptTypeProps {
@@ -18,7 +17,7 @@ export function TypeScriptType(props: TypeScriptTypeProps): Children {
 /**
  * Core type mapping function that returns appropriate Alloy components or strings
  */
-function mapTypeToAlloyComponent(type: any): Children {
+function mapTypeToAlloyComponent(type: Type): Children {
   switch (type.kind) {
     case 'Scalar':
       return mapScalarType(type);
@@ -34,7 +33,7 @@ function mapTypeToAlloyComponent(type: any): Children {
   }
 }
 
-function mapScalarType(type: any): Children {
+function mapScalarType(type: Type & { name?: string }): Children {
   switch (type.name) {
     case 'string':
       return 'string';
@@ -58,7 +57,8 @@ function mapScalarType(type: any): Children {
   }
 }
 
-function mapModelType(type: any): Children {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapModelType(type: Type & { name?: string; indexer?: any; properties?: Map<string, any> }): Children {
   // Handle Array model specially - use string format for inline types
   if (type.name === 'Array' && type.indexer) {
     const elementTypeString = mapTypeToString(type.indexer.value);
@@ -80,7 +80,8 @@ function mapModelType(type: any): Children {
   return type.name || 'Record<string, unknown>';
 }
 
-function mapUnionType(type: any): Children {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapUnionType(type: Type & { variants: Map<string | symbol, any> }): Children {
   const variants = [...type.variants.values()];
 
   const mappedVariants = variants.map((variant) => {
@@ -111,15 +112,8 @@ function mapUnionType(type: any): Children {
  * Helper function that always returns string representation of types
  * Used when we need consistent string output for inline type generation
  */
-function mapTypeToString(type: any): string {
+function mapTypeToString(type: Type): string {
   const result = mapTypeToAlloyComponent(type);
   return typeof result === 'string' ? result : String(result);
 }
 
-/**
- * Legacy function for backward compatibility
- * @deprecated Use mapTypeToString instead
- */
-function mapTypeFromValue(type: any): string {
-  return mapTypeToString(type);
-}
