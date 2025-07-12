@@ -9,7 +9,7 @@ import {
 } from '@typespec/compiler';
 import { $ } from '@typespec/compiler/typekit';
 import { Output, writeOutput } from '@typespec/emitter-framework';
-import { OperationDeclaration } from './components/OperationDeclaration.jsx';
+import { OperationDeclaration } from './components/operation-declaration.jsx';
 
 export async function $onEmit(context: EmitContext) {
   const operations = getAllOperations(context.program);

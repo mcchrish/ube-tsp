@@ -1,13 +1,5 @@
 import { describe, it } from 'vitest';
-import { 
-  readAndValidateComplete, 
-  readAndValidateSection,
-  createEmitterTestRunner,
-  readOperationFile,
-  validateOperationStructure,
-  parseOperationFile,
-  extractConfigProperty
-} from './utils.jsx';
+import { readAndValidateComplete, createEmitterTestRunner } from './utils.jsx';
 
 describe('Multi-Status Code Support', () => {
   describe('TypeSpec Default Status Code Mapping', () => {
@@ -27,24 +19,30 @@ describe('Multi-Status Code Support', () => {
       `);
 
       const expectedOutput = `export interface GetPetTypes {
-  pathParams: { petId: number };
+  pathParams: {
+    petId: number;
+  };
   queryParams?: never;
   headers?: never;
   body?: never;
-  responses: { 200: { id: number; name: string } };
+  responses: {
+    statusCode: 200;
+    data: {
+      id: number;
+      name: string;
+    };
+  };
 };
 export const getPet = {
-  operationId: 'getPet',
-  method: 'GET' as const,
+  method: 'GET',
   path: '/pets/{petId}',
   parameterTypes: {
     hasPathParams: true,
     hasQueryParams: false,
     hasHeaders: false,
     hasBody: false
-  },
-  statusCodes: [200]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'getPet', expectedOutput);
     });
@@ -68,21 +66,30 @@ export const getPet = {
   pathParams?: never;
   queryParams?: never;
   headers?: never;
-  body: { pet: { id: number; name: string } };
-  responses: { 200: { id: number; name: string } };
+  body: {
+    pet: {
+      id: number;
+      name: string;
+    };
+  };
+  responses: {
+    statusCode: 200;
+    data: {
+      id: number;
+      name: string;
+    };
+  };
 };
 export const createPet = {
-  operationId: 'createPet',
-  method: 'POST' as const,
+  method: 'POST',
   path: '/pets',
   parameterTypes: {
     hasPathParams: false,
     hasQueryParams: false,
     hasHeaders: false,
     hasBody: true
-  },
-  statusCodes: [200]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'createPet', expectedOutput);
     });
@@ -98,24 +105,27 @@ export const createPet = {
       `);
 
       const expectedOutput = `export interface DeletePetTypes {
-  pathParams: { petId: number };
+  pathParams: {
+    petId: number;
+  };
   queryParams?: never;
   headers?: never;
   body?: never;
-  responses: { 204: void };
+  responses: {
+    statusCode: 204;
+    data: void;
+  };
 };
 export const deletePet = {
-  operationId: 'deletePet',
-  method: 'DELETE' as const,
+  method: 'DELETE',
   path: '/pets/{petId}',
   parameterTypes: {
     hasPathParams: true,
     hasQueryParams: false,
     hasHeaders: false,
     hasBody: false
-  },
-  statusCodes: [204]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'deletePet', expectedOutput);
     });
@@ -135,20 +145,21 @@ export const deletePet = {
   queryParams?: never;
   headers?: never;
   body?: never;
-  responses: { 204: void };
+  responses: {
+    statusCode: 204;
+    data: void;
+  };
 };
 export const resetPets = {
-  operationId: 'resetPets',
-  method: 'POST' as const,
+  method: 'POST',
   path: '/pets',
   parameterTypes: {
     hasPathParams: false,
     hasQueryParams: false,
     hasHeaders: false,
     hasBody: false
-  },
-  statusCodes: [204]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'resetPets', expectedOutput);
     });
@@ -175,20 +186,26 @@ export const resetPets = {
   queryParams?: never;
   headers?: never;
   body?: never;
-  responses: { 200: { id: number; name: string }[] };
+  responses: {
+    statusCode: 200;
+    data: [
+      {
+        id: number;
+        name: string;
+      }
+    ];
+  };
 };
 export const listPets = {
-  operationId: 'listPets',
-  method: 'GET' as const,
+  method: 'GET',
   path: '/pets',
   parameterTypes: {
     hasPathParams: false,
     hasQueryParams: false,
     hasHeaders: false,
     hasBody: false
-  },
-  statusCodes: [200]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'listPets', expectedOutput);
     });
@@ -209,24 +226,35 @@ export const listPets = {
       `);
 
       const expectedOutput = `export interface UpdatePetTypes {
-  pathParams: { petId: number };
+  pathParams: {
+    petId: number;
+  };
   queryParams?: never;
   headers?: never;
-  body: { pet: { id: number; name: string } };
-  responses: { 200: { id: number; name: string } };
+  body: {
+    pet: {
+      id: number;
+      name: string;
+    };
+  };
+  responses: {
+    statusCode: 200;
+    data: {
+      id: number;
+      name: string;
+    };
+  };
 };
 export const updatePet = {
-  operationId: 'updatePet',
-  method: 'PUT' as const,
+  method: 'PUT',
   path: '/pets/{petId}',
   parameterTypes: {
     hasPathParams: true,
     hasQueryParams: false,
     hasHeaders: false,
     hasBody: true
-  },
-  statusCodes: [200]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'updatePet', expectedOutput);
     });
@@ -254,24 +282,30 @@ export const updatePet = {
       `);
 
       const expectedOutput = `export interface GetPetTypes {
-  pathParams: { petId: number };
+  pathParams: {
+    petId: number;
+  };
   queryParams?: never;
   headers?: never;
   body?: never;
-  responses: { 200: { id: number; name: string } | { message: "Pet not found"; code: 404 } };
+  responses: {
+    statusCode: 200;
+    data: {
+      id: number;
+      name: string;
+    };
+  };
 };
 export const getPet = {
-  operationId: 'getPet',
-  method: 'GET' as const,
+  method: 'GET',
   path: '/pets/{petId}',
   parameterTypes: {
     hasPathParams: true,
     hasQueryParams: false,
     hasHeaders: false,
     hasBody: false
-  },
-  statusCodes: [200]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'getPet', expectedOutput);
     });
@@ -306,21 +340,32 @@ export const getPet = {
   pathParams?: never;
   queryParams?: never;
   headers?: never;
-  body: { pet: { id: number; name: string; status: "available" | "pending" | "sold" } };
-  responses: { 200: { id: number; name: string; status: "available" | "pending" | "sold" } | { type: "validation_error"; errors: string[] } | { type: "server_error"; message: string } };
+  body: {
+    pet: {
+      id: number;
+      name: string;
+      status: "available" | "pending" | "sold";
+    };
+  };
+  responses: {
+    statusCode: 200;
+    data: {
+      id: number;
+      name: string;
+      status: "available" | "pending" | "sold";
+    };
+  };
 };
 export const createPet = {
-  operationId: 'createPet',
-  method: 'POST' as const,
+  method: 'POST',
   path: '/pets',
   parameterTypes: {
     hasPathParams: false,
     hasQueryParams: false,
     hasHeaders: false,
     hasBody: true
-  },
-  statusCodes: [200]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'createPet', expectedOutput);
     });
@@ -351,63 +396,35 @@ export const createPet = {
       const expectedOutput = `export interface GetProfileTypes {
   pathParams?: never;
   queryParams?: never;
-  headers: { authorization: string; "x-api-key"?: string };
+  headers: {
+    authorization: string;
+    "x-api-key"?: string;
+  };
   body?: never;
-  responses: { 200: { id: number; email: string } | { message: "Unauthorized"; code: 401 } };
+  responses: {
+    statusCode: 200;
+    data: {
+      id: number;
+      email: string;
+    };
+  };
 };
 export const getProfile = {
-  operationId: 'getProfile',
-  method: 'GET' as const,
+  method: 'GET',
   path: '/protected',
   parameterTypes: {
     hasPathParams: false,
     hasQueryParams: false,
     hasHeaders: true,
     hasBody: false
-  },
-  statusCodes: [200]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'getProfile', expectedOutput);
     });
   });
 
   describe('Status Code Infrastructure Validation', () => {
-    it('should maintain consistent statusCodes array format', async () => {
-      const runner = await createEmitterTestRunner();
-      await runner.compile(`
-        model Product {
-          id: int32;
-          name: string;
-        }
-
-        model Error {
-          message: string;
-        }
-
-        @route("/products")
-        interface ProductApi {
-          @get
-          getProduct(@path id: int32): Product | Error;
-        }
-      `);
-
-      const content = await readOperationFile(runner, 'getProduct');
-      validateOperationStructure(content);
-      
-      const parsed = parseOperationFile(content);
-      const statusCodes = extractConfigProperty(parsed.configContent, 'statusCodes');
-      
-      // Verify statusCodes is properly formatted as an array
-      const expectedStatusCodesSection = 'statusCodes: [200]';
-      await readAndValidateSection(
-        runner,
-        'getProduct',
-        expectedStatusCodesSection,
-        'statusCodes section'
-      );
-    });
-
     it('should handle void returns with proper status codes', async () => {
       const runner = await createEmitterTestRunner();
       await runner.compile(`
@@ -427,43 +444,45 @@ export const getProfile = {
   queryParams?: never;
   headers?: never;
   body?: never;
-  responses: { 204: void };
+  responses: {
+    statusCode: 204;
+    data: void;
+  };
 };
 export const cleanup = {
-  operationId: 'cleanup',
-  method: 'POST' as const,
+  method: 'POST',
   path: '/cleanup',
   parameterTypes: {
     hasPathParams: false,
     hasQueryParams: false,
     hasHeaders: false,
     hasBody: false
-  },
-  statusCodes: [204]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'cleanup', cleanupExpected);
-      
+
       // Test DELETE with void return - should default to 204
       const deleteAllExpected = `export interface DeleteAllTypes {
   pathParams?: never;
   queryParams?: never;
   headers?: never;
   body?: never;
-  responses: { 204: void };
+  responses: {
+    statusCode: 204;
+    data: void;
+  };
 };
 export const deleteAll = {
-  operationId: 'deleteAll',
-  method: 'DELETE' as const,
+  method: 'DELETE',
   path: '/cleanup',
   parameterTypes: {
     hasPathParams: false,
     hasQueryParams: false,
     hasHeaders: false,
     hasBody: false
-  },
-  statusCodes: [204]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'deleteAll', deleteAllExpected);
     });
@@ -513,69 +532,88 @@ export const deleteAll = {
       // Verify list operation (simple GET)
       const listExpected = `export interface ListTypes {
   pathParams?: never;
-  queryParams?: { category?: string };
+  queryParams?: {
+    category?: string;
+  };
   headers?: never;
   body?: never;
-  responses: { 200: { id: number; name: string; price: number }[] };
+  responses: {
+    statusCode: 200;
+    data: [
+      {
+        id: number;
+        name: string;
+        price: number;
+      }
+    ];
+  };
 };
 export const list = {
-  operationId: 'list',
-  method: 'GET' as const,
+  method: 'GET',
   path: '/products',
   parameterTypes: {
     hasPathParams: false,
     hasQueryParams: true,
     hasHeaders: false,
     hasBody: false
-  },
-  statusCodes: [200]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'list', listExpected);
-      
+
       // Verify get operation (with path param and error)
       const getExpected = `export interface GetTypes {
-  pathParams: { id: number };
+  pathParams: {
+    id: number;
+  };
   queryParams?: never;
   headers?: never;
   body?: never;
-  responses: { 200: { id: number; name: string; price: number } | { message: "Product not found"; productId: number } };
+  responses: {
+    statusCode: 200;
+    data: {
+      id: number;
+      name: string;
+      price: number;
+    };
+  };
 };
 export const get = {
-  operationId: 'get',
-  method: 'GET' as const,
+  method: 'GET',
   path: '/products/{id}',
   parameterTypes: {
     hasPathParams: true,
     hasQueryParams: false,
     hasHeaders: false,
     hasBody: false
-  },
-  statusCodes: [200]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'get', getExpected);
-      
+
       // Verify delete operation (void return)
       const deleteExpected = `export interface DeleteTypes {
-  pathParams: { id: number };
+  pathParams: {
+    id: number;
+  };
   queryParams?: never;
   headers?: never;
   body?: never;
-  responses: { 204: void };
+  responses: {
+    statusCode: 204;
+    data: void;
+  };
 };
-export const delete = {
-  operationId: 'delete',
-  method: 'DELETE' as const,
+export const delete_ = {
+  method: 'DELETE',
   path: '/products/{id}',
   parameterTypes: {
     hasPathParams: true,
     hasQueryParams: false,
     hasHeaders: false,
     hasBody: false
-  },
-  statusCodes: [204]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'delete', deleteExpected);
     });

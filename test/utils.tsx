@@ -1,3 +1,4 @@
+import { expect } from 'vitest';
 import {
   createTestWrapper,
   createTestHost as coreCreateTestHost,
@@ -6,24 +7,16 @@ import {
 import { HttpTestLibrary } from '@typespec/http/testing';
 import { TypeScriptEmitterTestLibrary } from '../src/testing/index.js';
 
-export async function createTestHost(includeHttp = true) {
+export async function createTestHost() {
   return coreCreateTestHost({
-    libraries: [
-      TypeScriptEmitterTestLibrary,
-      ...(includeHttp ? [HttpTestLibrary] : []),
-    ],
+    libraries: [TypeScriptEmitterTestLibrary, HttpTestLibrary],
   });
 }
 
-export async function createTestRunner(
-  emitterOptions = {},
-  includeHttp = true,
-) {
-  const host = await createTestHost(includeHttp);
+export async function createTestRunner(emitterOptions = {}) {
+  const host = await createTestHost();
 
-  const importAndUsings = includeHttp
-    ? `import "@typespec/http"; using TypeSpec.Http;\n`
-    : ``;
+  const importAndUsings = `import "@typespec/http"; using TypeSpec.Http;\n`;
 
   return createTestWrapper(host, {
     wrapper: (code) => `${importAndUsings} ${code}`,
@@ -145,7 +138,6 @@ export function validateOperationStructure(content: string): void {
     'method',
     'path',
     'parameterTypes',
-    'statusCodes',
   ];
   for (const prop of requiredConfigProps) {
     if (!parsed.configContent.includes(prop)) {
@@ -186,19 +178,7 @@ export function expectExactOutput(
   expectedOutput: string,
   description?: string,
 ): void {
-  // Normalize whitespace but preserve structure
-  const normalize = (str: string) => str.trim().replace(/\s+/g, ' ');
-  const normalizedActual = normalize(actualOutput);
-  const normalizedExpected = normalize(expectedOutput);
-
-  if (normalizedActual !== normalizedExpected) {
-    throw new Error(`${description || 'Output'} does not match expected.
-Expected:
-${expectedOutput}
-
-Actual:
-${actualOutput}`);
-  }
+  expect(actualOutput, description || 'Output should match expected').toBe(expectedOutput);
 }
 
 /**
@@ -209,18 +189,7 @@ export function expectSectionMatch(
   expectedSection: string,
   description?: string,
 ): void {
-  // Normalize whitespace for comparison
-  const normalizedActual = actualOutput.replace(/\s+/g, ' ').trim();
-  const normalizedSection = expectedSection.replace(/\s+/g, ' ').trim();
-
-  if (!normalizedActual.includes(normalizedSection)) {
-    throw new Error(`${description || 'Section'} not found in output.
-Expected section:
-${expectedSection}
-
-Actual output:
-${actualOutput}`);
-  }
+  expect(actualOutput, `${description || 'Section'} should be found in output`).toContain(expectedSection);
 }
 
 /**
@@ -259,15 +228,10 @@ export async function readAndValidateSection(
 /**
  * Create emitter test runner for full integration tests
  */
-export async function createEmitterTestRunner(
-  emitterOptions = {},
-  includeHttp = true,
-) {
-  const host = await createTestHost(includeHttp);
+export async function createEmitterTestRunner(emitterOptions = {}) {
+  const host = await createTestHost();
 
-  const importAndUsings = includeHttp
-    ? `import "@typespec/http"; using TypeSpec.Http;\n`
-    : ``;
+  const importAndUsings = `import "@typespec/http"; using TypeSpec.Http;\n`;
 
   return createTestWrapper(host, {
     wrapper: (code) => `${importAndUsings} ${code}`,

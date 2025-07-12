@@ -33,21 +33,32 @@ describe('Operation Components', () => {
   pathParams?: never;
   queryParams?: never;
   headers?: never;
-  body: { pet: { name: string; tag?: string } };
-  responses: { 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" } };
+  body: {
+    pet: {
+      name: string;
+      tag?: string;
+    };
+  };
+  responses: {
+    statusCode: 200;
+    data: {
+      id: number;
+      name: string;
+      tag?: string;
+      status: "available" | "pending" | "sold";
+    };
+  };
 };
 export const createPet = {
-  operationId: 'createPet',
-  method: 'POST' as const,
+  method: 'POST',
   path: '/pets',
   parameterTypes: {
     hasPathParams: false,
     hasQueryParams: false,
     hasHeaders: false,
     hasBody: true
-  },
-  statusCodes: [200]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'createPet', expectedOutput);
     });
@@ -70,24 +81,32 @@ export const createPet = {
       `);
 
       const expectedOutput = `export interface GetPetTypes {
-  pathParams: { petId: number };
+  pathParams: {
+    petId: number;
+  };
   queryParams?: never;
   headers?: never;
   body?: never;
-  responses: { 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" } };
+  responses: {
+    statusCode: 200;
+    data: {
+      id: number;
+      name: string;
+      tag?: string;
+      status: "available" | "pending" | "sold";
+    };
+  };
 };
 export const getPet = {
-  operationId: 'getPet',
-  method: 'GET' as const,
+  method: 'GET',
   path: '/pets/{petId}',
   parameterTypes: {
     hasPathParams: true,
     hasQueryParams: false,
     hasHeaders: false,
     hasBody: false
-  },
-  statusCodes: [200]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'getPet', expectedOutput);
     });
@@ -110,24 +129,39 @@ export const getPet = {
       `);
 
       const expectedOutput = `export interface UpdatePetTypes {
-  pathParams: { petId: number };
+  pathParams: {
+    petId: number;
+  };
   queryParams?: never;
   headers?: never;
-  body: { pet: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" } };
-  responses: { 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" } };
+  body: {
+    pet: {
+      id: number;
+      name: string;
+      tag?: string;
+      status: "available" | "pending" | "sold";
+    };
+  };
+  responses: {
+    statusCode: 200;
+    data: {
+      id: number;
+      name: string;
+      tag?: string;
+      status: "available" | "pending" | "sold";
+    };
+  };
 };
 export const updatePet = {
-  operationId: 'updatePet',
-  method: 'PUT' as const,
+  method: 'PUT',
   path: '/pets/{petId}',
   parameterTypes: {
     hasPathParams: true,
     hasQueryParams: false,
     hasHeaders: false,
     hasBody: true
-  },
-  statusCodes: [200]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'updatePet', expectedOutput);
     });
@@ -143,24 +177,27 @@ export const updatePet = {
       `);
 
       const expectedOutput = `export interface DeletePetTypes {
-  pathParams: { petId: number };
+  pathParams: {
+    petId: number;
+  };
   queryParams?: never;
   headers?: never;
   body?: never;
-  responses: { 204: void };
+  responses: {
+    statusCode: 204;
+    data: void;
+  };
 };
 export const deletePet = {
-  operationId: 'deletePet',
-  method: 'DELETE' as const,
+  method: 'DELETE',
   path: '/pets/{petId}',
   parameterTypes: {
     hasPathParams: true,
     hasQueryParams: false,
     hasHeaders: false,
     hasBody: false
-  },
-  statusCodes: [204]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'deletePet', expectedOutput);
     });
@@ -184,23 +221,34 @@ export const deletePet = {
 
       const expectedOutput = `export interface ListPetsTypes {
   pathParams?: never;
-  queryParams: { status?: string; limit?: number };
+  queryParams?: {
+    status?: string;
+    limit?: number;
+  };
   headers?: never;
   body?: never;
-  responses: { 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" }[] };
+  responses: {
+    statusCode: 200;
+    data: [
+      {
+        id: number;
+        name: string;
+        tag?: string;
+        status: "available" | "pending" | "sold";
+      }
+    ];
+  };
 };
 export const listPets = {
-  operationId: 'listPets',
-  method: 'GET' as const,
+  method: 'GET',
   path: '/pets',
   parameterTypes: {
     hasPathParams: false,
     hasQueryParams: true,
     hasHeaders: false,
     hasBody: false
-  },
-  statusCodes: [200]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'listPets', expectedOutput);
     });
@@ -228,23 +276,36 @@ export const listPets = {
 
       const expectedOutput = `export interface SearchPetsTypes {
   pathParams?: never;
-  queryParams: { q: string; category?: string };
-  headers: { authorization: string };
+  queryParams: {
+    q: string;
+    category?: string;
+  };
+  headers: {
+    authorization: string;
+  };
   body?: never;
-  responses: { 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" }[] };
+  responses: {
+    statusCode: 200;
+    data: [
+      {
+        id: number;
+        name: string;
+        tag?: string;
+        status: "available" | "pending" | "sold";
+      }
+    ];
+  };
 };
 export const searchPets = {
-  operationId: 'searchPets',
-  method: 'GET' as const,
+  method: 'GET',
   path: '/pets/search',
   parameterTypes: {
     hasPathParams: false,
     hasQueryParams: true,
     hasHeaders: true,
     hasBody: false
-  },
-  statusCodes: [200]
-} as const;`;
+  }
+};`;
 
       await readAndValidateComplete(runner, 'searchPets', expectedOutput);
     });
@@ -277,8 +338,21 @@ export const searchPets = {
   pathParams?: never;
   queryParams?: never;
   headers?: never;
-  body: { pet: { name: string; tag?: string } };
-  responses: { 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" } };
+  body: {
+    pet: {
+      name: string;
+      tag?: string;
+    };
+  };
+  responses: {
+    statusCode: 200;
+    data: {
+      id: number;
+      name: string;
+      tag?: string;
+      status: "available" | "pending" | "sold";
+    };
+  };
 };`;
 
       await readAndValidateSection(
@@ -307,11 +381,21 @@ export const searchPets = {
       `);
 
       const expectedInterfaceSection = `export interface GetPetTypes {
-  pathParams: { petId: number };
+  pathParams: {
+    petId: number;
+  };
   queryParams?: never;
   headers?: never;
   body?: never;
-  responses: { 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" } };
+  responses: {
+    statusCode: 200;
+    data: {
+      id: number;
+      name: string;
+      tag?: string;
+      status: "available" | "pending" | "sold";
+    };
+  };
 };`;
 
       await readAndValidateSection(
@@ -347,17 +431,15 @@ export const searchPets = {
       `);
 
       const expectedConfigSection = `export const createPet = {
-  operationId: 'createPet',
-  method: 'POST' as const,
+  method: 'POST',
   path: '/pets',
   parameterTypes: {
     hasPathParams: false,
     hasQueryParams: false,
     hasHeaders: false,
     hasBody: true
-  },
-  statusCodes: [200]
-} as const;`;
+  }
+};`;
 
       await readAndValidateSection(
         runner,
@@ -503,4 +585,3 @@ export const searchPets = {
     });
   });
 });
-

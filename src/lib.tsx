@@ -1,5 +1,6 @@
 import { Children } from '@alloy-js/core';
-import { ArrayExpression } from '@alloy-js/typescript';
+import * as ts from '@alloy-js/typescript';
+import * as ay from '@alloy-js/core';
 import {
   Type,
   EmitContext,
@@ -7,6 +8,7 @@ import {
   Operation,
   navigateProgram,
   createTypeSpecLibrary,
+  LiteralType,
 } from '@typespec/compiler';
 
 export const $lib = createTypeSpecLibrary({
@@ -18,15 +20,44 @@ export const { reportDiagnostic, createDiagnostic } = $lib;
 
 export function mapTypeSpecToTypeScript(type: Type): Children {
   switch (type.kind) {
+    case 'Intrinsic':
+      switch (type.name) {
+        case 'void':
+          return 'void';
+        case 'null':
+          return 'null';
+        case 'never':
+          return 'never';
+        case 'unknown':
+          return 'unknown';
+        default:
+          return 'any';
+      }
+
     case 'Model':
       if (type.name === 'Array' && type.indexer) {
+        const elementType = mapTypeSpecToTypeScript(type.indexer.value);
+        return <ts.ArrayExpression children={elementType} />;
+      }
+
+      if (type.properties && type.properties.size > 0) {
         return (
-          <ArrayExpression>
-            {mapTypeSpecToTypeScript(type.indexer.value)}
-          </ArrayExpression>
+          <ts.InterfaceExpression>
+            <ay.StatementList>
+              {[...type.properties.values()].map(property => (
+                <ts.InterfaceMember
+                  name={property.name}
+                  optional={property.optional}
+                  type={mapTypeSpecToTypeScript(property.type)}
+                />
+              ))}
+            </ay.StatementList>
+          </ts.InterfaceExpression>
         );
       }
-      return type.name || 'Record<string, unknown>';
+
+      return 'unknown';
+
     case 'Scalar':
       switch (type.name) {
         case 'string':
@@ -38,22 +69,42 @@ export function mapTypeSpecToTypeScript(type: Type): Children {
           return 'number';
         case 'boolean':
           return 'boolean';
+        case 'bytes':
+          return 'Uint8Array';
         default:
           return 'any';
       }
+
     case 'Union':
       return [...type.variants.values()]
-        .map((variant) => {
-          if (
-            variant.type.kind === 'Scalar' &&
-            typeof variant.type.name === 'string' &&
-            variant.type.name.startsWith('"')
-          ) {
-            return variant.type.name;
-          }
-          return mapTypeSpecToTypeScript(variant.type);
-        })
+        .map((variant) => mapTypeSpecToTypeScript(variant.type))
         .join(' | ');
+
+    case 'Enum':
+      if (type.members && type.members.size > 0) {
+        const members = [...type.members.values()].map((member) => {
+          if (member.value !== undefined) {
+            if (typeof member.value === 'string') {
+              return `"${member.value}"`;
+            }
+            return String(member.value);
+          }
+          return `"${member.name}"`;
+        });
+        return members.join(' | ');
+      }
+      return 'string';
+
+    case 'String':
+      // Handle string literal types from TypeSpec
+      return `"${(type as LiteralType & { value: string }).value}"`;
+
+    case 'Number':
+      return String((type as LiteralType & { value: number }).value);
+
+    case 'Boolean':
+      return String((type as LiteralType & { value: boolean }).value);
+
     default:
       return 'any';
   }

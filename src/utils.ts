@@ -29,6 +29,7 @@ export type ParameterLocation = 'query' | 'path' | 'header' | 'cookie' | 'body';
  */
 export interface ParameterInfo {
   name: string;
+  originalName: string; // Preserve original name for proper quoting (headers, etc.)
   location: ParameterLocation;
   type: Type;
   optional: boolean;
@@ -126,8 +127,16 @@ function extractParameters(httpOperation: HttpOperation): ParameterInfo[] {
         break;
     }
 
+    // Debug: Log parameter name to see what TypeSpec provides
+    console.log('Parameter from TypeSpec:', {
+      name: param.name,
+      location,
+      param: param.param
+    });
+
     parameters.push({
       name: param.name,
+      originalName: param.name, // Store original name before any transformations
       location,
       type: param.param.type,
       optional: param.param.optional || false,
@@ -137,8 +146,10 @@ function extractParameters(httpOperation: HttpOperation): ParameterInfo[] {
 
   // Handle body parameters
   if (httpOperation.parameters.body) {
+    const bodyName = httpOperation.parameters.body.property?.name || 'body';
     parameters.push({
-      name: httpOperation.parameters.body.property?.name || 'body',
+      name: bodyName,
+      originalName: bodyName,
       location: 'body',
       type: httpOperation.parameters.body.type,
       optional: false,
@@ -185,9 +196,21 @@ function extractResponses(
       });
     }
   } else {
-    // Default to 200 status code if no explicit responses
+    // Determine appropriate default status code based on operation and return type
+    let defaultStatusCode = 200;
+
+    // Use 204 for void returns or DELETE operations
+    if (
+      operation.returnType.kind === 'Intrinsic' &&
+      operation.returnType.name === 'void'
+    ) {
+      defaultStatusCode = 204;
+    } else if (httpOperation && httpOperation.verb === 'delete') {
+      defaultStatusCode = 204;
+    }
+
     responses.push({
-      statusCode: 200,
+      statusCode: defaultStatusCode,
       type: operation.returnType,
       description: undefined,
     });
@@ -195,8 +218,21 @@ function extractResponses(
 
   // Ensure we have at least one response
   if (responses.length === 0) {
+    // Determine appropriate default status code based on operation and return type
+    let defaultStatusCode = 200;
+
+    // Use 204 for void returns or DELETE operations
+    if (
+      operation.returnType.kind === 'Intrinsic' &&
+      operation.returnType.name === 'void'
+    ) {
+      defaultStatusCode = 204;
+    } else if (httpOperation && httpOperation.verb === 'delete') {
+      defaultStatusCode = 204;
+    }
+
     responses.push({
-      statusCode: 200,
+      statusCode: defaultStatusCode,
       type: operation.returnType,
       description: undefined,
     });
@@ -234,20 +270,6 @@ export function hasParametersOfLocation(
   location: ParameterLocation,
 ): boolean {
   return parameters.some((param) => param.location === location);
-}
-
-/**
- * Get status codes from responses
- */
-export function getStatusCodes(responses: ResponseInfo[]): number[] {
-  return responses.map((r) => r.statusCode).sort((a, b) => a - b);
-}
-
-/**
- * Get unique status codes from responses
- */
-export function getUniqueStatusCodes(responses: ResponseInfo[]): number[] {
-  return [...new Set(getStatusCodes(responses))];
 }
 
 /**
