@@ -1,15 +1,15 @@
 import * as ts from '@alloy-js/typescript';
 import * as ay from '@alloy-js/core';
-import { Operation, Program, Type } from '@typespec/compiler';
+import { Operation, Program } from '@typespec/compiler';
 import {
   extractOperationInfo,
   groupParametersByLocation,
   hasParametersOfLocation,
-} from '../openapi-utils.js';
-import { TypeScriptType } from './TypeScriptType.jsx';
+} from '../utils.js';
 
 // Import the ParameterInfo type from openapi-utils
-import type { ParameterInfo, ResponseInfo } from '../openapi-utils.js';
+import type { ParameterInfo, ResponseInfo } from '../utils.js';
+import { mapTypeSpecToTypeScript } from '../lib.js';
 
 interface OperationInfo {
   operationId?: string;
@@ -33,27 +33,43 @@ export function OperationDeclaration(props: OperationDeclarationProps) {
 
   const operationInfo = extractOperationInfo(program, operation);
   const groupedParams = groupParametersByLocation(operationInfo.parameters);
-  
+
   // Capitalize operation name for interface (e.g., CreatePet)
   const operationName = operationInfo.operationId || operationInfo.name;
-  const interfaceName = operationName.charAt(0).toUpperCase() + operationName.slice(1) + 'Types';
+  const interfaceName =
+    operationName.charAt(0).toUpperCase() + operationName.slice(1) + 'Types';
 
   // Generate consolidated Types interface using proper Alloy components
   const interfaceMembers = [
-    createParameterMember('pathParams', groupedParams.path, hasParametersOfLocation(operationInfo.parameters, 'path')),
-    createParameterMember('queryParams', groupedParams.query, hasParametersOfLocation(operationInfo.parameters, 'query')),
-    createParameterMember('headers', groupedParams.header, hasParametersOfLocation(operationInfo.parameters, 'header')),
-    createParameterMember('body', groupedParams.body, hasParametersOfLocation(operationInfo.parameters, 'body')),
-    createResponseMember(operationInfo.responses)
+    createParameterMember(
+      'pathParams',
+      groupedParams.path,
+      hasParametersOfLocation(operationInfo.parameters, 'path'),
+    ),
+    createParameterMember(
+      'queryParams',
+      groupedParams.query,
+      hasParametersOfLocation(operationInfo.parameters, 'query'),
+    ),
+    createParameterMember(
+      'headers',
+      groupedParams.header,
+      hasParametersOfLocation(operationInfo.parameters, 'header'),
+    ),
+    createParameterMember(
+      'body',
+      groupedParams.body,
+      hasParametersOfLocation(operationInfo.parameters, 'body'),
+    ),
+    createResponseMember(operationInfo.responses),
   ];
-
 
   return (
     <ay.StatementList>
       <ts.InterfaceDeclaration name={interfaceName} export>
         <ay.StatementList>{interfaceMembers}</ay.StatementList>
       </ts.InterfaceDeclaration>
-      
+
       <ts.VarDeclaration
         name={operationName}
         initializer={createConfigObject(operationInfo)}
@@ -67,41 +83,44 @@ export function OperationDeclaration(props: OperationDeclarationProps) {
 /**
  * Creates a parameter member for the interface using proper Alloy patterns
  */
-function createParameterMember(name: string, params: ParameterInfo[], hasParams: boolean) {
+function createParameterMember(
+  name: string,
+  params: ParameterInfo[],
+  hasParams: boolean,
+) {
   if (hasParams && params.length > 0) {
     const parameterType = createParameterObjectType(params);
     return (
-      <ts.InterfaceMember
-        name={name}
-        type={parameterType}
-        optional={false}
-      />
+      <ts.InterfaceMember name={name} type={parameterType} optional={false} />
     );
   } else {
-    return (
-      <ts.InterfaceMember
-        name={name}
-        type="never"
-        optional={true}
-      />
-    );
+    return <ts.InterfaceMember name={name} type="never" optional={true} />;
   }
 }
 
 /**
- * Creates a response member using proper Alloy patterns
+ * Creates a response member using proper Alloy patterns with support for multiple status codes
  */
 function createResponseMember(responses: ResponseInfo[]) {
-  const responseType = responses.length > 0 
-    ? `{ 200: ${getTypeString(responses[0].type)} }`
-    : '{ 200: void }';
-  
+  let responseType: string;
+
+  if (responses.length === 0) {
+    responseType = '{ 200: void }';
+  } else if (responses.length === 1) {
+    // Single response - maintain backward compatibility
+    const response = responses[0];
+    responseType = `{ ${response.statusCode}: ${mapTypeSpecToTypeScript(response.type)} }`;
+  } else {
+    // Multiple responses - generate object with all status codes
+    const responseEntries = responses.map(
+      (response) =>
+        `${response.statusCode}: ${mapTypeSpecToTypeScript(response.type)}`,
+    );
+    responseType = `{ ${responseEntries.join('; ')} }`;
+  }
+
   return (
-    <ts.InterfaceMember
-      name="responses"
-      type={responseType}
-      optional={false}
-    />
+    <ts.InterfaceMember name="responses" type={responseType} optional={false} />
   );
 }
 
@@ -109,25 +128,26 @@ function createResponseMember(responses: ResponseInfo[]) {
  * Creates a parameter object type string from parameter array
  */
 function createParameterObjectType(params: ParameterInfo[]): string {
-  const properties = params.map(param => {
+  const properties = params.map((param) => {
     const optional = param.optional ? '?' : '';
-    return `${param.name}${optional}: ${getTypeString(param.type)}`;
+    return `${param.name}${optional}: ${mapTypeSpecToTypeScript(param.type)}`;
   });
   return `{ ${properties.join('; ')} }`;
 }
 
 /**
- * Helper function to get TypeScript type string from TypeSpec type
- * (Reusing TypeScriptType component logic as string)
- */
-function getTypeString(type: Type): string {
-  return TypeScriptType({ type }) as string;
-}
-
-/**
- * Creates the runtime config object using structured Alloy components
+ * Creates the runtime config object using structured Alloy components with multi-status code support
  */
 function createConfigObject(operationInfo: OperationInfo): string {
+  // Extract status codes from responses
+  const statusCodes =
+    operationInfo.responses.length > 0
+      ? operationInfo.responses.map((response) => response.statusCode)
+      : [200];
+
+  // Remove duplicates and sort
+  const uniqueStatusCodes = [...new Set(statusCodes)].sort((a, b) => a - b);
+
   return `{
   operationId: '${operationInfo.operationId || operationInfo.name}',
   method: '${operationInfo.method}' as const,
@@ -138,6 +158,6 @@ function createConfigObject(operationInfo: OperationInfo): string {
     hasHeaders: ${hasParametersOfLocation(operationInfo.parameters, 'header')},
     hasBody: ${hasParametersOfLocation(operationInfo.parameters, 'body')}
   },
-  statusCodes: [200]
+  statusCodes: [${uniqueStatusCodes.join(', ')}]
 } as const`;
 }

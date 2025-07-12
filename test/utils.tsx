@@ -75,15 +75,18 @@ export function parseOperationFile(content: string): {
   configName: string;
 } {
   const lines = content.split('\n');
-  
+
   let interfaceStartIdx = -1;
   let interfaceEndIdx = -1;
   let configStartIdx = -1;
   let configEndIdx = -1;
-  
+
   // Find interface boundaries
   for (let i = 0; i < lines.length; i++) {
-    if (lines[i].startsWith('export interface ') && lines[i].includes('Types')) {
+    if (
+      lines[i].startsWith('export interface ') &&
+      lines[i].includes('Types')
+    ) {
       interfaceStartIdx = i;
     }
     if (interfaceStartIdx >= 0 && lines[i] === '};' && interfaceEndIdx === -1) {
@@ -97,14 +100,18 @@ export function parseOperationFile(content: string): {
       break;
     }
   }
-  
-  const interfaceContent = lines.slice(interfaceStartIdx, interfaceEndIdx + 1).join('\n');
-  const configContent = lines.slice(configStartIdx, configEndIdx + 1).join('\n');
-  
+
+  const interfaceContent = lines
+    .slice(interfaceStartIdx, interfaceEndIdx + 1)
+    .join('\n');
+  const configContent = lines
+    .slice(configStartIdx, configEndIdx + 1)
+    .join('\n');
+
   // Extract names
   const interfaceMatch = interfaceContent.match(/export interface (\w+)/);
   const configMatch = configContent.match(/export const (\w+)/);
-  
+
   return {
     interfaceContent,
     configContent,
@@ -118,25 +125,37 @@ export function parseOperationFile(content: string): {
  */
 export function validateOperationStructure(content: string): void {
   const parsed = parseOperationFile(content);
-  
+
   if (!parsed.interfaceName) {
     throw new Error('Missing Types interface in operation file');
   }
-  
+
   if (!parsed.configName) {
     throw new Error('Missing config object in operation file');
   }
-  
+
   // Validate interface has required properties
-  const requiredProps = ['pathParams', 'queryParams', 'headers', 'body', 'responses'];
+  const requiredProps = [
+    'pathParams',
+    'queryParams',
+    'headers',
+    'body',
+    'responses',
+  ];
   for (const prop of requiredProps) {
     if (!parsed.interfaceContent.includes(prop)) {
       throw new Error(`Missing ${prop} in Types interface`);
     }
   }
-  
+
   // Validate config has required properties
-  const requiredConfigProps = ['operationId', 'method', 'path', 'parameterTypes', 'statusCodes'];
+  const requiredConfigProps = [
+    'operationId',
+    'method',
+    'path',
+    'parameterTypes',
+    'statusCodes',
+  ];
   for (const prop of requiredConfigProps) {
     if (!parsed.configContent.includes(prop)) {
       throw new Error(`Missing ${prop} in config object`);
@@ -174,13 +193,13 @@ export function extractConfigProperty(
 export function expectExactOutput(
   actualOutput: string,
   expectedOutput: string,
-  description?: string
+  description?: string,
 ): void {
   // Normalize whitespace but preserve structure
   const normalize = (str: string) => str.trim().replace(/\s+/g, ' ');
   const normalizedActual = normalize(actualOutput);
   const normalizedExpected = normalize(expectedOutput);
-  
+
   if (normalizedActual !== normalizedExpected) {
     throw new Error(`${description || 'Output'} does not match expected.
 Expected:
@@ -197,12 +216,12 @@ ${actualOutput}`);
 export function expectSectionMatch(
   actualOutput: string,
   expectedSection: string,
-  description?: string
+  description?: string,
 ): void {
   // Normalize whitespace for comparison
   const normalizedActual = actualOutput.replace(/\s+/g, ' ').trim();
   const normalizedSection = expectedSection.replace(/\s+/g, ' ').trim();
-  
+
   if (!normalizedActual.includes(normalizedSection)) {
     throw new Error(`${description || 'Section'} not found in output.
 Expected section:
@@ -219,10 +238,14 @@ ${actualOutput}`);
 export async function readAndValidateComplete(
   runner: TestRunner,
   operationName: string,
-  expectedOutput: string
+  expectedOutput: string,
 ): Promise<void> {
   const content = await readOperationFile(runner, operationName);
-  expectExactOutput(content, expectedOutput, `${operationName} complete operation`);
+  expectExactOutput(
+    content,
+    expectedOutput,
+    `${operationName} complete operation`,
+  );
 }
 
 /**
@@ -232,10 +255,14 @@ export async function readAndValidateSection(
   runner: TestRunner,
   operationName: string,
   expectedSection: string,
-  sectionDescription: string
+  sectionDescription: string,
 ): Promise<void> {
   const content = await readOperationFile(runner, operationName);
-  expectSectionMatch(content, expectedSection, `${operationName} ${sectionDescription}`);
+  expectSectionMatch(
+    content,
+    expectedSection,
+    `${operationName} ${sectionDescription}`,
+  );
 }
 
 /**

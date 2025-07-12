@@ -33,7 +33,6 @@ export async function $onEmit(context: EmitContext) {
   );
 }
 
-
 /**
  * Collects all user-defined operations from the TypeSpec program
  * Filters out built-in library operations and focuses on API definitions
@@ -58,7 +57,10 @@ function getAllOperations(program: Program): Operation[] {
     {
       namespace(namespace) {
         // Skip built-in namespaces to avoid generating code for library types
-        if (namespace !== globalNs && !$(program).type.isUserDefined(namespace)) {
+        if (
+          namespace !== globalNs &&
+          !$(program).type.isUserDefined(namespace)
+        ) {
           return ListenerFlow.NoRecursion;
         }
       },

@@ -69,7 +69,7 @@ export const updatePet = {
   queryParams?: never;
   headers?: never;
   body?: never;
-  responses: { 200: void };
+  responses: { 204: void };
 };
 export const deletePet = {
   operationId: 'deletePet',
@@ -81,7 +81,7 @@ export const deletePet = {
     hasHeaders: false,
     hasBody: false
   },
-  statusCodes: [200]
+  statusCodes: [204]
 } as const;`,
 
   listPets: `export interface ListPetsTypes {
@@ -122,7 +122,7 @@ export const searchPets = {
     hasBody: false
   },
   statusCodes: [200]
-} as const;`
+} as const;`,
 };
 
 /**
@@ -201,5 +201,5 @@ export const EXPECTED_SECTIONS = {
 
   arrayResponseTypes: `responses: { 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" }[] };`,
 
-  voidResponseTypes: `responses: { 200: void };`
+  voidResponseTypes: `responses: { 204: void };`,
 };

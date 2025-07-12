@@ -2,7 +2,7 @@ import * as ay from '@alloy-js/core';
 import { Refkey } from '@alloy-js/core';
 import * as ts from '@alloy-js/typescript';
 import { Type, Model, Union, Enum } from '@typespec/compiler';
-import { TypeScriptType } from './TypeScriptType.jsx';
+import { mapTypeSpecToTypeScript } from '../lib.js';
 
 export interface InterfaceDeclarationProps
   extends Omit<ts.InterfaceDeclarationProps, 'name'> {
@@ -68,7 +68,7 @@ function ModelInterface(
             <ts.InterfaceMember
               name={property.name}
               optional={property.optional}
-              type={<TypeScriptType type={property.type} />}
+              type={mapTypeSpecToTypeScript(property.type)}
             />
           )}
         </ay.For>

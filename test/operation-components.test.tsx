@@ -1,10 +1,13 @@
 import { describe, it } from 'vitest';
-import { 
+import {
   readAndValidateComplete,
   readAndValidateSection,
   createEmitterTestRunner,
 } from './utils.jsx';
-import { EXPECTED_OPERATIONS, EXPECTED_SECTIONS } from './expected-operations.js';
+import {
+  EXPECTED_OPERATIONS,
+  EXPECTED_SECTIONS,
+} from './expected-operations.js';
 
 describe('Operation Components', () => {
   describe('Complete Operation Validation', () => {
@@ -30,7 +33,11 @@ describe('Operation Components', () => {
         }
       `);
 
-      await readAndValidateComplete(runner, 'createPet', EXPECTED_OPERATIONS.createPet);
+      await readAndValidateComplete(
+        runner,
+        'createPet',
+        EXPECTED_OPERATIONS.createPet,
+      );
     });
 
     it('should generate complete GetPet operation exactly', async () => {
@@ -50,7 +57,11 @@ describe('Operation Components', () => {
         }
       `);
 
-      await readAndValidateComplete(runner, 'getPet', EXPECTED_OPERATIONS.getPet);
+      await readAndValidateComplete(
+        runner,
+        'getPet',
+        EXPECTED_OPERATIONS.getPet,
+      );
     });
 
     it('should generate complete UpdatePet operation exactly', async () => {
@@ -70,7 +81,11 @@ describe('Operation Components', () => {
         }
       `);
 
-      await readAndValidateComplete(runner, 'updatePet', EXPECTED_OPERATIONS.updatePet);
+      await readAndValidateComplete(
+        runner,
+        'updatePet',
+        EXPECTED_OPERATIONS.updatePet,
+      );
     });
 
     it('should generate complete DeletePet operation exactly', async () => {
@@ -83,7 +98,11 @@ describe('Operation Components', () => {
         }
       `);
 
-      await readAndValidateComplete(runner, 'deletePet', EXPECTED_OPERATIONS.deletePet);
+      await readAndValidateComplete(
+        runner,
+        'deletePet',
+        EXPECTED_OPERATIONS.deletePet,
+      );
     });
 
     it('should generate complete ListPets operation with query parameters exactly', async () => {
@@ -103,7 +122,11 @@ describe('Operation Components', () => {
         }
       `);
 
-      await readAndValidateComplete(runner, 'listPets', EXPECTED_OPERATIONS.listPets);
+      await readAndValidateComplete(
+        runner,
+        'listPets',
+        EXPECTED_OPERATIONS.listPets,
+      );
     });
 
     it('should generate complete SearchPets operation with query and header parameters exactly', async () => {
@@ -127,7 +150,11 @@ describe('Operation Components', () => {
         }
       `);
 
-      await readAndValidateComplete(runner, 'searchPets', EXPECTED_OPERATIONS.searchPets);
+      await readAndValidateComplete(
+        runner,
+        'searchPets',
+        EXPECTED_OPERATIONS.searchPets,
+      );
     });
   });
 
@@ -158,7 +185,7 @@ describe('Operation Components', () => {
         runner,
         'createPet',
         EXPECTED_SECTIONS.createPetInterface,
-        'interface section'
+        'interface section',
       );
     });
 
@@ -183,7 +210,7 @@ describe('Operation Components', () => {
         runner,
         'getPet',
         EXPECTED_SECTIONS.getPetInterface,
-        'interface section'
+        'interface section',
       );
     });
   });
@@ -215,7 +242,7 @@ describe('Operation Components', () => {
         runner,
         'createPet',
         EXPECTED_SECTIONS.createPetConfig,
-        'config section'
+        'config section',
       );
     });
   });
@@ -247,7 +274,7 @@ describe('Operation Components', () => {
         runner,
         'createPet',
         EXPECTED_SECTIONS.parameterTypesWithBody,
-        'parameterTypes section'
+        'parameterTypes section',
       );
     });
 
@@ -272,7 +299,7 @@ describe('Operation Components', () => {
         runner,
         'getPet',
         EXPECTED_SECTIONS.parameterTypesWithPath,
-        'parameterTypes section'
+        'parameterTypes section',
       );
     });
 
@@ -297,7 +324,7 @@ describe('Operation Components', () => {
         runner,
         'listPets',
         EXPECTED_SECTIONS.parameterTypesWithQuery,
-        'parameterTypes section'
+        'parameterTypes section',
       );
     });
 
@@ -322,7 +349,7 @@ describe('Operation Components', () => {
         runner,
         'updatePet',
         EXPECTED_SECTIONS.parameterTypesWithPathAndBody,
-        'parameterTypes section'
+        'parameterTypes section',
       );
     });
   });

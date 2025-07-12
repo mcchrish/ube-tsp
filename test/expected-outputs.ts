@@ -22,15 +22,25 @@ export interface NewOperationExpectation {
   statusCodes: number[];
 }
 
-export function formatNewOperationExpectation(expectation: NewOperationExpectation): string {
+export function formatNewOperationExpectation(
+  expectation: NewOperationExpectation,
+): string {
   const parts: string[] = [];
 
   // Types interface
   parts.push(`export interface ${expectation.interfaceName} {`);
-  parts.push(`  pathParams${expectation.pathParams === 'never' ? '?' : ''}: ${expectation.pathParams};`);
-  parts.push(`  queryParams${expectation.queryParams === 'never' ? '?' : ''}: ${expectation.queryParams};`);
-  parts.push(`  headers${expectation.headers === 'never' ? '?' : ''}: ${expectation.headers};`);
-  parts.push(`  body${expectation.body === 'never' ? '?' : ''}: ${expectation.body};`);
+  parts.push(
+    `  pathParams${expectation.pathParams === 'never' ? '?' : ''}: ${expectation.pathParams};`,
+  );
+  parts.push(
+    `  queryParams${expectation.queryParams === 'never' ? '?' : ''}: ${expectation.queryParams};`,
+  );
+  parts.push(
+    `  headers${expectation.headers === 'never' ? '?' : ''}: ${expectation.headers};`,
+  );
+  parts.push(
+    `  body${expectation.body === 'never' ? '?' : ''}: ${expectation.body};`,
+  );
   parts.push(`  responses: ${expectation.responses};`);
   parts.push('};');
 
@@ -41,7 +51,9 @@ export function formatNewOperationExpectation(expectation: NewOperationExpectati
   parts.push(`  path: '${expectation.path}',`);
   parts.push('  parameterTypes: {');
   parts.push(`    hasPathParams: ${expectation.parameterTypes.hasPathParams},`);
-  parts.push(`    hasQueryParams: ${expectation.parameterTypes.hasQueryParams},`);
+  parts.push(
+    `    hasQueryParams: ${expectation.parameterTypes.hasQueryParams},`,
+  );
   parts.push(`    hasHeaders: ${expectation.parameterTypes.hasHeaders},`);
   parts.push(`    hasBody: ${expectation.parameterTypes.hasBody}`);
   parts.push('  },');
@@ -59,17 +71,18 @@ export const EXPECTED_OPERATIONS = {
     path: '/pets/{petId}',
     interfaces: {
       PathParams: {
-        'petId': 'number'
-      }
+        petId: 'number',
+      },
     },
-    responseType: '{\n  id: number;\n  name: string;\n  tag?: string;\n  status: "available" | "pending" | "sold";\n}',
+    responseType:
+      '{\n  id: number;\n  name: string;\n  tag?: string;\n  status: "available" | "pending" | "sold";\n}',
     operationConfig: {
       operationId: 'getPet',
       method: 'GET',
       path: '/pets/{petId}',
       parameters: { path: true },
-      responses: [200]
-    }
+      responses: [200],
+    },
   }),
 
   listPets: (): OperationExpectation => ({
@@ -79,17 +92,18 @@ export const EXPECTED_OPERATIONS = {
     interfaces: {
       QueryParams: {
         'status?': 'string',
-        'limit?': 'number'
-      }
+        'limit?': 'number',
+      },
     },
-    responseType: '{\n  id: number;\n  name: string;\n  tag?: string;\n  status: "available" | "pending" | "sold";\n}[]',
+    responseType:
+      '{\n  id: number;\n  name: string;\n  tag?: string;\n  status: "available" | "pending" | "sold";\n}[]',
     operationConfig: {
       operationId: 'listPets',
       method: 'GET',
       path: '/pets',
       parameters: { query: true },
-      responses: [200]
-    }
+      responses: [200],
+    },
   }),
 
   createPet: (): OperationExpectation => ({
@@ -98,17 +112,18 @@ export const EXPECTED_OPERATIONS = {
     path: '/pets',
     interfaces: {
       RequestBody: {
-        'pet': '{\n  name: string;\n  tag?: string;\n}'
-      }
+        pet: '{\n  name: string;\n  tag?: string;\n}',
+      },
     },
-    responseType: '{\n  id: number;\n  name: string;\n  tag?: string;\n  status: "available" | "pending" | "sold";\n}',
+    responseType:
+      '{\n  id: number;\n  name: string;\n  tag?: string;\n  status: "available" | "pending" | "sold";\n}',
     operationConfig: {
       operationId: 'createPet',
       method: 'POST',
       path: '/pets',
       parameters: { body: true },
-      responses: [200]
-    }
+      responses: [200],
+    },
   }),
 
   updatePet: (): OperationExpectation => ({
@@ -117,20 +132,21 @@ export const EXPECTED_OPERATIONS = {
     path: '/pets/{petId}',
     interfaces: {
       PathParams: {
-        'petId': 'number'
+        petId: 'number',
       },
       RequestBody: {
-        'pet': '{\n  id: number;\n  name: string;\n  tag?: string;\n  status: "available" | "pending" | "sold";\n}'
-      }
+        pet: '{\n  id: number;\n  name: string;\n  tag?: string;\n  status: "available" | "pending" | "sold";\n}',
+      },
     },
-    responseType: '{\n  id: number;\n  name: string;\n  tag?: string;\n  status: "available" | "pending" | "sold";\n}',
+    responseType:
+      '{\n  id: number;\n  name: string;\n  tag?: string;\n  status: "available" | "pending" | "sold";\n}',
     operationConfig: {
       operationId: 'updatePet',
       method: 'PUT',
       path: '/pets/{petId}',
       parameters: { path: true, body: true },
-      responses: [200]
-    }
+      responses: [200],
+    },
   }),
 
   deletePet: (): OperationExpectation => ({
@@ -139,8 +155,8 @@ export const EXPECTED_OPERATIONS = {
     path: '/pets/{petId}',
     interfaces: {
       PathParams: {
-        'petId': 'number'
-      }
+        petId: 'number',
+      },
     },
     responseType: 'void',
     operationConfig: {
@@ -148,8 +164,8 @@ export const EXPECTED_OPERATIONS = {
       method: 'DELETE',
       path: '/pets/{petId}',
       parameters: { path: true },
-      responses: [200]
-    }
+      responses: [200],
+    },
   }),
 
   searchPets: (): OperationExpectation => ({
@@ -158,21 +174,22 @@ export const EXPECTED_OPERATIONS = {
     path: '/pets/search',
     interfaces: {
       QueryParams: {
-        'q': 'string'
+        q: 'string',
       },
       HeaderParams: {
-        'authorization': 'string'
-      }
+        authorization: 'string',
+      },
     },
-    responseType: '{\n  id: number;\n  name: string;\n  tag?: string;\n  status: "available" | "pending" | "sold";\n}[]',
+    responseType:
+      '{\n  id: number;\n  name: string;\n  tag?: string;\n  status: "available" | "pending" | "sold";\n}[]',
     operationConfig: {
       operationId: 'searchPets',
       method: 'GET',
       path: '/pets/search',
       parameters: { query: true, header: true },
-      responses: [200]
-    }
-  })
+      responses: [200],
+    },
+  }),
 };
 
 // New expectations for runtime-friendly structure
@@ -181,9 +198,10 @@ export const NEW_EXPECTED_OPERATIONS = {
     interfaceName: 'GetPetTypes',
     pathParams: '{ petId: number }',
     queryParams: 'never',
-    headers: 'never', 
+    headers: 'never',
     body: 'never',
-    responses: '{ 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" } }',
+    responses:
+      '{ 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" } }',
     configName: 'getPet',
     operationId: 'getPet',
     method: 'GET',
@@ -192,9 +210,9 @@ export const NEW_EXPECTED_OPERATIONS = {
       hasPathParams: true,
       hasQueryParams: false,
       hasHeaders: false,
-      hasBody: false
+      hasBody: false,
     },
-    statusCodes: [200]
+    statusCodes: [200],
   }),
 
   createPet: (): NewOperationExpectation => ({
@@ -203,7 +221,8 @@ export const NEW_EXPECTED_OPERATIONS = {
     queryParams: 'never',
     headers: 'never',
     body: '{ pet: { name: string; tag?: string } }',
-    responses: '{ 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" } }',
+    responses:
+      '{ 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" } }',
     configName: 'createPet',
     operationId: 'createPet',
     method: 'POST',
@@ -212,8 +231,8 @@ export const NEW_EXPECTED_OPERATIONS = {
       hasPathParams: false,
       hasQueryParams: false,
       hasHeaders: false,
-      hasBody: true
+      hasBody: true,
     },
-    statusCodes: [200]
-  })
+    statusCodes: [200],
+  }),
 };

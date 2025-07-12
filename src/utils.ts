@@ -1,120 +1,288 @@
-import { Type, Program } from '@typespec/compiler';
-import { $ } from '@typespec/compiler/typekit';
+import { Operation, Program, Type } from '@typespec/compiler';
+import { getHttpOperation, HttpOperation } from '@typespec/http';
+import {
+  getExtensions,
+  getExternalDocs,
+  getOperationId,
+} from '@typespec/openapi';
 
 /**
- * Check if a type should be referenced rather than inlined
- * Based on the shouldReference function from the Zod emitter
+ * HTTP Method types
  */
-export function shouldReference(program: Program, type: Type): boolean {
-  const isUserDefined = $(program).type.isUserDefined(type);
+export type HTTPMethod =
+  | 'GET'
+  | 'POST'
+  | 'PUT'
+  | 'PATCH'
+  | 'DELETE'
+  | 'HEAD'
+  | 'OPTIONS'
+  | 'TRACE';
 
-  switch (type.kind) {
-    case 'Model':
-      // Reference named models that are user-defined and not built-in types
-      return Boolean(
-        type.name &&
-          isUserDefined &&
-          !isBuiltInType(type.name) &&
-          type.namespace?.name !== 'TypeSpec' &&
-          type.namespace?.name !== 'TypeSpec.Http',
-      );
+/**
+ * Parameter location types
+ */
+export type ParameterLocation = 'query' | 'path' | 'header' | 'cookie' | 'body';
 
-    case 'Union':
-    case 'Enum':
-      // Always reference unions and enums if they have names and are user-defined
-      return Boolean(type.name && isUserDefined);
+/**
+ * Parameter information
+ */
+export interface ParameterInfo {
+  name: string;
+  location: ParameterLocation;
+  type: Type;
+  optional: boolean;
+  description?: string;
+}
 
-    case 'Scalar':
-      // Reference custom scalars but inline built-ins
-      return Boolean(type.name && isUserDefined && !isBuiltinScalar(type.name));
+/**
+ * Response information
+ */
+export interface ResponseInfo {
+  statusCode: number;
+  type: Type;
+  description?: string;
+}
 
-    default:
-      return false;
+/**
+ * Enhanced operation information with OpenAPI metadata
+ */
+export interface OperationInfo {
+  name: string;
+  operationId?: string;
+  method: HTTPMethod;
+  path: string;
+  summary?: string;
+  description?: string;
+  tags?: string[];
+  parameters: ParameterInfo[];
+  responses: ResponseInfo[];
+  externalDocs?: {
+    url: string;
+    description?: string;
+  };
+  extensions?: Record<string, unknown>;
+}
+
+/**
+ * Extract comprehensive operation information including OpenAPI metadata
+ */
+export function extractOperationInfo(
+  program: Program,
+  operation: Operation,
+): OperationInfo {
+  const [httpOperation] = getHttpOperation(program, operation);
+
+  const operationId = getOperationId(program, operation);
+  const externalDocs = getExternalDocs(program, operation);
+  const extensions = getExtensions(program, operation);
+
+  const operationInfo: OperationInfo = {
+    name: operation.name || 'unnamed',
+    operationId,
+    method: (httpOperation.verb?.toUpperCase() || 'GET') as HTTPMethod,
+    path: httpOperation.path || '',
+    summary: undefined,
+    description: undefined,
+    parameters: extractParameters(httpOperation),
+    responses: extractResponses(operation, httpOperation),
+    externalDocs,
+    extensions: extensions ? Object.fromEntries(extensions) : undefined,
+  };
+
+  return operationInfo;
+}
+
+/**
+ * Extract parameter information from operation
+ */
+function extractParameters(httpOperation: HttpOperation): ParameterInfo[] {
+  const parameters: ParameterInfo[] = [];
+
+  if (!httpOperation || !httpOperation.parameters) {
+    return parameters;
   }
+
+  // Extract parameters from HTTP operation metadata
+  for (const param of httpOperation.parameters.parameters || []) {
+    let location: ParameterLocation = 'query';
+
+    switch (param.type) {
+      case 'path':
+        location = 'path';
+        break;
+      case 'query':
+        location = 'query';
+        break;
+      case 'header':
+        location = 'header';
+        break;
+      case 'cookie':
+        location = 'cookie';
+        break;
+    }
+
+    parameters.push({
+      name: param.name,
+      location,
+      type: param.param.type,
+      optional: param.param.optional || false,
+      description: undefined,
+    });
+  }
+
+  // Handle body parameters
+  if (httpOperation.parameters.body) {
+    parameters.push({
+      name: httpOperation.parameters.body.property?.name || 'body',
+      location: 'body',
+      type: httpOperation.parameters.body.type,
+      optional: false,
+      description: undefined,
+    });
+  }
+
+  return parameters;
 }
 
 /**
- * Check if a scalar is a built-in TypeSpec scalar
+ * Extract response information from operation
  */
-function isBuiltinScalar(name: string): boolean {
-  const builtins = [
-    'string',
-    'int8',
-    'int16',
-    'int32',
-    'int64',
-    'uint8',
-    'uint16',
-    'uint32',
-    'uint64',
-    'float32',
-    'float64',
-    'decimal',
-    'decimal128',
-    'boolean',
-    'plainDate',
-    'plainTime',
-    'utcDateTime',
-    'offsetDateTime',
-    'duration',
-    'bytes',
-    'url',
-    'safeint',
-  ];
-  return builtins.includes(name);
+function extractResponses(
+  operation: Operation,
+  httpOperation: HttpOperation,
+): ResponseInfo[] {
+  const responses: ResponseInfo[] = [];
+
+  // Check if operation has explicit HTTP responses
+  if (
+    httpOperation &&
+    httpOperation.responses &&
+    httpOperation.responses.length > 0
+  ) {
+    // Parse explicit responses from HttpOperation.responses array
+    for (const response of httpOperation.responses) {
+      // Extract status code - handle different possible types
+      let statusCode = 200;
+      const statusCodes = response.statusCodes;
+
+      if (typeof statusCodes === 'number') {
+        statusCode = statusCodes;
+      } else {
+        // For non-number types (ranges, strings, etc.), default to 200 for now
+        // TODO: Implement proper range parsing when we have real examples
+        statusCode = 200;
+      }
+
+      responses.push({
+        statusCode,
+        type: response.type || operation.returnType,
+        description: response.description,
+      });
+    }
+  } else {
+    // Default to 200 status code if no explicit responses
+    responses.push({
+      statusCode: 200,
+      type: operation.returnType,
+      description: undefined,
+    });
+  }
+
+  // Ensure we have at least one response
+  if (responses.length === 0) {
+    responses.push({
+      statusCode: 200,
+      type: operation.returnType,
+      description: undefined,
+    });
+  }
+
+  return responses;
 }
 
 /**
- * Check if a type name is a built-in TypeSpec/HTTP type
+ * Group parameters by location
  */
-function isBuiltInType(name: string): boolean {
-  const builtInTypes = [
-    'ServiceOptions',
-    'DiscriminatedOptions',
-    'ExampleOptions',
-    'OperationExample',
-    'VisibilityFilter',
-    'Array',
-    'EnumMember',
-    'Namespace',
-    'Model',
-    'Scalar',
-    'Enum',
-    'Union',
-    'ModelProperty',
-    'Operation',
-    'Interface',
-    'UnionVariant',
-    'StringTemplate',
-    'LocationHeader',
-    'HeaderOptions',
-    'OkResponse',
-    'CreatedResponse',
-    'AcceptedResponse',
-    'NoContentResponse',
-    'MovedResponse',
-    'NotModifiedResponse',
-    'BadRequestResponse',
-    'UnauthorizedResponse',
-    'ForbiddenResponse',
-    'NotFoundResponse',
-    'ConflictResponse',
-    'HttpPartOptions',
-    'Link',
-    'Record',
-    'CookieOptions',
-    'QueryOptions',
-    'PathOptions',
-    'PatchOptions',
-    'BasicAuth',
-    'BearerAuth',
-    'AuthorizationCodeFlow',
-    'ImplicitFlow',
-    'PasswordFlow',
-    'ClientCredentialsFlow',
-    'NoAuth',
-    'ApplyMergePatchOptions',
-  ];
+export function groupParametersByLocation(
+  parameters: ParameterInfo[],
+): Record<ParameterLocation, ParameterInfo[]> {
+  const grouped: Record<ParameterLocation, ParameterInfo[]> = {
+    query: [],
+    path: [],
+    header: [],
+    cookie: [],
+    body: [],
+  };
 
-  return builtInTypes.includes(name);
+  for (const param of parameters) {
+    grouped[param.location].push(param);
+  }
+
+  return grouped;
 }
+
+/**
+ * Check if operation has parameters of a specific location
+ */
+export function hasParametersOfLocation(
+  parameters: ParameterInfo[],
+  location: ParameterLocation,
+): boolean {
+  return parameters.some((param) => param.location === location);
+}
+
+/**
+ * Get status codes from responses
+ */
+export function getStatusCodes(responses: ResponseInfo[]): number[] {
+  return responses.map((r) => r.statusCode).sort((a, b) => a - b);
+}
+
+/**
+ * Get unique status codes from responses
+ */
+export function getUniqueStatusCodes(responses: ResponseInfo[]): number[] {
+  return [...new Set(getStatusCodes(responses))];
+}
+
+/**
+ * Check if operation has a specific status code
+ */
+export function hasStatusCode(
+  responses: ResponseInfo[],
+  statusCode: number,
+): boolean {
+  return responses.some((r) => r.statusCode === statusCode);
+}
+
+/**
+ * Get response by status code
+ */
+export function getResponseByStatusCode(
+  responses: ResponseInfo[],
+  statusCode: number,
+): ResponseInfo | undefined {
+  return responses.find((r) => r.statusCode === statusCode);
+}
+
+/**
+ * Common HTTP status codes
+ */
+export const COMMON_STATUS_CODES = {
+  OK: 200,
+  CREATED: 201,
+  ACCEPTED: 202,
+  NO_CONTENT: 204,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  METHOD_NOT_ALLOWED: 405,
+  CONFLICT: 409,
+  UNPROCESSABLE_ENTITY: 422,
+  INTERNAL_SERVER_ERROR: 500,
+  NOT_IMPLEMENTED: 501,
+  BAD_GATEWAY: 502,
+  SERVICE_UNAVAILABLE: 503,
+} as const;

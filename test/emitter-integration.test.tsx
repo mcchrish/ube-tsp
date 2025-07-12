@@ -1,8 +1,5 @@
 import { describe, it } from 'vitest';
-import { 
-  readAndValidateComplete,
-  createEmitterTestRunner,
-} from './utils.jsx';
+import { readAndValidateComplete, createEmitterTestRunner } from './utils.jsx';
 import { EXPECTED_OPERATIONS } from './expected-operations.js';
 
 describe('Full Emitter Integration', () => {
@@ -42,11 +39,31 @@ describe('Full Emitter Integration', () => {
       `);
 
       // Validate each complete operation file matches exactly
-      await readAndValidateComplete(runner, 'createPet', EXPECTED_OPERATIONS.createPet);
-      await readAndValidateComplete(runner, 'getPet', EXPECTED_OPERATIONS.getPet);
-      await readAndValidateComplete(runner, 'updatePet', EXPECTED_OPERATIONS.updatePet);
-      await readAndValidateComplete(runner, 'deletePet', EXPECTED_OPERATIONS.deletePet);
-      await readAndValidateComplete(runner, 'listPets', EXPECTED_OPERATIONS.listPets);
+      await readAndValidateComplete(
+        runner,
+        'createPet',
+        EXPECTED_OPERATIONS.createPet,
+      );
+      await readAndValidateComplete(
+        runner,
+        'getPet',
+        EXPECTED_OPERATIONS.getPet,
+      );
+      await readAndValidateComplete(
+        runner,
+        'updatePet',
+        EXPECTED_OPERATIONS.updatePet,
+      );
+      await readAndValidateComplete(
+        runner,
+        'deletePet',
+        EXPECTED_OPERATIONS.deletePet,
+      );
+      await readAndValidateComplete(
+        runner,
+        'listPets',
+        EXPECTED_OPERATIONS.listPets,
+      );
     });
 
     it('should generate search operations with complex parameters', async () => {
@@ -70,7 +87,11 @@ describe('Full Emitter Integration', () => {
         }
       `);
 
-      await readAndValidateComplete(runner, 'searchPets', EXPECTED_OPERATIONS.searchPets);
+      await readAndValidateComplete(
+        runner,
+        'searchPets',
+        EXPECTED_OPERATIONS.searchPets,
+      );
     });
   });
 
@@ -125,7 +146,11 @@ export const createPetWithOwner = {
   statusCodes: [200]
 } as const;`;
 
-      await readAndValidateComplete(runner, 'createPetWithOwner', expectedOutput);
+      await readAndValidateComplete(
+        runner,
+        'createPetWithOwner',
+        expectedOutput,
+      );
     });
 
     it('should handle void operations correctly', async () => {
@@ -141,14 +166,18 @@ export const createPetWithOwner = {
         }
       `);
 
-      await readAndValidateComplete(runner, 'deletePet', EXPECTED_OPERATIONS.deletePet);
+      await readAndValidateComplete(
+        runner,
+        'deletePet',
+        EXPECTED_OPERATIONS.deletePet,
+      );
 
       const expectedResetPets = `export interface ResetPetsTypes {
   pathParams?: never;
   queryParams?: never;
   headers?: never;
   body?: never;
-  responses: { 200: void };
+  responses: { 204: void };
 };
 export const resetPets = {
   operationId: 'resetPets',
@@ -160,7 +189,7 @@ export const resetPets = {
     hasHeaders: false,
     hasBody: false
   },
-  statusCodes: [200]
+  statusCodes: [204]
 } as const;`;
 
       await readAndValidateComplete(runner, 'resetPets', expectedResetPets);
@@ -189,7 +218,11 @@ export const resetPets = {
         }
       `);
 
-      await readAndValidateComplete(runner, 'listPets', EXPECTED_OPERATIONS.listPets);
+      await readAndValidateComplete(
+        runner,
+        'listPets',
+        EXPECTED_OPERATIONS.listPets,
+      );
 
       const expectedGetAllPets = `export interface GetAllPetsTypes {
   pathParams?: never;
