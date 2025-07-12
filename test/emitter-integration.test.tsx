@@ -1,146 +1,299 @@
-import { describe, it, expect } from 'vitest';
-import { readGeneratedFile } from './utils.jsx';
-import { compilePetsApi } from './pets-helpers.jsx';
+import { describe, it } from 'vitest';
+import { 
+  readAndValidateComplete,
+  createEmitterTestRunner,
+} from './utils.jsx';
+import { EXPECTED_OPERATIONS } from './expected-operations.js';
 
-describe('Emitter Integration', () => {
-  it('should generate complete API structure for Pets API', async () => {
-    const runner = await compilePetsApi(`
-      @route("/pets")
-      interface Pets {
-        @get
-        listPets(@query status?: string, @query limit?: int32): Pet[];
-        
-        @post
-        createPet(@body pet: CreatePetRequest): Pet;
-        
-        @get
-        getPet(@path petId: int32): Pet;
-        
-        @put
-        updatePet(@path petId: int32, @body pet: Pet): Pet;
-        
-        @delete
-        deletePet(@path petId: int32): void;
-        
-        @get
-        @route("/search")
-        searchPets(@header authorization: string, @query q: string): Pet[];
-      }
-    `);
+describe('Full Emitter Integration', () => {
+  describe('Complete Pets API', () => {
+    it('should generate all Pets API operations exactly as expected', async () => {
+      const runner = await createEmitterTestRunner();
+      await runner.compile(`
+        model CreatePetRequest {
+          name: string;
+          tag?: string;
+        }
 
-    // Test schemas.ts generation
-    const schemasContent = await readGeneratedFile(runner, 'api/schemas.ts');
-    expect(schemasContent).toContain('export interface Pet');
-    expect(schemasContent).toContain('export interface CreatePetRequest');
+        model Pet {
+          id: int32;
+          name: string;
+          tag?: string;
+          status: "available" | "pending" | "sold";
+        }
 
-    // Test individual operation files
-    const operations = [
-      'listPets',
-      'createPet',
-      'getPet',
-      'updatePet',
-      'deletePet',
-      'searchPets',
-    ];
+        @route("/pets")
+        interface Pets {
+          @get
+          getPet(@path petId: int32): Pet;
+          
+          @post
+          createPet(@body pet: CreatePetRequest): Pet;
+          
+          @put
+          updatePet(@path petId: int32, @body pet: Pet): Pet;
+          
+          @delete
+          deletePet(@path petId: int32): void;
+          
+          @get
+          listPets(@query status?: string, @query limit?: int32): Pet[];
+        }
+      `);
 
-    for (const operation of operations) {
-      const operationContent = await readGeneratedFile(
-        runner,
-        `api/operations/${operation}.ts`,
-      );
-      expect(operationContent).toContain(
-        `export const operationId = '${operation}' as const`,
-      );
-      expect(operationContent).toContain('export const method =');
-      expect(operationContent).toContain('export const path =');
-      expect(operationContent).toContain('export const operation = {');
-    }
+      // Validate each complete operation file matches exactly
+      await readAndValidateComplete(runner, 'createPet', EXPECTED_OPERATIONS.createPet);
+      await readAndValidateComplete(runner, 'getPet', EXPECTED_OPERATIONS.getPet);
+      await readAndValidateComplete(runner, 'updatePet', EXPECTED_OPERATIONS.updatePet);
+      await readAndValidateComplete(runner, 'deletePet', EXPECTED_OPERATIONS.deletePet);
+      await readAndValidateComplete(runner, 'listPets', EXPECTED_OPERATIONS.listPets);
+    });
+
+    it('should generate search operations with complex parameters', async () => {
+      const runner = await createEmitterTestRunner();
+      await runner.compile(`
+        model Pet {
+          id: int32;
+          name: string;
+          tag?: string;
+          status: "available" | "pending" | "sold";
+        }
+
+        @route("/pets/search")
+        interface PetSearch {
+          @get
+          searchPets(
+            @query q: string,
+            @query category?: string,
+            @header authorization: string
+          ): Pet[];
+        }
+      `);
+
+      await readAndValidateComplete(runner, 'searchPets', EXPECTED_OPERATIONS.searchPets);
+    });
   });
 
-  it('should handle complex API with multiple interfaces', async () => {
-    const runner = await compilePetsApi(`
-      model Store {
-        id: int32;
-        name: string;
-        address: string;
-      }
+  describe('Mixed API Scenarios', () => {
+    it('should handle operations with nested models correctly', async () => {
+      const runner = await createEmitterTestRunner();
+      await runner.compile(`
+        model Address {
+          street: string;
+          city: string;
+          zipCode?: string;
+        }
 
-      @route("/stores")
-      interface Stores {
-        @get
-        listStores(): Store[];
+        model Owner {
+          name: string;
+          email: string;
+          address: Address;
+        }
+
+        model PetWithOwner {
+          id: int32;
+          name: string;
+          owner: Owner;
+          status: "available" | "pending" | "sold";
+        }
+
+        @route("/pets")
+        interface Pets {
+          @post
+          createPetWithOwner(@body petData: PetWithOwner): PetWithOwner;
+        }
+      `);
+
+      // Should generate flattened nested structure
+      const expectedOutput = `export interface CreatePetWithOwnerTypes {
+  pathParams?: never;
+  queryParams?: never;
+  headers?: never;
+  body: { petData: { id: number; name: string; owner: { name: string; email: string; address: { street: string; city: string; zipCode?: string } }; status: "available" | "pending" | "sold" } };
+  responses: { 200: { id: number; name: string; owner: { name: string; email: string; address: { street: string; city: string; zipCode?: string } }; status: "available" | "pending" | "sold" } };
+};
+export const createPetWithOwner = {
+  operationId: 'createPetWithOwner',
+  method: 'POST' as const,
+  path: '/pets',
+  parameterTypes: {
+    hasPathParams: false,
+    hasQueryParams: false,
+    hasHeaders: false,
+    hasBody: true
+  },
+  statusCodes: [200]
+} as const;`;
+
+      await readAndValidateComplete(runner, 'createPetWithOwner', expectedOutput);
+    });
+
+    it('should handle void operations correctly', async () => {
+      const runner = await createEmitterTestRunner();
+      await runner.compile(`
+        @route("/pets")
+        interface Pets {
+          @delete
+          deletePet(@path petId: int32): void;
+          
+          @post
+          resetPets(): void;
+        }
+      `);
+
+      await readAndValidateComplete(runner, 'deletePet', EXPECTED_OPERATIONS.deletePet);
+
+      const expectedResetPets = `export interface ResetPetsTypes {
+  pathParams?: never;
+  queryParams?: never;
+  headers?: never;
+  body?: never;
+  responses: { 200: void };
+};
+export const resetPets = {
+  operationId: 'resetPets',
+  method: 'POST' as const,
+  path: '/pets',
+  parameterTypes: {
+    hasPathParams: false,
+    hasQueryParams: false,
+    hasHeaders: false,
+    hasBody: false
+  },
+  statusCodes: [200]
+} as const;`;
+
+      await readAndValidateComplete(runner, 'resetPets', expectedResetPets);
+    });
+
+    it('should handle array return types correctly', async () => {
+      const runner = await createEmitterTestRunner();
+      await runner.compile(`
+        model Pet {
+          id: int32;
+          name: string;
+          tag?: string;
+          status: "available" | "pending" | "sold";
+        }
+
+        @route("/pets")
+        interface Pets {
+          @get
+          listPets(@query status?: string, @query limit?: int32): Pet[];
+        }
         
-        @post
-        createStore(@body store: Store): Store;
-      }
+        @route("/pets/all")
+        interface AllPets {
+          @get
+          getAllPets(): Pet[];
+        }
+      `);
 
-      @route("/pets")
-      interface Pets {
-        @get
-        listPets(@query storeId?: int32): Pet[];
-        
-        @post
-        createPet(@body pet: CreatePetRequest): Pet;
-      }
-    `);
+      await readAndValidateComplete(runner, 'listPets', EXPECTED_OPERATIONS.listPets);
 
-    const schemasContent = await readGeneratedFile(runner, 'api/schemas.ts');
-    expect(schemasContent).toContain('export interface Store');
-    expect(schemasContent).toContain('export interface Pet');
-    expect(schemasContent).toContain('export interface CreatePetRequest');
+      const expectedGetAllPets = `export interface GetAllPetsTypes {
+  pathParams?: never;
+  queryParams?: never;
+  headers?: never;
+  body?: never;
+  responses: { 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" }[] };
+};
+export const getAllPets = {
+  operationId: 'getAllPets',
+  method: 'GET' as const,
+  path: '/pets/all',
+  parameterTypes: {
+    hasPathParams: false,
+    hasQueryParams: false,
+    hasHeaders: false,
+    hasBody: false
+  },
+  statusCodes: [200]
+} as const;`;
 
-    // Test store operations
-    const listStoresContent = await readGeneratedFile(
-      runner,
-      'api/operations/listStores.ts',
-    );
-    expect(listStoresContent).toContain(
-      "export const path = '/stores' as const",
-    );
-    expect(listStoresContent).toContain("export const method = 'GET' as const");
-
-    const createStoreContent = await readGeneratedFile(
-      runner,
-      'api/operations/createStore.ts',
-    );
-    expect(createStoreContent).toContain(
-      "export const path = '/stores' as const",
-    );
-    expect(createStoreContent).toContain(
-      "export const method = 'POST' as const",
-    );
-    expect(createStoreContent).toContain('export interface RequestBody');
-
-    // Test pet operations
-    const listPetsContent = await readGeneratedFile(
-      runner,
-      'api/operations/listPets.ts',
-    );
-    expect(listPetsContent).toContain("export const path = '/pets' as const");
-    expect(listPetsContent).toContain('export interface QueryParams');
-    expect(listPetsContent).toContain('storeId?: number');
+      await readAndValidateComplete(runner, 'getAllPets', expectedGetAllPets);
+    });
   });
 
-  it('should generate proper TypeScript imports and exports', async () => {
-    const runner = await compilePetsApi(`
-      @route("/pets")
-      interface Pets {
-        @get
-        getPet(@path petId: int32): Pet;
-      }
-    `);
+  describe('Edge Cases', () => {
+    it('should handle operations with only optional parameters', async () => {
+      const runner = await createEmitterTestRunner();
+      await runner.compile(`
+        model Pet {
+          id: int32;
+          name: string;
+          tag?: string;
+          status: "available" | "pending" | "sold";
+        }
 
-    const operationContent = await readGeneratedFile(
-      runner,
-      'api/operations/getPet.ts',
-    );
+        @route("/pets")
+        interface Pets {
+          @get
+          searchPets(@query name?: string, @query status?: string): Pet[];
+        }
+      `);
 
-    // Check that all exports are properly declared
-    expect(operationContent).toContain('export const operationId');
-    expect(operationContent).toContain('export const method');
-    expect(operationContent).toContain('export const path');
-    expect(operationContent).toContain('export interface PathParams');
-    expect(operationContent).toContain('export type Response200');
-    expect(operationContent).toContain('export const operation');
+      const expectedOutput = `export interface SearchPetsTypes {
+  pathParams?: never;
+  queryParams: { name?: string; status?: string };
+  headers?: never;
+  body?: never;
+  responses: { 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" }[] };
+};
+export const searchPets = {
+  operationId: 'searchPets',
+  method: 'GET' as const,
+  path: '/pets',
+  parameterTypes: {
+    hasPathParams: false,
+    hasQueryParams: true,
+    hasHeaders: false,
+    hasBody: false
+  },
+  statusCodes: [200]
+} as const;`;
+
+      await readAndValidateComplete(runner, 'searchPets', expectedOutput);
+    });
+
+    it('should handle operations with complex union types', async () => {
+      const runner = await createEmitterTestRunner();
+      await runner.compile(`
+        model Pet {
+          id: int32;
+          name: string;
+          type: "dog" | "cat" | "bird" | "fish";
+          status: "available" | "pending" | "sold";
+        }
+
+        @route("/pets")
+        interface Pets {
+          @get
+          getPetsByType(@query petType: "dog" | "cat" | "bird"): Pet[];
+        }
+      `);
+
+      const expectedOutput = `export interface GetPetsByTypeTypes {
+  pathParams?: never;
+  queryParams: { petType: "dog" | "cat" | "bird" };
+  headers?: never;
+  body?: never;
+  responses: { 200: { id: number; name: string; type: "dog" | "cat" | "bird" | "fish"; status: "available" | "pending" | "sold" }[] };
+};
+export const getPetsByType = {
+  operationId: 'getPetsByType',
+  method: 'GET' as const,
+  path: '/pets',
+  parameterTypes: {
+    hasPathParams: false,
+    hasQueryParams: true,
+    hasHeaders: false,
+    hasBody: false
+  },
+  statusCodes: [200]
+} as const;`;
+
+      await readAndValidateComplete(runner, 'getPetsByType', expectedOutput);
+    });
   });
 });

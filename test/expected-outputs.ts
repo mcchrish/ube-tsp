@@ -1,65 +1,51 @@
 /**
- * Expected output templates for operation files
+ * Expected output templates for new runtime-friendly structure
  */
 
-export interface OperationExpectation {
-  imports?: string[];
+export interface NewOperationExpectation {
+  interfaceName: string;
+  pathParams: string;
+  queryParams: string;
+  headers: string;
+  body: string;
+  responses: string;
+  configName: string;
   operationId: string;
   method: string;
   path: string;
-  interfaces?: Record<string, Record<string, string>>;
-  responseType: string;
-  operationConfig: {
-    operationId: string;
-    method: string;
-    path: string;
-    parameters?: Record<string, boolean>;
-    responses: number[];
+  parameterTypes: {
+    hasPathParams: boolean;
+    hasQueryParams: boolean;
+    hasHeaders: boolean;
+    hasBody: boolean;
   };
+  statusCodes: number[];
 }
 
-export function formatExpectedOperation(expectation: OperationExpectation): string {
+export function formatNewOperationExpectation(expectation: NewOperationExpectation): string {
   const parts: string[] = [];
 
-  // Add operation constants
-  parts.push(`export const operationId = '${expectation.operationId}' as const;`);
-  parts.push(`export const method = '${expectation.method}' as const;`);
-  parts.push(`export const path = '${expectation.path}' as const;`);
+  // Types interface
+  parts.push(`export interface ${expectation.interfaceName} {`);
+  parts.push(`  pathParams${expectation.pathParams === 'never' ? '?' : ''}: ${expectation.pathParams};`);
+  parts.push(`  queryParams${expectation.queryParams === 'never' ? '?' : ''}: ${expectation.queryParams};`);
+  parts.push(`  headers${expectation.headers === 'never' ? '?' : ''}: ${expectation.headers};`);
+  parts.push(`  body${expectation.body === 'never' ? '?' : ''}: ${expectation.body};`);
+  parts.push(`  responses: ${expectation.responses};`);
+  parts.push('};');
 
-  // Add interfaces
-  if (expectation.interfaces) {
-    parts.push(''); // Empty line before interfaces
-    Object.entries(expectation.interfaces).forEach(([interfaceName, properties]) => {
-      parts.push(`export interface ${interfaceName} {`);
-      Object.entries(properties).forEach(([propName, propType]) => {
-        parts.push(`  ${propName}: ${propType};`);
-      });
-      parts.push('}');
-    });
-  }
-
-  // Add response type
-  parts.push(''); // Empty line before response type
-  parts.push(`export type Response200 = ${expectation.responseType};`);
-
-  // Add operation configuration
-  parts.push(''); // Empty line before operation
-  parts.push('export const operation = {');
-  parts.push(`  operationId: '${expectation.operationConfig.operationId}',`);
-  parts.push(`  method: '${expectation.operationConfig.method}',`);
-  parts.push(`  path: '${expectation.operationConfig.path}',`);
-  
-  if (expectation.operationConfig.parameters && Object.keys(expectation.operationConfig.parameters).length > 0) {
-    parts.push('  parameters: {');
-    Object.entries(expectation.operationConfig.parameters).forEach(([paramType, enabled]) => {
-      if (enabled) {
-        parts.push(`    ${paramType}: true,`);
-      }
-    });
-    parts.push('  },');
-  }
-  
-  parts.push(`  responses: [${expectation.operationConfig.responses.join(', ')}],`);
+  // Config object
+  parts.push(`export const ${expectation.configName} = {`);
+  parts.push(`  operationId: '${expectation.operationId}',`);
+  parts.push(`  method: '${expectation.method}' as const,`);
+  parts.push(`  path: '${expectation.path}',`);
+  parts.push('  parameterTypes: {');
+  parts.push(`    hasPathParams: ${expectation.parameterTypes.hasPathParams},`);
+  parts.push(`    hasQueryParams: ${expectation.parameterTypes.hasQueryParams},`);
+  parts.push(`    hasHeaders: ${expectation.parameterTypes.hasHeaders},`);
+  parts.push(`    hasBody: ${expectation.parameterTypes.hasBody}`);
+  parts.push('  },');
+  parts.push(`  statusCodes: [${expectation.statusCodes.join(', ')}]`);
   parts.push('} as const;');
 
   return parts.join('\n');
@@ -186,5 +172,48 @@ export const EXPECTED_OPERATIONS = {
       parameters: { query: true, header: true },
       responses: [200]
     }
+  })
+};
+
+// New expectations for runtime-friendly structure
+export const NEW_EXPECTED_OPERATIONS = {
+  getPet: (): NewOperationExpectation => ({
+    interfaceName: 'GetPetTypes',
+    pathParams: '{ petId: number }',
+    queryParams: 'never',
+    headers: 'never', 
+    body: 'never',
+    responses: '{ 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" } }',
+    configName: 'getPet',
+    operationId: 'getPet',
+    method: 'GET',
+    path: '/pets/{petId}',
+    parameterTypes: {
+      hasPathParams: true,
+      hasQueryParams: false,
+      hasHeaders: false,
+      hasBody: false
+    },
+    statusCodes: [200]
+  }),
+
+  createPet: (): NewOperationExpectation => ({
+    interfaceName: 'CreatePetTypes',
+    pathParams: 'never',
+    queryParams: 'never',
+    headers: 'never',
+    body: '{ pet: { name: string; tag?: string } }',
+    responses: '{ 200: { id: number; name: string; tag?: string; status: "available" | "pending" | "sold" } }',
+    configName: 'createPet',
+    operationId: 'createPet',
+    method: 'POST',
+    path: '/pets',
+    parameterTypes: {
+      hasPathParams: false,
+      hasQueryParams: false,
+      hasHeaders: false,
+      hasBody: true
+    },
+    statusCodes: [200]
   })
 };

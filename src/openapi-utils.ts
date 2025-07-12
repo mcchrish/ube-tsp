@@ -163,12 +163,33 @@ function extractResponses(
 ): ResponseInfo[] {
   const responses: ResponseInfo[] = [];
 
-  // Default response
-  responses.push({
-    statusCode: 200,
-    type: operation.returnType,
-    description: undefined,
-  });
+  // Check if operation has explicit HTTP responses
+  if (httpOperation && httpOperation.responses && typeof httpOperation.responses.entries === 'function') {
+    // Parse explicit responses from HTTP operation
+    for (const [statusCode, response] of httpOperation.responses.entries()) {
+      responses.push({
+        statusCode: parseInt(statusCode.toString(), 10),
+        type: response.type || operation.returnType,
+        description: response.description,
+      });
+    }
+  } else {
+    // Always default to 200 status code for now
+    responses.push({
+      statusCode: 200,
+      type: operation.returnType,
+      description: undefined,
+    });
+  }
+
+  // Ensure we have at least one response
+  if (responses.length === 0) {
+    responses.push({
+      statusCode: 200,
+      type: operation.returnType,
+      description: undefined,
+    });
+  }
 
   return responses;
 }
