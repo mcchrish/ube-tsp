@@ -133,12 +133,7 @@ export function validateOperationStructure(content: string): void {
   }
 
   // Validate config has required properties
-  const requiredConfigProps = [
-    'operationId',
-    'method',
-    'path',
-    'parameterTypes',
-  ];
+  const requiredConfigProps = ['operationId', 'method', 'path'];
   for (const prop of requiredConfigProps) {
     if (!parsed.configContent.includes(prop)) {
       throw new Error(`Missing ${prop} in config object`);
@@ -178,7 +173,9 @@ export function expectExactOutput(
   expectedOutput: string,
   description?: string,
 ): void {
-  expect(actualOutput, description || 'Output should match expected').toBe(expectedOutput);
+  expect(actualOutput, description || 'Output should match expected').toBe(
+    expectedOutput,
+  );
 }
 
 /**
@@ -189,7 +186,10 @@ export function expectSectionMatch(
   expectedSection: string,
   description?: string,
 ): void {
-  expect(actualOutput, `${description || 'Section'} should be found in output`).toContain(expectedSection);
+  expect(
+    actualOutput,
+    `${description || 'Section'} should be found in output`,
+  ).toContain(expectedSection);
 }
 
 /**

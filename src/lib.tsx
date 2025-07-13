@@ -1,15 +1,7 @@
 import { Children } from '@alloy-js/core';
 import * as ts from '@alloy-js/typescript';
 import * as ay from '@alloy-js/core';
-import {
-  Type,
-  EmitContext,
-  Model,
-  Operation,
-  navigateProgram,
-  createTypeSpecLibrary,
-  LiteralType,
-} from '@typespec/compiler';
+import { Type, createTypeSpecLibrary, LiteralType } from '@typespec/compiler';
 
 export const $lib = createTypeSpecLibrary({
   name: 'ts-sketch',
@@ -37,20 +29,30 @@ export function mapTypeSpecToTypeScript(type: Type): Children {
     case 'Model':
       if (type.name === 'Array' && type.indexer) {
         const elementType = mapTypeSpecToTypeScript(type.indexer.value);
-        return <ts.ArrayExpression children={elementType} />;
+        return (
+          <>
+            {elementType}
+            <ts.ArrayExpression />
+          </>
+        );
       }
 
-      if (type.properties && type.properties.size > 0) {
+      if (type.properties.size > 0) {
         return (
           <ts.InterfaceExpression>
             <ay.StatementList>
-              {[...type.properties.values()].map(property => (
-                <ts.InterfaceMember
-                  name={property.name}
-                  optional={property.optional}
-                  type={mapTypeSpecToTypeScript(property.type)}
-                />
-              ))}
+              {[...type.properties.values()].flatMap((property) => {
+                if (property.name === 'type') {
+                  return [];
+                }
+                return (
+                  <ts.InterfaceMember
+                    name={property.name}
+                    optional={property.optional}
+                    type={mapTypeSpecToTypeScript(property.type)}
+                  />
+                );
+              })}
             </ay.StatementList>
           </ts.InterfaceExpression>
         );
@@ -76,9 +78,14 @@ export function mapTypeSpecToTypeScript(type: Type): Children {
       }
 
     case 'Union':
-      return [...type.variants.values()]
-        .map((variant) => mapTypeSpecToTypeScript(variant.type))
-        .join(' | ');
+      // Since ts.UnionExpression doesn't exist, use string-based union generation
+      return (
+        <ay.List joiner=" | ">
+          {[...type.variants.values()].map((variant) => {
+            return mapTypeSpecToTypeScript(variant.type);
+          })}
+        </ay.List>
+      );
 
     case 'Enum':
       if (type.members && type.members.size > 0) {
@@ -108,90 +115,4 @@ export function mapTypeSpecToTypeScript(type: Type): Children {
     default:
       return 'any';
   }
-}
-
-export function getModels(context: EmitContext): Model[] {
-  const models: Model[] = [];
-
-  navigateProgram(context.program, {
-    model(model) {
-      if (
-        model.name &&
-        !model.name.startsWith('_') &&
-        !isBuiltInType(model.name) &&
-        model.namespace?.name !== 'TypeSpec' &&
-        model.namespace?.name !== 'TypeSpec.Http'
-      ) {
-        models.push(model);
-      }
-    },
-  });
-
-  return models;
-}
-
-function isBuiltInType(name: string): boolean {
-  const builtInTypes = [
-    'ServiceOptions',
-    'DiscriminatedOptions',
-    'ExampleOptions',
-    'OperationExample',
-    'VisibilityFilter',
-    'Array',
-    'EnumMember',
-    'Namespace',
-    'Model',
-    'Scalar',
-    'Enum',
-    'Union',
-    'ModelProperty',
-    'Operation',
-    'Interface',
-    'UnionVariant',
-    'StringTemplate',
-    'LocationHeader',
-    'HeaderOptions',
-    'OkResponse',
-    'CreatedResponse',
-    'AcceptedResponse',
-    'NoContentResponse',
-    'MovedResponse',
-    'NotModifiedResponse',
-    'BadRequestResponse',
-    'UnauthorizedResponse',
-    'ForbiddenResponse',
-    'NotFoundResponse',
-    'ConflictResponse',
-    'HttpPartOptions',
-    'Link',
-    'Record',
-    'CookieOptions',
-    'QueryOptions',
-    'PathOptions',
-    'PatchOptions',
-    'BasicAuth',
-    'BearerAuth',
-    'AuthorizationCodeFlow',
-    'ImplicitFlow',
-    'PasswordFlow',
-    'ClientCredentialsFlow',
-    'NoAuth',
-    'ApplyMergePatchOptions',
-  ];
-
-  return builtInTypes.includes(name);
-}
-
-export function getOperations(context: EmitContext): Operation[] {
-  const operations: Operation[] = [];
-
-  navigateProgram(context.program, {
-    operation(operation) {
-      if (operation.name) {
-        operations.push(operation);
-      }
-    },
-  });
-
-  return operations;
 }

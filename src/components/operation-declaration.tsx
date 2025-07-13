@@ -1,15 +1,13 @@
-import * as ts from '@alloy-js/typescript';
 import * as ay from '@alloy-js/core';
+import * as ts from '@alloy-js/typescript';
 import { Operation, Program } from '@typespec/compiler';
+import { mapTypeSpecToTypeScript } from '../lib.jsx';
+import type { ParameterInfo, ResponseInfo } from '../utils.js';
 import {
   extractOperationInfo,
   groupParametersByLocation,
   hasParametersOfLocation,
 } from '../utils.js';
-
-// Import the ParameterInfo type from openapi-utils
-import type { ParameterInfo, ResponseInfo } from '../utils.js';
-import { mapTypeSpecToTypeScript } from '../lib.jsx';
 
 interface OperationInfo {
   operationId?: string;
@@ -113,7 +111,7 @@ function createParameterObjectType(params: ParameterInfo[]): ay.Children {
       <ay.StatementList>
         {params.map((param) => (
           <ts.InterfaceMember
-            name={param.originalName} // Use original name for proper quoting (headers like "x-api-key")
+            name={param.name}
             optional={param.optional}
             type={mapTypeSpecToTypeScript(param.type)}
           />
@@ -183,39 +181,6 @@ function createConfigObject(operationInfo: OperationInfo): ay.Children {
       <ay.List comma>
         <ts.ObjectProperty name="method" value={`'${operationInfo.method}'`} />
         <ts.ObjectProperty name="path" value={`'${operationInfo.path}'`} />
-        <ts.ObjectProperty
-          name="parameterTypes"
-          value={
-            <ts.ObjectExpression>
-              <ay.List comma>
-                <ts.ObjectProperty
-                  name="hasPathParams"
-                  value={String(
-                    hasParametersOfLocation(operationInfo.parameters, 'path'),
-                  )}
-                />
-                <ts.ObjectProperty
-                  name="hasQueryParams"
-                  value={String(
-                    hasParametersOfLocation(operationInfo.parameters, 'query'),
-                  )}
-                />
-                <ts.ObjectProperty
-                  name="hasHeaders"
-                  value={String(
-                    hasParametersOfLocation(operationInfo.parameters, 'header'),
-                  )}
-                />
-                <ts.ObjectProperty
-                  name="hasBody"
-                  value={String(
-                    hasParametersOfLocation(operationInfo.parameters, 'body'),
-                  )}
-                />
-              </ay.List>
-            </ts.ObjectExpression>
-          }
-        />
       </ay.List>
     </ts.ObjectExpression>
   );

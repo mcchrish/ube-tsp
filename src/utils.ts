@@ -29,7 +29,6 @@ export type ParameterLocation = 'query' | 'path' | 'header' | 'cookie' | 'body';
  */
 export interface ParameterInfo {
   name: string;
-  originalName: string; // Preserve original name for proper quoting (headers, etc.)
   location: ParameterLocation;
   type: Type;
   optional: boolean;
@@ -127,16 +126,8 @@ function extractParameters(httpOperation: HttpOperation): ParameterInfo[] {
         break;
     }
 
-    // Debug: Log parameter name to see what TypeSpec provides
-    console.log('Parameter from TypeSpec:', {
-      name: param.name,
-      location,
-      param: param.param
-    });
-
     parameters.push({
       name: param.name,
-      originalName: param.name, // Store original name before any transformations
       location,
       type: param.param.type,
       optional: param.param.optional || false,
@@ -149,7 +140,6 @@ function extractParameters(httpOperation: HttpOperation): ParameterInfo[] {
     const bodyName = httpOperation.parameters.body.property?.name || 'body';
     parameters.push({
       name: bodyName,
-      originalName: bodyName,
       location: 'body',
       type: httpOperation.parameters.body.type,
       optional: false,
@@ -271,44 +261,3 @@ export function hasParametersOfLocation(
 ): boolean {
   return parameters.some((param) => param.location === location);
 }
-
-/**
- * Check if operation has a specific status code
- */
-export function hasStatusCode(
-  responses: ResponseInfo[],
-  statusCode: number,
-): boolean {
-  return responses.some((r) => r.statusCode === statusCode);
-}
-
-/**
- * Get response by status code
- */
-export function getResponseByStatusCode(
-  responses: ResponseInfo[],
-  statusCode: number,
-): ResponseInfo | undefined {
-  return responses.find((r) => r.statusCode === statusCode);
-}
-
-/**
- * Common HTTP status codes
- */
-export const COMMON_STATUS_CODES = {
-  OK: 200,
-  CREATED: 201,
-  ACCEPTED: 202,
-  NO_CONTENT: 204,
-  BAD_REQUEST: 400,
-  UNAUTHORIZED: 401,
-  FORBIDDEN: 403,
-  NOT_FOUND: 404,
-  METHOD_NOT_ALLOWED: 405,
-  CONFLICT: 409,
-  UNPROCESSABLE_ENTITY: 422,
-  INTERNAL_SERVER_ERROR: 500,
-  NOT_IMPLEMENTED: 501,
-  BAD_GATEWAY: 502,
-  SERVICE_UNAVAILABLE: 503,
-} as const;

@@ -10,10 +10,11 @@ import {
 import { $ } from '@typespec/compiler/typekit';
 import { Output, writeOutput } from '@typespec/emitter-framework';
 import { OperationDeclaration } from './components/operation-declaration.jsx';
+import { createTSNamePolicy } from './name-policy.js';
 
 export async function $onEmit(context: EmitContext) {
   const operations = getAllOperations(context.program);
-  const tsNamePolicy = ts.createTSNamePolicy();
+  const tsNamePolicy = createTSNamePolicy();
 
   writeOutput(
     context.program,
