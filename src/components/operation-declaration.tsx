@@ -2,12 +2,12 @@ import * as ay from '@alloy-js/core';
 import * as ts from '@alloy-js/typescript';
 import { Operation, Program } from '@typespec/compiler';
 import { mapTypeSpecToTypeScript } from '../lib.jsx';
-import type { ParameterInfo, ResponseInfo } from '../utils.js';
+import type { ParameterInfo, ResponseInfo } from '../utils.jsx';
 import {
   extractOperationInfo,
   groupParametersByLocation,
   hasParametersOfLocation,
-} from '../utils.js';
+} from '../utils.jsx';
 
 interface OperationInfo {
   operationId?: string;

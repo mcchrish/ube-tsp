@@ -8,7 +8,7 @@ import { Enum, Model, Scalar, Tuple, Type, Union } from '@typespec/compiler';
 import { Typekit } from '@typespec/compiler/typekit';
 import { useTsp } from '@typespec/emitter-framework';
 import { ValueExpression } from '@typespec/emitter-framework/typescript';
-import { isDeclaration, isRecord } from '../utils.js';
+import { isDeclaration, isRecord } from '../utils.jsx';
 
 interface Props {
   type: Type;
@@ -156,7 +156,6 @@ function modelBaseType($: Typekit, type: Model) {
   return 'unknown';
 }
 
-// TODO
 function unionBaseType($: Typekit, type: Union) {
   const discriminated = $.union.getDiscriminatedUnion(type);
 
@@ -196,8 +195,11 @@ function unionBaseType($: Typekit, type: Union) {
 }
 
 function enumBaseType(type: Enum) {
-  console.log(type);
-  return 'unknown';
+  return (
+    <For each={Array.from(type.members.values())} joiner=" | ">
+      {(member) => <TsSchema type={member} />}
+    </For>
+  );
 }
 
 function tupleBaseType(type: Tuple) {

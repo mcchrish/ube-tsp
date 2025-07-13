@@ -268,42 +268,59 @@ it('works with array declarations', async () => {
   expectRender(runner.program, <TsSchema type={Test} />, 'string[]');
 });
 
-// it('handles references', async () => {
-//   const runner = await createTestRunner();
-//   const { Test, Test2, Item } = await runner.compile(`
-//     @test model Item {};
-//
-//     /** Simple array */
-//     @test model Test is Array<Item>{}
-//
-//     @test model Test2 {
-//       /** single array */
-//       prop1: Item[],
-//
-//       /** nested array */
-//       @maxItems(5)
-//       prop2: Item[][],
-//     }
-//   `);
-//
-//   expectRender(
-//     runner.program,
-//     <StatementList>
-//       <ZodSchemaDeclaration type={Item} />
-//       <ZodSchemaDeclaration type={Test} />
-//       <ZodSchemaDeclaration type={Test2} />
-//     </StatementList>,
-//
-//     d`
-//       const Item = z.object({});
-//       const Test = z.array(Item).describe("Simple array");
-//       const Test2 = z.object({
-//         prop1: z.array(Item).describe("single array"),
-//         prop2: z.array(z.array(Item)).max(5).describe("nested array"),
-//       });
-//     `,
-//   );
-// });
+it('handles references', async () => {
+  const runner = await createTestRunner();
+  const { Test, Test2, Item } = await runner.compile(`
+    @test model Item {
+      prop: string;
+    };
+
+    /** Simple array */
+    @test model Test is Array<Item>{}
+
+    @test model Test2 {
+      /** single array */
+      prop1: Item[],
+
+      /** nested array */
+      @maxItems(5)
+      prop2: Item[][],
+    }
+  `);
+
+  expectRender(
+    runner.program,
+    <TsSchema type={Item} />,
+    d`
+      {
+        prop: string;
+      }
+    `,
+  );
+  expectRender(
+    runner.program,
+    <TsSchema type={Test} />,
+    d`
+      {
+        prop: string;
+      }[]
+    `,
+  );
+  expectRender(
+    runner.program,
+    <TsSchema type={Test2} />,
+    d`
+      {
+        prop1: {
+          prop: string;
+        }[];
+        prop2: {
+          prop: string;
+        }[][];
+      }
+    `,
+  );
+});
 
 it('makes default optional', async () => {
   const runner = await createTestRunner();
