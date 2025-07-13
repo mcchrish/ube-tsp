@@ -327,15 +327,45 @@ it('makes default optional', async () => {
     <TsSchema type={Test} />,
     d`
       {
+        /**
+         * @defaultValue \`5\`
+         */
         number?: number;
+        /**
+         * @defaultValue \`"hello"\`
+         */
         string?: string;
+        /**
+         * @defaultValue \`true\`
+         */
         boolean?: boolean;
+        /**
+         * @defaultValue \`["hello"]\`
+         */
         array?: string[];
+        /**
+         * @defaultValue \`null\`
+         */
         null_?: null;
+        /**
+         * @defaultValue \`"2025-01-01T00:00:00Z"\`
+         */
         dateTime?: string;
+        /**
+         * @defaultValue \`"2025-01-01T00:00:00+01:00"\`
+         */
         offsetDateTime?: string;
+        /**
+         * @defaultValue \`"10:01:00"\`
+         */
         plainTime?: string;
+        /**
+         * @defaultValue \`"2025-01-01"\`
+         */
         plainDate?: string;
+        /**
+         * @defaultValue \`"P1Y2M3DT4H5M6S"\`
+         */
         duration?: string;
       }
     `,
