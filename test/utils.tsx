@@ -37,21 +37,8 @@ export async function createTestHost() {
 
 export async function createTestRunner() {
   const host = await createTestHost();
-  const importAndUsings = '';
-  return createTestWrapper(host, {
-    wrapper: (code) => `${importAndUsings} ${code}`,
-  });
-}
-
-export async function createEmitterTestRunner() {
-  const host = await createTestHost();
-
   const importAndUsings = `import "@typespec/http"; using Http;\n`;
-
   return createTestWrapper(host, {
     wrapper: (code) => `${importAndUsings} ${code}`,
-    compilerOptions: {
-      emit: ['typespec-typescript'],
-    },
   });
 }

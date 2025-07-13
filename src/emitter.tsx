@@ -22,10 +22,7 @@ export async function $onEmit(context: EmitContext) {
       <ay.For each={operations}>
         {(operation) => (
           <ts.SourceFile path={`api/operations/${operation.name}.ts`}>
-            <OperationDeclaration
-              operation={operation}
-              program={context.program}
-            />
+            <OperationDeclaration op={operation} />
           </ts.SourceFile>
         )}
       </ay.For>
