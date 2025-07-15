@@ -1,4 +1,4 @@
-import { createNamePolicy, NamePolicy, useNamePolicy } from '@alloy-js/core';
+import { createNamePolicy, NamePolicy } from '@alloy-js/core';
 import { TypeScriptElements } from '@alloy-js/typescript';
 
 // Reserved words
@@ -90,11 +90,7 @@ function ensureNonReservedName(
 }
 
 export function createTSNamePolicy(): NamePolicy<TypeScriptElements> {
-  return createNamePolicy((name, element) => {
-    return ensureNonReservedName(name, element);
-  });
-}
-
-export function useTSNamePolicy(): NamePolicy<TypeScriptElements> {
-  return useNamePolicy();
+  return createNamePolicy((name, element) =>
+    ensureNonReservedName(name, element),
+  );
 }

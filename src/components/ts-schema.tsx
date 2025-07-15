@@ -7,7 +7,10 @@ import {
 import { Enum, Model, Scalar, Tuple, Type, Union } from '@typespec/compiler';
 import { Typekit } from '@typespec/compiler/typekit';
 import { useTsp } from '@typespec/emitter-framework';
-import { ValueExpression } from '@typespec/emitter-framework/typescript';
+import {
+  UnionExpression,
+  ValueExpression,
+} from '@typespec/emitter-framework/typescript';
 import { isDeclaration, isRecord } from '../utils.jsx';
 
 interface Props {
@@ -157,49 +160,47 @@ function modelBaseType($: Typekit, type: Model) {
 }
 
 function unionBaseType($: Typekit, type: Union) {
-  const discriminated = $.union.getDiscriminatedUnion(type);
+  return <UnionExpression type={type} />;
 
-  if ($.union.isExpression(type) || !discriminated) {
-    return (
-      <For each={Array.from(type.variants.values())} joiner=" | ">
-        {(variant) => <TsSchema type={variant.type} />}
-      </For>
-    );
-  }
-
-  const propKey = discriminated.options.discriminatorPropertyName;
-  const envKey = discriminated.options.envelopePropertyName;
-  return (
-    <For each={Array.from(type.variants.values())} joiner=" | ">
-      {(variant) => {
-        if (discriminated.options.envelope === 'object') {
-          const envelope = $.model.create({
-            properties: {
-              [propKey]: $.modelProperty.create({
-                name: propKey,
-                type: $.literal.create(variant.name as string),
-              }),
-              [envKey]: $.modelProperty.create({
-                name: envKey,
-                type: variant.type,
-              }),
-            },
-          });
-          return <TsSchema type={envelope} />;
-        } else {
-          return <TsSchema type={variant.type} />;
-        }
-      }}
-    </For>
-  );
+  // const discriminated = $.union.getDiscriminatedUnion(type);
+  //
+  // if ($.union.isExpression(type) || !discriminated) {
+  //   return (
+  //     <For each={Array.from(type.variants.values())} joiner=" | ">
+  //       {(variant) => <TsSchema type={variant.type} />}
+  //     </For>
+  //   );
+  // }
+  //
+  // const propKey = discriminated.options.discriminatorPropertyName;
+  // const envKey = discriminated.options.envelopePropertyName;
+  // return (
+  //   <For each={Array.from(type.variants.values())} joiner=" | ">
+  //     {(variant) => {
+  //       if (discriminated.options.envelope === 'object') {
+  //         const envelope = $.model.create({
+  //           properties: {
+  //             [propKey]: $.modelProperty.create({
+  //               name: propKey,
+  //               type: $.literal.create(variant.name as string),
+  //             }),
+  //             [envKey]: $.modelProperty.create({
+  //               name: envKey,
+  //               type: variant.type,
+  //             }),
+  //           },
+  //         });
+  //         return <TsSchema type={envelope} />;
+  //       } else {
+  //         return <TsSchema type={variant.type} />;
+  //       }
+  //     }}
+  //   </For>
+  // );
 }
 
 function enumBaseType(type: Enum) {
-  return (
-    <For each={Array.from(type.members.values())} joiner=" | ">
-      {(member) => <TsSchema type={member} />}
-    </For>
-  );
+  return <UnionExpression type={type} />;
 }
 
 function tupleBaseType(type: Tuple) {
