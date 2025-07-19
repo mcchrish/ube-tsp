@@ -1,5 +1,5 @@
-import { createNamePolicy, NamePolicy } from '@alloy-js/core';
-import { TypeScriptElements } from '@alloy-js/typescript';
+import { createNamePolicy, type NamePolicy } from '@alloy-js/core';
+import { type TypeScriptElements } from '@alloy-js/typescript';
 
 // Reserved words
 const GLOBAL_RESERVED_WORDS = new Set([

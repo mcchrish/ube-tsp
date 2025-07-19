@@ -13,6 +13,7 @@
     "jsx": "preserve",
     "jsxImportSource": "@alloy-js/core",
     "emitDeclarationOnly": true,
+    "verbatimModuleSyntax": true,
     "outDir": "dist",
     "incremental": true
   },

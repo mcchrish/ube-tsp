@@ -1,15 +1,17 @@
 import { List, StatementList } from '@alloy-js/core';
 import {
   InterfaceDeclaration,
+  InterfaceMember,
   ObjectExpression,
   ObjectProperty,
   VarDeclaration,
 } from '@alloy-js/typescript';
-import { Operation } from '@typespec/compiler';
+import { type Operation } from '@typespec/compiler';
 import { useTsp } from '@typespec/emitter-framework';
 import { getOperationId } from '@typespec/openapi';
 import { createRequestMember } from '../parts/request.jsx';
 import { createResponseMember } from '../parts/response.jsx';
+import { TsSchema } from './ts-schema.jsx';
 
 type HttpMethod = 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE' | 'HEAD';
 
@@ -39,7 +41,10 @@ export function OperationDeclaration({ op }: Props) {
       <InterfaceDeclaration name={typeName}>
         <StatementList>
           {createRequestMember(httpOperation)}
-          {createResponseMember($, httpOperation)}
+          <InterfaceMember
+            name="response"
+            type={<TsSchema type={createResponseMember($, httpOperation)} />}
+          />
         </StatementList>
       </InterfaceDeclaration>
     </StatementList>

@@ -1,4 +1,4 @@
-import { Enum } from '@typespec/compiler';
+import { type Enum } from '@typespec/compiler';
 import { it } from 'vitest';
 import { TsSchema } from '../src/components/ts-schema.jsx';
 import { createTestRunner, expectRender } from './utils.jsx';

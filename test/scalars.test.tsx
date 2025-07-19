@@ -1,4 +1,4 @@
-import { ModelProperty } from '@typespec/compiler';
+import { type ModelProperty } from '@typespec/compiler';
 import { describe, it } from 'vitest';
 import { TsSchema } from '../src/components/ts-schema.jsx';
 import { createTestRunner, expectRender } from './utils.jsx';

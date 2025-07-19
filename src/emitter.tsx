@@ -1,11 +1,11 @@
-import * as ay from '@alloy-js/core';
-import * as ts from '@alloy-js/typescript';
+import { For } from '@alloy-js/core';
+import { SourceFile, tsNameConflictResolver } from '@alloy-js/typescript';
 import {
-  EmitContext,
+  type EmitContext,
   ListenerFlow,
   navigateProgram,
-  Program,
-  Operation,
+  type Operation,
+  type Program,
 } from '@typespec/compiler';
 import { $ } from '@typespec/compiler/typekit';
 import { Output, writeOutput } from '@typespec/emitter-framework';
@@ -18,14 +18,18 @@ export async function $onEmit(context: EmitContext) {
 
   writeOutput(
     context.program,
-    <Output program={context.program} namePolicy={tsNamePolicy}>
-      <ay.For each={operations}>
+    <Output
+      program={context.program}
+      namePolicy={tsNamePolicy}
+      nameConflictResolver={tsNameConflictResolver}
+    >
+      <For each={operations}>
         {(operation) => (
-          <ts.SourceFile path={`api/operations/${operation.name}.ts`}>
+          <SourceFile path={`api/operations/${operation.name}.ts`}>
             <OperationDeclaration op={operation} />
-          </ts.SourceFile>
+          </SourceFile>
         )}
-      </ay.For>
+      </For>
     </Output>,
     context.emitterOutputDir,
   );

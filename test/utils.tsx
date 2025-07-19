@@ -1,10 +1,7 @@
-import { Children, render } from '@alloy-js/core';
-import { SourceFile } from '@alloy-js/typescript';
-import { Program } from '@typespec/compiler';
-import {
-  createTestHost as coreCreateTestHost,
-  createTestWrapper,
-} from '@typespec/compiler/testing';
+import { type Children, render } from '@alloy-js/core';
+import { SourceFile, tsNameConflictResolver } from '@alloy-js/typescript';
+import { type Program } from '@typespec/compiler';
+import { createTestHost, createTestWrapper } from '@typespec/compiler/testing';
 import { Output } from '@typespec/emitter-framework';
 import { HttpTestLibrary } from '@typespec/http/testing';
 import { expect } from 'vitest';
@@ -19,7 +16,11 @@ export function expectRender(
   const tsNamePolicy = createTSNamePolicy();
 
   const template = (
-    <Output program={program} namePolicy={tsNamePolicy}>
+    <Output
+      program={program}
+      namePolicy={tsNamePolicy}
+      nameConflictResolver={tsNameConflictResolver}
+    >
       <SourceFile path="test.ts">{children}</SourceFile>
     </Output>
   );
@@ -29,14 +30,10 @@ export function expectRender(
   expect(output.contents[0].contents as string).toBe(expected);
 }
 
-export async function createTestHost() {
-  return coreCreateTestHost({
+export async function createTestRunner() {
+  const host = await createTestHost({
     libraries: [TypeScriptEmitterTestLibrary, HttpTestLibrary],
   });
-}
-
-export async function createTestRunner() {
-  const host = await createTestHost();
   const importAndUsings = `import "@typespec/http"; using Http;\n`;
   return createTestWrapper(host, {
     wrapper: (code) => `${importAndUsings} ${code}`,

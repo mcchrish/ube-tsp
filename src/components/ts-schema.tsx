@@ -1,17 +1,21 @@
-import { Children, For, Prose, StatementList } from '@alloy-js/core';
+import { type Children, For, Match, Prose, Switch } from '@alloy-js/core';
 import {
   ArrayExpression,
   InterfaceExpression,
   InterfaceMember,
 } from '@alloy-js/typescript';
-import { Enum, Model, Scalar, Tuple, Type, Union } from '@typespec/compiler';
-import { Typekit } from '@typespec/compiler/typekit';
+import type {
+  Enum,
+  Model,
+  Scalar,
+  Tuple,
+  Type,
+  Union,
+} from '@typespec/compiler';
+import { type Typekit } from '@typespec/compiler/typekit';
 import { useTsp } from '@typespec/emitter-framework';
-import {
-  UnionExpression,
-  ValueExpression,
-} from '@typespec/emitter-framework/typescript';
-import { isDeclaration, isRecord } from '../utils.jsx';
+import { ValueExpression } from '@typespec/emitter-framework/typescript';
+import { isDeclaration, isRecord } from '../utils.js';
 
 interface Props {
   type: Type;
@@ -47,10 +51,15 @@ export function TsSchema({ type }: Props) {
     case 'ModelProperty':
       return <TsSchema type={type} />;
     case 'EnumMember':
-      return type.value ? (
-        <TsSchema type={$.literal.create(type.value)} />
-      ) : (
-        <TsSchema type={$.literal.create(type.name)} />
+      return (
+        <Switch>
+          <Match when={!!type.value}>
+            <TsSchema type={$.literal.create(type.value!)} />
+          </Match>
+          <Match else>
+            <TsSchema type={$.literal.create(type.name)} />
+          </Match>
+        </Switch>
       );
     case 'Tuple':
       return tupleBaseType(type);
@@ -117,29 +126,23 @@ function modelBaseType($: Typekit, type: Model) {
   if (type.properties.size > 0) {
     memberPart = (
       <InterfaceExpression>
-        <StatementList>
-          {[...type.properties.values()].flatMap((property) => {
-            if (property.name === 'type') {
-              return [];
-            }
-            return (
-              <InterfaceMember
-                name={property.name}
-                optional={property.optional || !!property.defaultValue}
-                doc={
-                  property.defaultValue ? (
-                    <Prose>
-                      {'@defaultValue `'}
-                      <ValueExpression value={property.defaultValue} />
-                      {'`'}
-                    </Prose>
-                  ) : undefined
-                }
-                type={<TsSchema type={property.type} />}
-              />
-            );
-          })}
-        </StatementList>
+        <For each={type.properties} semicolon hardline enderPunctuation>
+          {(_, property) => (
+            <InterfaceMember
+              name={property.name}
+              optional={property.optional || !!property.defaultValue}
+              doc={
+                !!property.defaultValue && (
+                  <Prose>
+                    @defaultValue `
+                    <ValueExpression value={property.defaultValue} />`
+                  </Prose>
+                )
+              }
+              type={<TsSchema type={property.type} />}
+            />
+          )}
+        </For>
       </InterfaceExpression>
     );
   }
@@ -160,47 +163,49 @@ function modelBaseType($: Typekit, type: Model) {
 }
 
 function unionBaseType($: Typekit, type: Union) {
-  return <UnionExpression type={type} />;
+  const discriminated = $.union.getDiscriminatedUnion(type);
 
-  // const discriminated = $.union.getDiscriminatedUnion(type);
-  //
-  // if ($.union.isExpression(type) || !discriminated) {
-  //   return (
-  //     <For each={Array.from(type.variants.values())} joiner=" | ">
-  //       {(variant) => <TsSchema type={variant.type} />}
-  //     </For>
-  //   );
-  // }
-  //
-  // const propKey = discriminated.options.discriminatorPropertyName;
-  // const envKey = discriminated.options.envelopePropertyName;
-  // return (
-  //   <For each={Array.from(type.variants.values())} joiner=" | ">
-  //     {(variant) => {
-  //       if (discriminated.options.envelope === 'object') {
-  //         const envelope = $.model.create({
-  //           properties: {
-  //             [propKey]: $.modelProperty.create({
-  //               name: propKey,
-  //               type: $.literal.create(variant.name as string),
-  //             }),
-  //             [envKey]: $.modelProperty.create({
-  //               name: envKey,
-  //               type: variant.type,
-  //             }),
-  //           },
-  //         });
-  //         return <TsSchema type={envelope} />;
-  //       } else {
-  //         return <TsSchema type={variant.type} />;
-  //       }
-  //     }}
-  //   </For>
-  // );
+  if ($.union.isExpression(type) || !discriminated) {
+    return (
+      <For each={type.variants} joiner=" | ">
+        {(_, variant) => <TsSchema type={variant.type} />}
+      </For>
+    );
+  }
+
+  const propKey = discriminated.options.discriminatorPropertyName;
+  const envKey = discriminated.options.envelopePropertyName;
+  return (
+    <For each={type.variants} joiner=" | ">
+      {(_, variant) => {
+        if (discriminated.options.envelope === 'object') {
+          const envelope = $.model.create({
+            properties: {
+              [propKey]: $.modelProperty.create({
+                name: propKey,
+                type: $.literal.create(variant.name as string),
+              }),
+              [envKey]: $.modelProperty.create({
+                name: envKey,
+                type: variant.type,
+              }),
+            },
+          });
+          return <TsSchema type={envelope} />;
+        } else {
+          return <TsSchema type={variant.type} />;
+        }
+      }}
+    </For>
+  );
 }
 
 function enumBaseType(type: Enum) {
-  return <UnionExpression type={type} />;
+  return (
+    <For each={type.members} joiner=" | ">
+      {(_, member) => <TsSchema type={member} />}
+    </For>
+  );
 }
 
 function tupleBaseType(type: Tuple) {

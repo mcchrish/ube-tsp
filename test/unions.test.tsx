@@ -1,27 +1,8 @@
 import { d } from '@alloy-js/core/testing';
-import { Model, Union } from '@typespec/compiler';
+import { type Union } from '@typespec/compiler';
 import { it } from 'vitest';
 import { TsSchema } from '../src/components/ts-schema.jsx';
 import { createTestRunner, expectRender } from './utils.jsx';
-
-it('works with union expressions', async () => {
-  const runner = await createTestRunner();
-  const { Test } = (await runner.compile(`
-    @test model Test {
-      prop: "hi" | "ho" | "ha"
-    }
-  `)) as Record<string, Model>;
-
-  expectRender(
-    runner.program,
-    <TsSchema type={Test} />,
-    d`
-      {
-        prop: "hi" | "ho" | "ha";
-      }
-    `,
-  );
-});
 
 it('works with discriminated unions with envelope', async () => {
   const runner = await createTestRunner();

@@ -1,107 +1,95 @@
-import { For, StatementList } from '@alloy-js/core';
-import { InterfaceExpression, InterfaceMember } from '@alloy-js/typescript';
-import { Typekit } from '@typespec/compiler/typekit';
-import { HttpOperation } from '@typespec/http';
-import { FlatHttpResponse } from '@typespec/http/experimental/typekit';
-import { TsSchema } from '../components/ts-schema.jsx';
+import { type Typekit } from '@typespec/compiler/typekit';
+import { type HttpOperation } from '@typespec/http';
+import { type ModelProperty, type Type } from '@typespec/compiler';
 
 type Response = {
-  statusCode: string;
-  res: FlatHttpResponse;
+  statusCode: string | number;
+  contentType?: string;
+  headers: [string, ModelProperty][];
+  body?: Type;
 };
 
-export function createResponseMember($: Typekit, httpOperation: HttpOperation) {
+export function createResponseMember(
+  $: Typekit,
+  httpOperation: HttpOperation,
+): Type {
   const responses = $.httpOperation
     .flattenResponses(httpOperation)
-    .flatMap((res) => {
+    .flatMap<Response>((res) => {
+      const headers = Object.entries(res.responseContent.headers ?? {});
+      const body = res.responseContent.body?.type;
+      const contentType = res.contentType;
       if (typeof res.statusCode === 'object') {
-        const responses: Response[] = [];
         // If range is 400 to 499 then iterate 1
         // If range is 400 to 599 then iterate 2
         const iterCount = (res.statusCode.end + 1 - res.statusCode.start) / 100;
         const startCode = res.statusCode.start / 100;
+        const responses: Response[] = [];
         for (let index = 0; index < iterCount; index++) {
-          responses.push({ statusCode: `${startCode + index}XX`, res });
+          responses.push({
+            statusCode: `${startCode + index}XX`,
+            contentType,
+            headers,
+            body,
+          });
         }
         return responses;
+      } else if (typeof res.statusCode === 'number') {
+        return {
+          statusCode: res.statusCode,
+          contentType,
+          headers,
+          body,
+        };
+      } else {
+        return {
+          statusCode: 'default',
+          contentType,
+          headers,
+          body,
+        };
       }
-      return { statusCode: res.statusCode.toString(), res };
-    });
-  return responses.length ? (
-    <InterfaceMember
-      name="response"
-      type={
-        <InterfaceExpression>
-          <StatementList>
-            <For each={responses}>
-              {({ statusCode, res }) => {
-                const headers = res.responseContent.headers
-                  ? Object.entries(res.responseContent.headers)
-                  : [];
-                const allHeaderOptional = headers.every(
-                  ([, type]) => type.optional,
-                );
-                return (
-                  <InterfaceMember
-                    name={statusCode}
-                    type={
-                      <InterfaceExpression>
-                        <StatementList>
-                          {headers.length ? (
-                            <InterfaceMember
-                              name="headers"
-                              optional={allHeaderOptional}
-                              type={
-                                <InterfaceExpression>
-                                  <StatementList>
-                                    <For each={headers}>
-                                      {([name, type]) => (
-                                        <InterfaceMember
-                                          name={name}
-                                          type={<TsSchema type={type.type} />}
-                                          optional={type.optional}
-                                        />
-                                      )}
-                                    </For>
-                                  </StatementList>
-                                </InterfaceExpression>
-                              }
-                            />
-                          ) : (
-                            <InterfaceMember
-                              name="headers"
-                              type="never"
-                              optional={true}
-                            />
-                          )}
-                          {res.responseContent.body ? (
-                            <InterfaceMember
-                              name="content"
-                              type={
-                                <TsSchema
-                                  type={res.responseContent.body.type}
-                                />
-                              }
-                            />
-                          ) : (
-                            <InterfaceMember
-                              name="content"
-                              type="never"
-                              optional={true}
-                            />
-                          )}
-                        </StatementList>
-                      </InterfaceExpression>
-                    }
-                  />
-                );
-              }}
-            </For>
-          </StatementList>
-        </InterfaceExpression>
-      }
-    />
-  ) : (
-    <InterfaceMember name="response" type="void" />
-  );
+    })
+    .map((res) =>
+      $.model.create({
+        properties: {
+          statusCode: $.modelProperty.create({
+            name: 'statusCode',
+            type: $.literal.create(res.statusCode),
+          }),
+          ...(!!res.contentType && {
+            contentTypes: $.modelProperty.create({
+              name: 'contentType',
+              type: $.literal.create(res.contentType),
+            }),
+          }),
+          ...(!!res.headers.length && {
+            headers: $.modelProperty.create({
+              name: 'headers',
+              type: $.model.create({
+                properties: res.headers.reduce(
+                  (props, [name, { type }]) => {
+                    return {
+                      ...props,
+                      [name]: $.modelProperty.create({
+                        name,
+                        type,
+                      }),
+                    };
+                  },
+                  {} as Record<string, ModelProperty>,
+                ),
+              }),
+            }),
+          }),
+          ...(!!res.body && {
+            contentType: $.modelProperty.create({
+              name: 'content',
+              type: res.body,
+            }),
+          }),
+        },
+      }),
+    );
+  return $.union.create(responses);
 }
