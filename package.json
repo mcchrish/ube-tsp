@@ -1,7 +1,7 @@
 {
-  "name": "typespec-typescript-emitter",
-  "version": "0.1.0",
-  "description": "A TypeSpec emitter that generates clean TypeScript code with flat file structure using Alloy-JS",
+  "name": "typespec-typescript-operation-emitter",
+  "version": "0.0.1",
+  "description": "A TypeSpec emitter that generates TypeScript operation files with flat structure using Alloy-JS",
   "type": "module",
   "main": "dist/src/main.js",
   "exports": {
@@ -14,7 +14,7 @@
     "compilerVersion": "1.1.0"
   },
   "files": [
-    "dist/**/*",
+    "dist/src/**/*",
     "README.md",
     "LICENSE"
   ],
@@ -24,18 +24,21 @@
     "emitter",
     "codegen",
     "alloy-js",
-    "openapi"
+    "openapi",
+    "operation-emitter",
+    "http",
+    "rest-api"
   ],
-  "author": "Generated with Claude AI assistance",
+  "author": "Michael Chris Lopez",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/typespec-typescript-emitter.git"
+    "url": "https://github.com/your-username/typespec-typescript-operation-emitter.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/typespec-typescript-emitter/issues"
+    "url": "https://github.com/your-username/typespec-typescript-operation-emitter/issues"
   },
-  "homepage": "https://github.com/your-username/typespec-typescript-emitter#readme",
+  "homepage": "https://github.com/your-username/typespec-typescript-operation-emitter#readme",
   "peerDependencies": {
     "@alloy-js/core": "^0.18.0",
     "@alloy-js/typescript": "^0.18.0",

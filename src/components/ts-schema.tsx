@@ -15,7 +15,6 @@ import type {
 import { type Typekit } from '@typespec/compiler/typekit';
 import { useTsp } from '@typespec/emitter-framework';
 import { ValueExpression } from '@typespec/emitter-framework/typescript';
-import { isDeclaration, isRecord } from '../utils.js';
 
 interface Props {
   type: Type;
@@ -94,16 +93,18 @@ function scalarBaseType($: Typekit, type: Scalar) {
 
 function modelBaseType($: Typekit, type: Model) {
   if ($.array.is(type)) {
-    const elementType = <TsSchema type={type.indexer.value} />;
     return (
       <>
-        {elementType}
+        <TsSchema type={type.indexer.value} />
         <ArrayExpression />
       </>
     );
   }
 
-  if ($.record.is(type) || (type.properties.size === 0 && !!type.indexer)) {
+  if (
+    $.record.is(type) ||
+    (type.properties.size === 0 && !!type.baseModel?.indexer)
+  ) {
     return code`Record<string, ${(
       <TsSchema type={(type.indexer ?? type.baseModel!.indexer)!.value} />
     )}>`;
