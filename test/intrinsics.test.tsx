@@ -1,25 +1,24 @@
-import { type ModelProperty } from '@typespec/compiler';
-import { it } from 'vitest';
+import { beforeEach, it } from 'vitest';
 import { TsSchema } from '../src/components/ts-schema.jsx';
-import { createTestRunner, expectRender } from './utils.jsx';
+import { Tester, expectRender } from './utils.jsx';
+import { t, type TesterInstance } from '@typespec/compiler/testing';
+
+let runner: TesterInstance;
+
+beforeEach(async () => {
+  runner = await Tester.createInstance();
+});
 
 it('works with intrinsics', async () => {
-  const runner = await createTestRunner();
-  const { nullProp, neverProp, unknownProp, voidProp } = (await runner.compile(`
+  const { nullProp, neverProp, unknownProp, voidProp } =
+    await runner.compile(t.code`
     model Test {
-      @test
-      nullProp: null,
-
-      @test
-      neverProp: never,
-
-      @test
-      unknownProp: unknown,
-
-      @test
-      voidProp: void,
+      ${t.modelProperty('nullProp')}: null,
+      ${t.modelProperty('neverProp')}: never,
+      ${t.modelProperty('unknownProp')}: unknown,
+      ${t.modelProperty('voidProp')}: void,
     }
-  `)) as Record<string, ModelProperty>;
+  `);
 
   expectRender(runner.program, <TsSchema type={nullProp.type} />, 'null');
   expectRender(runner.program, <TsSchema type={neverProp.type} />, 'never');

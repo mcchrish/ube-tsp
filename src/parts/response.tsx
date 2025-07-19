@@ -1,6 +1,6 @@
 import { type Typekit } from '@typespec/compiler/typekit';
 import { type HttpOperation } from '@typespec/http';
-import { type ModelProperty, type Type } from '@typespec/compiler';
+import { type ModelProperty, type Type, type Union } from '@typespec/compiler';
 
 type Response = {
   statusCode: string | number;
@@ -12,7 +12,7 @@ type Response = {
 export function createResponseMember(
   $: Typekit,
   httpOperation: HttpOperation,
-): Type {
+): Union {
   const responses = $.httpOperation
     .flattenResponses(httpOperation)
     .flatMap<Response>((res) => {
@@ -83,7 +83,7 @@ export function createResponseMember(
             }),
           }),
           ...(!!res.body && {
-            contentType: $.modelProperty.create({
+            content: $.modelProperty.create({
               name: 'content',
               type: res.body,
             }),

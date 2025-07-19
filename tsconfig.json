@@ -13,10 +13,12 @@
     "jsx": "preserve",
     "jsxImportSource": "@alloy-js/core",
     "emitDeclarationOnly": true,
-    "verbatimModuleSyntax": true,
     "outDir": "dist",
-    "incremental": true
+    "rootDir": "./",
+    "verbatimModuleSyntax": true,
+    "types": ["@alloy-js/core/testing/matchers"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],
   "exclude": ["node_modules", "dist"]
 }
+

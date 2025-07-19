@@ -1,25 +1,29 @@
-import { d } from '@alloy-js/core/testing';
-import { type ModelProperty } from '@typespec/compiler';
-import { it } from 'vitest';
+import { beforeEach, it } from 'vitest';
 import { TsSchema } from '../src/components/ts-schema.jsx';
-import { createTestRunner, expectRender } from './utils.jsx';
+import { Tester, expectRender } from './utils.jsx';
+import { t, type TesterInstance } from '@typespec/compiler/testing';
+
+let runner: TesterInstance;
+
+beforeEach(async () => {
+  runner = await Tester.createInstance();
+});
 
 it('works', async () => {
-  const runner = await createTestRunner();
-  const { Test } = (await runner.compile(`
-    @test model Ref {
+  const { Test } = await runner.compile(t.code`
+    model Ref {
       prop: string;
     }
 
     model Container {
-      @test Test: ["one", { a: 1, b: 2 }, Ref];
+      ${t.modelProperty('Test')}: ["one", { a: 1, b: 2 }, Ref];
     }
-  `)) as Record<string, ModelProperty>;
+  `);
 
   expectRender(
     runner.program,
     <TsSchema type={Test.type} />,
-    d`
+    `
       [
         "one",
         {

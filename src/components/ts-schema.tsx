@@ -1,4 +1,4 @@
-import { type Children, For, Match, Prose, Switch } from '@alloy-js/core';
+import { code, For, Match, Prose, Switch } from '@alloy-js/core';
 import {
   ArrayExpression,
   InterfaceExpression,
@@ -103,63 +103,33 @@ function modelBaseType($: Typekit, type: Model) {
     );
   }
 
-  let recordPart: Children | undefined;
-  if (
-    isRecord($.program, type) ||
-    (!!type.baseModel &&
-      isRecord($.program, type.baseModel) &&
-      !isDeclaration($.program, type.baseModel))
-  ) {
-    recordPart = (
-      <>
-        {'Record<'}
-        <TsSchema type={(type.indexer ?? type.baseModel!.indexer)!.key} />
-        {', '}
-        <TsSchema type={(type.indexer ?? type.baseModel!.indexer)!.value} />
-        {'>'}
-      </>
-    );
+  if ($.record.is(type) || (type.properties.size === 0 && !!type.indexer)) {
+    return code`Record<string, ${(
+      <TsSchema type={(type.indexer ?? type.baseModel!.indexer)!.value} />
+    )}>`;
   }
 
-  let memberPart: Children | undefined;
-
-  if (type.properties.size > 0) {
-    memberPart = (
-      <InterfaceExpression>
-        <For each={type.properties} semicolon hardline enderPunctuation>
-          {(_, property) => (
-            <InterfaceMember
-              name={property.name}
-              optional={property.optional || !!property.defaultValue}
-              doc={
-                !!property.defaultValue && (
-                  <Prose>
-                    @defaultValue `
-                    <ValueExpression value={property.defaultValue} />`
-                  </Prose>
-                )
-              }
-              type={<TsSchema type={property.type} />}
-            />
-          )}
-        </For>
-      </InterfaceExpression>
-    );
-  }
-
-  if (recordPart && !memberPart) {
-    return recordPart;
-  } else if (!recordPart && memberPart) {
-    return memberPart;
-  } else if (recordPart && memberPart) {
-    return (
-      <For each={[memberPart, recordPart]} joiner=" & ">
-        {(child) => child}
+  return (
+    <InterfaceExpression>
+      <For each={type.properties} semicolon hardline enderPunctuation>
+        {(_, property) => (
+          <InterfaceMember
+            name={property.name}
+            optional={property.optional || !!property.defaultValue}
+            doc={
+              !!property.defaultValue && (
+                <Prose>
+                  @defaultValue `
+                  <ValueExpression value={property.defaultValue} />`
+                </Prose>
+              )
+            }
+            type={<TsSchema type={property.type} />}
+          />
+        )}
       </For>
-    );
-  }
-
-  return 'unknown';
+    </InterfaceExpression>
+  );
 }
 
 function unionBaseType($: Typekit, type: Union) {

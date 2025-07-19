@@ -1,9 +1,10 @@
 import { List, StatementList } from '@alloy-js/core';
 import {
-  InterfaceDeclaration,
+  InterfaceExpression,
   InterfaceMember,
   ObjectExpression,
   ObjectProperty,
+  TypeDeclaration,
   VarDeclaration,
 } from '@alloy-js/typescript';
 import { type Operation } from '@typespec/compiler';
@@ -28,25 +29,30 @@ export function OperationDeclaration({ op }: Props) {
   const path = httpOperation.path;
 
   return (
-    <StatementList>
-      <VarDeclaration name={operationId} const>
-        <ObjectExpression>
-          <List comma hardline enderPunctuation>
-            <ObjectProperty name="method" value={`'${method}'`} />
-            <ObjectProperty name="path" value={`'${path}'`} />
-          </List>
-        </ObjectExpression>
-        {' as const'}
-      </VarDeclaration>
-      <InterfaceDeclaration name={typeName}>
-        <StatementList>
-          {createRequestMember(httpOperation)}
-          <InterfaceMember
-            name="response"
-            type={<TsSchema type={createResponseMember($, httpOperation)} />}
-          />
-        </StatementList>
-      </InterfaceDeclaration>
-    </StatementList>
+    <>
+      <StatementList>
+        <VarDeclaration name={operationId} const export>
+          <ObjectExpression>
+            <List comma hardline enderPunctuation>
+              <ObjectProperty name="method" value={`'${method}'`} />
+              <ObjectProperty name="path" value={`'${path}'`} />
+            </List>
+          </ObjectExpression>
+          {' as const'}
+        </VarDeclaration>
+      </StatementList>
+      {'\n'}
+      <TypeDeclaration name={typeName} export>
+        <InterfaceExpression>
+          <StatementList>
+            {createRequestMember(httpOperation)}
+            <InterfaceMember
+              name="response"
+              type={<TsSchema type={createResponseMember($, httpOperation)} />}
+            />
+          </StatementList>
+        </InterfaceExpression>
+      </TypeDeclaration>
+    </>
   );
 }

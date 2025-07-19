@@ -1,22 +1,22 @@
-import { type ModelProperty } from '@typespec/compiler';
-import { it } from 'vitest';
+import { beforeEach, it } from 'vitest';
 import { TsSchema } from '../src/components/ts-schema.jsx';
-import { createTestRunner, expectRender } from './utils.jsx';
+import { Tester, expectRender } from './utils.jsx';
+import { t, type TesterInstance } from '@typespec/compiler/testing';
+
+let runner: TesterInstance;
+
+beforeEach(async () => {
+  runner = await Tester.createInstance();
+});
 
 it('works with literals', async () => {
-  const runner = await createTestRunner();
-  const { stringProp, numberProp, booleanProp } = (await runner.compile(`
+  const { stringProp, numberProp, booleanProp } = await runner.compile(t.code`
     model Test {
-      @test
-      stringProp: "hello",
-
-      @test
-      numberProp: 123,
-
-      @test
-      booleanProp: true,
+      ${t.modelProperty('stringProp')}: "hello",
+      ${t.modelProperty('numberProp')}: 123,
+      ${t.modelProperty('booleanProp')}: true,
     }
-  `)) as Record<string, ModelProperty>;
+  `);
 
   expectRender(runner.program, <TsSchema type={stringProp.type} />, '"hello"');
   expectRender(runner.program, <TsSchema type={numberProp.type} />, '123');

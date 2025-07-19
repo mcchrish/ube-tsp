@@ -1,4 +1,4 @@
-import { For, Show, StatementList } from '@alloy-js/core';
+import { For, StatementList } from '@alloy-js/core';
 import { InterfaceExpression, InterfaceMember } from '@alloy-js/typescript';
 import { type HttpOperation } from '@typespec/http';
 import { TsSchema } from '../components/ts-schema.jsx';
@@ -32,9 +32,9 @@ export function createRequestMember(httpOperation: HttpOperation) {
 function createBodyMember(httpOperation: HttpOperation) {
   const body = httpOperation.parameters.body;
   return (
-    <Show when={!!body}>
+    !!body && (
       <InterfaceMember name="body" type={<TsSchema type={body!.type} />} />
-    </Show>
+    )
   );
 }
 
@@ -48,7 +48,7 @@ function createParameterMember(
   const hasParams = params.length > 0;
   const allOptional = params.every((param) => param.param.optional);
   return (
-    <Show when={hasParams}>
+    hasParams && (
       <InterfaceMember
         name={type}
         optional={allOptional}
@@ -66,6 +66,6 @@ function createParameterMember(
           </InterfaceExpression>
         }
       />
-    </Show>
+    )
   );
 }

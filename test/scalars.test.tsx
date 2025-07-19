@@ -1,43 +1,44 @@
-import { type ModelProperty } from '@typespec/compiler';
-import { describe, it } from 'vitest';
+import { beforeEach, describe, it } from 'vitest';
 import { TsSchema } from '../src/components/ts-schema.jsx';
-import { createTestRunner, expectRender } from './utils.jsx';
+import { Tester, expectRender } from './utils.jsx';
+import { t, type TesterInstance } from '@typespec/compiler/testing';
+
+let runner: TesterInstance;
+
+beforeEach(async () => {
+  runner = await Tester.createInstance();
+});
 
 it('works with boolean', async () => {
-  const runner = await createTestRunner();
-  const { booleanProp } = (await runner.compile(`
+  const { booleanProp } = await runner.compile(t.code`
       model Test {
-        @test
-        booleanProp: boolean,
+        ${t.modelProperty('booleanProp')}: boolean,
       }
-    `)) as Record<string, ModelProperty>;
+    `);
 
   expectRender(runner.program, <TsSchema type={booleanProp.type} />, 'boolean');
 });
 
 it('works with string', async () => {
-  const runner = await createTestRunner();
   const { stringProp, shortStringProp, urlProp, uuidProp, patternProp } =
-    (await runner.compile(`
+    await runner.compile(t.code`
       @maxLength(10)
       @minLength(5)
       scalar shortString extends string;
 
-      @test
       @format("uuid")
-      scalar uuidProp extends string;
+      scalar ${t.scalar('uuidProp')} extends string;
 
-      @test
       @pattern("[0-9]+")
-      scalar patternProp extends string;
+      scalar ${t.scalar('patternProp')} extends string;
       
 
       model Test {
-        @test stringProp: string,
-        @test shortStringProp: shortString,
-        @test urlProp: url
+        ${t.modelProperty('stringProp')}: string,
+        ${t.modelProperty('shortStringProp')}: shortString,
+        ${t.modelProperty('urlProp')}: url
       }
-    `)) as Record<string, ModelProperty>;
+    `);
 
   expectRender(runner.program, <TsSchema type={stringProp.type} />, 'string');
   expectRender(
@@ -52,18 +53,26 @@ it('works with string', async () => {
 
 describe('numerics', () => {
   it('handles numeric constraints', async () => {
-    const runner = await createTestRunner();
     const {
       int8WithMin,
       int8WithMinMax,
       int8WithMinExclusive,
       int8WithMinMaxExclusive,
-    } = (await runner.compile(`
-      @test @minValue(-20) scalar int8WithMin extends int8;
-      @test @minValue(-20) @maxValue(20) scalar int8WithMinMax extends int8;
-      @test @minValueExclusive(2) scalar int8WithMinExclusive extends int8; 
-      @test @minValueExclusive(2) @maxValueExclusive(20) scalar int8WithMinMaxExclusive extends int8;
-    `)) as Record<string, ModelProperty>;
+    } = await runner.compile(t.code`
+      @minValue(-20)
+      scalar ${t.scalar('int8WithMin')} extends int8;
+
+      @minValue(-20)
+      @maxValue(20)
+      scalar ${t.scalar('int8WithMinMax')} extends int8;
+
+      @minValueExclusive(2)
+      scalar ${t.scalar('int8WithMinExclusive')} extends int8; 
+
+      @minValueExclusive(2)
+      @maxValueExclusive(20)
+      scalar ${t.scalar('int8WithMinMaxExclusive')} extends int8;
+    `);
     expectRender(runner.program, <TsSchema type={int8WithMin} />, 'number');
     expectRender(runner.program, <TsSchema type={int8WithMinMax} />, 'number');
     expectRender(
@@ -79,16 +88,15 @@ describe('numerics', () => {
   });
 
   it('works with integers', async () => {
-    const runner = await createTestRunner();
     const { int8Prop, int16Prop, int32Prop, int64Prop } =
-      (await runner.compile(`
+      await runner.compile(t.code`
         model Test {
-          @test int8Prop: int8,
-          @test int16Prop: int16,
-          @test int32Prop: int32,
-          @test int64Prop: int64,
+          ${t.modelProperty('int8Prop')}: int8,
+          ${t.modelProperty('int16Prop')}: int16,
+          ${t.modelProperty('int32Prop')}: int32,
+          ${t.modelProperty('int64Prop')}: int64,
         }
-      `)) as Record<string, ModelProperty>;
+      `);
 
     expectRender(runner.program, <TsSchema type={int8Prop.type} />, 'number');
     expectRender(runner.program, <TsSchema type={int16Prop.type} />, 'number');
@@ -97,17 +105,16 @@ describe('numerics', () => {
   });
 
   it('works with unsigned integers', async () => {
-    const runner = await createTestRunner();
     const { uint8Prop, uint16Prop, uint32Prop, uint64Prop, safeintProp } =
-      (await runner.compile(`
+      await runner.compile(t.code`
       model Test {
-        @test uint8Prop: uint8,
-        @test uint16Prop: uint16,
-        @test uint32Prop: uint32,
-        @test uint64Prop: uint64,
-        @test safeintProp: safeint,
+        ${t.modelProperty('uint8Prop')}: uint8,
+        ${t.modelProperty('uint16Prop')}: uint16,
+        ${t.modelProperty('uint32Prop')}: uint32,
+        ${t.modelProperty('uint64Prop')}: uint64,
+        ${t.modelProperty('safeintProp')}: safeint,
       }
-    `)) as Record<string, ModelProperty>;
+    `);
 
     expectRender(runner.program, <TsSchema type={uint8Prop.type} />, 'number');
     expectRender(runner.program, <TsSchema type={uint16Prop.type} />, 'number');
@@ -121,14 +128,13 @@ describe('numerics', () => {
   });
 
   it('works with floats', async () => {
-    const runner = await createTestRunner();
-    const { float32Prop, float64Prop, floatProp } = (await runner.compile(`
+    const { float32Prop, float64Prop, floatProp } = await runner.compile(t.code`
         model Test {
-          @test float32Prop: float32,
-          @test float64Prop: float64,
-          @test floatProp: float,
+          ${t.modelProperty('float32Prop')}: float32,
+          ${t.modelProperty('float64Prop')}: float64,
+          ${t.modelProperty('floatProp')}: float,
         }
-      `)) as Record<string, ModelProperty>;
+      `);
 
     expectRender(
       runner.program,
@@ -144,13 +150,12 @@ describe('numerics', () => {
   });
 
   it('works with decimals', async () => {
-    const runner = await createTestRunner();
-    const { decimalProp, decimal128Prop } = (await runner.compile(`
+    const { decimalProp, decimal128Prop } = await runner.compile(t.code`
         model Test {
-          @test decimalProp: decimal,
-          @test decimal128Prop: decimal128,
+          ${t.modelProperty('decimalProp')}: decimal,
+          ${t.modelProperty('decimal128Prop')}: decimal128,
         }
-      `)) as Record<string, ModelProperty>;
+      `);
 
     expectRender(
       runner.program,
@@ -166,27 +171,25 @@ describe('numerics', () => {
 });
 
 it('works with bytes', async () => {
-  const runner = await createTestRunner();
-  const { bytesProp } = (await runner.compile(`
+  const { bytesProp } = await runner.compile(t.code`
       model Test {
-        @test bytesProp: bytes,
+        ${t.modelProperty('bytesProp')}: bytes,
       }
-    `)) as Record<string, ModelProperty>;
+    `);
 
   expectRender(runner.program, <TsSchema type={bytesProp.type} />, 'any');
 });
 
 it('works with date things', async () => {
-  const runner = await createTestRunner();
   const { plainDateProp, plainTimeProp, utcDateTimeProp, offsetDateTimeProp } =
-    (await runner.compile(`
+    await runner.compile(t.code`
       model Test {
-        @test plainDateProp: plainDate,
-        @test plainTimeProp: plainTime,
-        @test utcDateTimeProp: utcDateTime,
-        @test offsetDateTimeProp: offsetDateTime
+        ${t.modelProperty('plainDateProp')}: plainDate,
+        ${t.modelProperty('plainTimeProp')}: plainTime,
+        ${t.modelProperty('utcDateTimeProp')}: utcDateTime,
+        ${t.modelProperty('offsetDateTimeProp')}: offsetDateTime
       }
-    `)) as Record<string, ModelProperty>;
+    `);
 
   expectRender(
     runner.program,
@@ -211,7 +214,6 @@ it('works with date things', async () => {
 });
 
 it('works with dates and encodings', async () => {
-  const runner = await createTestRunner();
   const {
     int32Date,
     int64Date,
@@ -219,30 +221,24 @@ it('works with dates and encodings', async () => {
     rfc3339DateOffset,
     rfc7231DateUtc,
     rfc7231DateOffset,
-  } = await runner.compile(`
-      @test
+  } = await runner.compile(t.code`
       @encode(DateTimeKnownEncoding.unixTimestamp, int32)
-      scalar int32Date extends utcDateTime;
+      scalar ${t.scalar('int32Date')} extends utcDateTime;
       
-      @test
       @encode(DateTimeKnownEncoding.unixTimestamp, int64)
-      scalar int64Date extends utcDateTime;
+      scalar ${t.scalar('int64Date')} extends utcDateTime;
 
-      @test
       @encode(DateTimeKnownEncoding.rfc3339)
-      scalar rfc3339DateUtc extends utcDateTime;
+      scalar ${t.scalar('rfc3339DateUtc')} extends utcDateTime;
 
-      @test
       @encode(DateTimeKnownEncoding.rfc3339)
-      scalar rfc3339DateOffset extends offsetDateTime;
+      scalar ${t.scalar('rfc3339DateOffset')} extends offsetDateTime;
       
-      @test
       @encode(DateTimeKnownEncoding.rfc7231)
-      scalar rfc7231DateUtc extends utcDateTime;
+      scalar ${t.scalar('rfc7231DateUtc')} extends utcDateTime;
 
-      @test
       @encode(DateTimeKnownEncoding.rfc7231)
-      scalar rfc7231DateOffset extends offsetDateTime;
+      scalar ${t.scalar('rfc7231DateOffset')} extends offsetDateTime;
     `);
 
   expectRender(runner.program, <TsSchema type={int32Date} />, 'string');
@@ -254,23 +250,18 @@ it('works with dates and encodings', async () => {
 });
 
 it('works with durations and encodings', async () => {
-  const runner = await createTestRunner();
   const { myDuration, isoDuration, secondsDuration, int64SecondsDuration } =
-    await runner.compile(`
-      @test
+    await runner.compile(t.code`
       @encode(DurationKnownEncoding.ISO8601)
-      scalar isoDuration extends duration;
+      scalar ${t.scalar('isoDuration')} extends duration;
 
-      @test
       @encode(DurationKnownEncoding.seconds, int32)
-      scalar secondsDuration extends duration;
+      scalar ${t.scalar('secondsDuration')} extends duration;
       
-      @test
       @encode(DurationKnownEncoding.seconds, int64)
-      scalar int64SecondsDuration extends duration;
+      scalar ${t.scalar('int64SecondsDuration')} extends duration;
 
-      @test
-      scalar myDuration extends duration;
+      scalar ${t.scalar('myDuration')} extends duration;
     `);
 
   expectRender(runner.program, <TsSchema type={myDuration} />, 'string');
@@ -284,14 +275,13 @@ it('works with durations and encodings', async () => {
 });
 
 it('extends declared scalars', async () => {
-  const runner = await createTestRunner();
-  const { myScalar, myAdditionalScalar } = (await runner.compile(`
+  const { myScalar, myAdditionalScalar } = await runner.compile(t.code`
     @maxLength(10)
-    @test scalar myScalar extends string;
+    scalar ${t.scalar('myScalar')} extends string;
 
     @minLength(5)
-    @test scalar myAdditionalScalar extends myScalar;
-  `)) as Record<string, ModelProperty>;
+    scalar ${t.scalar('myAdditionalScalar')} extends myScalar;
+  `);
 
   expectRender(runner.program, <TsSchema type={myScalar} />, 'string');
   expectRender(
@@ -302,19 +292,17 @@ it('extends declared scalars', async () => {
 });
 
 it('works with unknown scalars', async () => {
-  const runner = await createTestRunner();
-  const { unknownScalar } = (await runner.compile(`
-      @test scalar unknownScalar;
-    `)) as Record<string, ModelProperty>;
+  const { unknownScalar } = await runner.compile(t.code`
+      scalar ${t.scalar('unknownScalar')};
+    `);
 
   expectRender(runner.program, <TsSchema type={unknownScalar} />, 'any');
 });
 it('emits docs', async () => {
-  const runner = await createTestRunner();
-  const { unknownScalar } = (await runner.compile(`
+  const { unknownScalar } = await runner.compile(t.code`
       /** An unknown scalar */
-      @test scalar unknownScalar;
-    `)) as Record<string, ModelProperty>;
+      scalar ${t.scalar('unknownScalar')};
+    `);
 
   expectRender(runner.program, <TsSchema type={unknownScalar} />, 'any');
 });
