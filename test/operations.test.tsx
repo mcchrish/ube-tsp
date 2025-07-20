@@ -1,5 +1,8 @@
 import { beforeEach, it } from 'vitest';
-import { OperationDeclaration } from '../src/components/operation-declaration.jsx';
+import {
+  OperationObjectExpression,
+  OperationTypeExpression,
+} from '../src/components/operation.jsx';
 import { expectRender, Tester } from './utils.jsx';
 import { t, type TesterInstance } from '@typespec/compiler/testing';
 
@@ -57,14 +60,20 @@ it('complex', async () => {
 
   expectRender(
     runner.program,
-    <OperationDeclaration op={getPet} />,
+    <OperationObjectExpression op={getPet} />,
     `
-      export const getPet = {
+      {
         operationId: 'getPet',
         method: 'GET',
         path: '/pets/{petId}',
-      } as const;
-      export type GetPet = {
+      }
+    `,
+  );
+  expectRender(
+    runner.program,
+    <OperationTypeExpression op={getPet} />,
+    `
+      {
         request: {
           parameters: {
             path: {
@@ -110,7 +119,7 @@ it('complex', async () => {
             };
           };
         };
-      };
+      }
     `,
   );
 });
@@ -132,14 +141,20 @@ it('default response', async () => {
 
   expectRender(
     runner.program,
-    <OperationDeclaration op={getPet} />,
+    <OperationObjectExpression op={getPet} />,
     `
-      export const getPet = {
+      {
         operationId: 'getPet',
         method: 'GET',
         path: '/pets/{petId}',
-      } as const;
-      export type GetPet = {
+      }
+    `,
+  );
+  expectRender(
+    runner.program,
+    <OperationTypeExpression op={getPet} />,
+    `
+      {
         request: {
           parameters: {
             path: {
@@ -155,7 +170,7 @@ it('default response', async () => {
             name: string;
           };
         };
-      };
+      }
     `,
   );
 });
@@ -177,14 +192,20 @@ it('@operationId', async () => {
 
   expectRender(
     runner.program,
-    <OperationDeclaration op={listPets} />,
+    <OperationObjectExpression op={listPets} />,
     `
-      export const listPets = {
+      {
         operationId: 'listAllPets',
         method: 'GET',
         path: '/pets',
-      } as const;
-      export type ListPets = {
+      }
+    `,
+  );
+  expectRender(
+    runner.program,
+    <OperationTypeExpression op={listPets} />,
+    `
+      {
         request: {
 
         };
@@ -196,7 +217,7 @@ it('@operationId', async () => {
             name: string;
           }[];
         };
-      };
+      }
     `,
   );
 });

@@ -1,19 +1,10 @@
-import { For } from '@alloy-js/core';
 import { SourceFile, tsNameConflictResolver } from '@alloy-js/typescript';
-import {
-  type EmitContext,
-  ListenerFlow,
-  navigateProgram,
-  type Operation,
-  type Program,
-} from '@typespec/compiler';
-import { $ } from '@typespec/compiler/typekit';
+import { type EmitContext } from '@typespec/compiler';
 import { Output, writeOutput } from '@typespec/emitter-framework';
-import { OperationDeclaration } from './components/operation-declaration.jsx';
+import { Spec } from './components/spec.jsx';
 import { createTSNamePolicy } from './name-policy.js';
 
 export async function $onEmit(context: EmitContext) {
-  const operations = getAllOperations(context.program);
   const tsNamePolicy = createTSNamePolicy();
 
   writeOutput(
@@ -23,53 +14,10 @@ export async function $onEmit(context: EmitContext) {
       namePolicy={tsNamePolicy}
       nameConflictResolver={tsNameConflictResolver}
     >
-      <For each={operations}>
-        {(operation) => (
-          <SourceFile path={`api/operations/${operation.name}.ts`}>
-            <OperationDeclaration op={operation} />
-          </SourceFile>
-        )}
-      </For>
+      <SourceFile path={'api.ts'}>
+        <Spec />
+      </SourceFile>
     </Output>,
     context.emitterOutputDir,
   );
-}
-
-/**
- * Collects all user-defined operations from the TypeSpec program
- * Filters out built-in library operations and focuses on API definitions
- */
-function getAllOperations(program: Program): Operation[] {
-  const operations: Operation[] = [];
-
-  /**
-   * Collects operations that have valid names for code generation
-   */
-  function collectOperation(operation: Operation) {
-    if (operation.name) {
-      operations.push(operation);
-    }
-  }
-
-  const globalNs = program.getGlobalNamespaceType();
-
-  // Navigate the program to find all operations, excluding built-in libraries
-  navigateProgram(
-    program,
-    {
-      namespace(namespace) {
-        // Skip built-in namespaces to avoid generating code for library types
-        if (
-          namespace !== globalNs &&
-          !$(program).type.isUserDefined(namespace)
-        ) {
-          return ListenerFlow.NoRecursion;
-        }
-      },
-      operation: collectOperation,
-    },
-    { includeTemplateDeclaration: false },
-  );
-
-  return operations;
 }
