@@ -36,7 +36,8 @@ it('complex', async () => {
 
     @route("/pets")
     interface Pets {
-      @get ${t.op('getPet')}(@path petId: int32): {
+      @get
+      op ${t.op('getPet')}(@path petId: int32): {
         @statusCode statusCode: 200;
         @header
         "x-extra-key": string;
@@ -59,6 +60,7 @@ it('complex', async () => {
     <OperationDeclaration op={getPet} />,
     `
       export const getPet = {
+        operationId: 'getPet',
         method: 'GET',
         path: '/pets/{petId}',
       } as const;
@@ -123,7 +125,8 @@ it('default response', async () => {
 
     @route("/pets")
     interface Pets {
-      @get ${t.op('getPet')}(@path petId: int32): Pet;
+      @get
+      op ${t.op('getPet')}(@path petId: int32): Pet;
     }
   `);
 
@@ -132,6 +135,7 @@ it('default response', async () => {
     <OperationDeclaration op={getPet} />,
     `
       export const getPet = {
+        operationId: 'getPet',
         method: 'GET',
         path: '/pets/{petId}',
       } as const;
@@ -150,6 +154,47 @@ it('default response', async () => {
             id: number;
             name: string;
           };
+        };
+      };
+    `,
+  );
+});
+
+it('@operationId', async () => {
+  const { listPets } = await runner.compile(t.code`
+    model Pet {
+      id: int32;
+      name: string;
+    }
+
+    @route("/pets")
+    interface Pets {
+      @operationId("listAllPets")
+      @get
+      op ${t.op('listPets')}(): Pet[];
+    }
+  `);
+
+  expectRender(
+    runner.program,
+    <OperationDeclaration op={listPets} />,
+    `
+      export const listPets = {
+        operationId: 'listAllPets',
+        method: 'GET',
+        path: '/pets',
+      } as const;
+      export type ListPets = {
+        request: {
+
+        };
+        response: {
+          statusCode: 200;
+          contentType: "application/json";
+          content: {
+            id: number;
+            name: string;
+          }[];
         };
       };
     `,

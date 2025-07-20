@@ -22,8 +22,7 @@ interface Props {
 export function OperationDeclaration({ op }: Props) {
   const { $ } = useTsp();
   const operationId = getOperationId($.program, op) ?? op.name;
-  const typeName =
-    operationId.charAt(0).toUpperCase() + operationId.substring(1);
+  const typeName = op.name.charAt(0).toUpperCase() + op.name.substring(1);
   const httpOperation = $.httpOperation.get(op);
   const method = httpOperation.verb.toUpperCase() as HttpMethod;
   const path = httpOperation.path;
@@ -31,9 +30,10 @@ export function OperationDeclaration({ op }: Props) {
   return (
     <>
       <StatementList>
-        <VarDeclaration name={operationId} const export>
+        <VarDeclaration name={op.name} const export>
           <ObjectExpression>
             <List comma hardline enderPunctuation>
+              <ObjectProperty name="operationId" value={`'${operationId}'`} />
               <ObjectProperty name="method" value={`'${method}'`} />
               <ObjectProperty name="path" value={`'${path}'`} />
             </List>

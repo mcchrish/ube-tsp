@@ -4,23 +4,26 @@ import { type HttpOperation } from '@typespec/http';
 import { TsSchema } from '../components/ts-schema.jsx';
 
 export function createRequestMember(httpOperation: HttpOperation) {
+  const hasParams = httpOperation.parameters.parameters.length > 0;
   return (
     <InterfaceMember name="request">
       <InterfaceExpression>
         <StatementList>
-          <InterfaceMember
-            name="parameters"
-            type={
-              <InterfaceExpression>
-                <StatementList>
-                  {createParameterMember(httpOperation, 'path')}
-                  {createParameterMember(httpOperation, 'query')}
-                  {createParameterMember(httpOperation, 'header')}
-                  {createParameterMember(httpOperation, 'cookie')}
-                </StatementList>
-              </InterfaceExpression>
-            }
-          />
+          {hasParams && (
+            <InterfaceMember
+              name="parameters"
+              type={
+                <InterfaceExpression>
+                  <StatementList>
+                    {createParameterMember(httpOperation, 'path')}
+                    {createParameterMember(httpOperation, 'query')}
+                    {createParameterMember(httpOperation, 'header')}
+                    {createParameterMember(httpOperation, 'cookie')}
+                  </StatementList>
+                </InterfaceExpression>
+              }
+            />
+          )}
           {createBodyMember(httpOperation)}
         </StatementList>
       </InterfaceExpression>
