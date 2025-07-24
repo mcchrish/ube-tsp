@@ -7,6 +7,7 @@ import {
 import type {
   Enum,
   Model,
+  Namespace,
   Scalar,
   Tuple,
   Type,
@@ -18,8 +19,9 @@ import { ValueExpression } from '@typespec/emitter-framework/typescript';
 
 interface Props {
   type: Type;
+  rootNs?: Namespace;
 }
-export function TsSchema({ type }: Props) {
+export function TsSchema({ type, rootNs }: Props) {
   const { $ } = useTsp();
   switch (type.kind) {
     case 'Intrinsic':
@@ -48,15 +50,15 @@ export function TsSchema({ type }: Props) {
     case 'Enum':
       return enumBaseType(type);
     case 'ModelProperty':
-      return <TsSchema type={type} />;
+      return <TsSchema type={type} rootNs={rootNs} />;
     case 'EnumMember':
       return (
         <Switch>
           <Match when={!!type.value}>
-            <TsSchema type={$.literal.create(type.value!)} />
+            <TsSchema type={$.literal.create(type.value!)} rootNs={rootNs} />
           </Match>
           <Match else>
-            <TsSchema type={$.literal.create(type.name)} />
+            <TsSchema type={$.literal.create(type.name)} rootNs={rootNs} />
           </Match>
         </Switch>
       );

@@ -57,36 +57,34 @@ export function createResponseMember(
             name: 'statusCode',
             type: $.literal.create(res.statusCode),
           }),
-          ...(!!res.contentType && {
-            contentTypes: $.modelProperty.create({
-              name: 'contentType',
-              type: $.literal.create(res.contentType),
-            }),
+          contentTypes: $.modelProperty.create({
+            name: 'contentType',
+            type: res.contentType
+              ? $.literal.create(res.contentType)
+              : $.builtin.string,
           }),
-          ...(!!res.headers.length && {
-            headers: $.modelProperty.create({
-              name: 'headers',
-              type: $.model.create({
-                properties: res.headers.reduce(
-                  (props, [name, { type }]) => {
-                    return {
-                      ...props,
-                      [name]: $.modelProperty.create({
-                        name,
-                        type,
-                      }),
-                    };
-                  },
-                  {} as Record<string, ModelProperty>,
-                ),
-              }),
-            }),
+          headers: $.modelProperty.create({
+            name: 'headers',
+            type: res.headers.length
+              ? $.model.create({
+                  properties: res.headers.reduce(
+                    (props, [name, { type }]) => {
+                      return {
+                        ...props,
+                        [name]: $.modelProperty.create({
+                          name,
+                          type,
+                        }),
+                      };
+                    },
+                    {} as Record<string, ModelProperty>,
+                  ),
+                })
+              : $.intrinsic.null,
           }),
-          ...(!!res.body && {
-            content: $.modelProperty.create({
-              name: 'content',
-              type: res.body,
-            }),
+          content: $.modelProperty.create({
+            name: 'content',
+            type: res.body ? res.body : $.intrinsic.null,
           }),
         },
       }),

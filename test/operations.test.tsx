@@ -221,3 +221,50 @@ it('@operationId', async () => {
     `,
   );
 });
+
+it('request body', async () => {
+  const { createPet } = await runner.compile(t.code`
+    model Pet {
+      id: int32;
+      name: string;
+    }
+
+    @route("/pets")
+    interface Pets {
+      @operationId("createPet")
+      @post
+      op ${t.op('createPet')}(@body pet: Pet): {
+        @statusCode _: 201;
+      };
+    }
+  `);
+
+  expectRender(
+    runner.program,
+    <OperationObjectExpression op={createPet} />,
+    `
+      {
+        operationId: 'createPet',
+        method: 'POST',
+        path: '/pets',
+      }
+    `,
+  );
+  expectRender(
+    runner.program,
+    <OperationTypeExpression op={createPet} />,
+    `
+      {
+        request: {
+          body: {
+            id: number;
+            name: string;
+          };
+        };
+        response: {
+          statusCode: 201;
+        };
+      }
+    `,
+  );
+});

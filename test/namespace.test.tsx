@@ -54,9 +54,14 @@ it('complex', async () => {
 
 it('directory structure', async () => {
   const { Base, program } = await runner.compile(t.code`
-    @get
-    op getPet(): void;
     namespace ${t.namespace('Base')} {
+      model Pet {
+        name: string;
+      }
+      @get
+      @route("/pet/{petId}")
+      op getPet(@path petId: int32): Pet;
+
       model Tag {
         value: string;
       }
@@ -68,7 +73,6 @@ it('directory structure', async () => {
       namespace Other {
         model More {
           name: string;
-          where?: Here.Everywhere.Where;
         }
         namespace Here {
           model There {
@@ -92,8 +96,20 @@ it('directory structure', async () => {
 
   assertFileContents(res, {
     'Base.ts': `
+      export type Pet = {
+        name: string;
+      };
       export type Tag = {
         value: string;
+      };
+
+      export const getPet_meta = {
+        operationId: 'getPet',
+        method: 'GET',
+        path: '/pet/{petId}',
+      };
+      export function getPet() {
+        console.log('hell')
       };
 
       export * as Foo from "./Base/Foo.js"
