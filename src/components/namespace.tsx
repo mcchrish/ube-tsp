@@ -1,6 +1,12 @@
-import { code, For, StatementList } from '@alloy-js/core';
+import {
+  code,
+  For,
+  refkey,
+  SourceDirectory,
+  StatementList,
+} from '@alloy-js/core';
 import { SourceFile, TypeDeclaration } from '@alloy-js/typescript';
-import type { Namespace } from '@typespec/compiler';
+import { getNamespaceFullName, type Namespace } from '@typespec/compiler';
 import { TsSchema } from './ts-schema.jsx';
 
 interface Props {
@@ -10,34 +16,47 @@ export function NamespaceContent({ ns }: Props) {
   return (
     <>
       <For each={ns.models}>
-        {(name, model) => (
-          <TypeDeclaration name={name} export>
-            <TsSchema type={model} />
-          </TypeDeclaration>
-        )}
+        {(name, model) => {
+          return (
+            <TypeDeclaration
+              name={name}
+              export
+              refkey={refkey(`${getNamespaceFullName(ns)}.${name}`)}
+            >
+              <TsSchema type={model} rootNs={ns} />
+            </TypeDeclaration>
+          );
+        }}
       </For>
-      {'\n\n'}
-      <StatementList>
-        <For each={ns.namespaces}>
-          {(_, childNs) => <ExportNamespace ns={childNs} parentNs={ns} />}
-        </For>
-      </StatementList>
+      {ns.namespaces.size > 0 && (
+        <>
+          {'\n\n'}
+          <StatementList>
+            <For each={ns.namespaces}>
+              {(name) =>
+                code`export * as ${name} from "./${ns.name}/${name}.js"`
+              }
+            </For>
+          </StatementList>
+        </>
+      )}
     </>
   );
 }
 
-interface ExportNamespaceProps {
-  ns: Namespace;
-  parentNs: Namespace;
-}
-function ExportNamespace({ ns, parentNs }: ExportNamespaceProps) {
-  return code`export * as ${ns.name} from "./${parentNs.name}/${ns.name}.js"`;
-}
-
-export function NamespaceFile({ ns }: Props) {
+export function NamespaceStructure({ ns }: { ns: Namespace; path?: string }) {
   return (
-    <SourceFile path={ns.name}>
-      <NamespaceContent ns={ns} />
-    </SourceFile>
+    <>
+      <SourceFile path={`${ns.name}.ts`}>
+        <NamespaceContent ns={ns} />
+      </SourceFile>
+      {ns.namespaces.size > 0 && (
+        <SourceDirectory path={ns.name}>
+          <For each={ns.namespaces}>
+            {(_, childNs) => <NamespaceStructure ns={childNs} path={ns.name} />}
+          </For>
+        </SourceDirectory>
+      )}
+    </>
   );
 }

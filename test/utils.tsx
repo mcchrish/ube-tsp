@@ -32,7 +32,7 @@ export function expectRender(
       namePolicy={tsNamePolicy}
       nameConflictResolver={tsNameConflictResolver}
     >
-      <SourceFile path="testzzz.ts">{children}</SourceFile>
+      <SourceFile path="test.ts">{children}</SourceFile>
     </Output>,
   ).toRenderTo(expected);
 }

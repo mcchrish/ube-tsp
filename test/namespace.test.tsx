@@ -1,10 +1,11 @@
-import { refkey, render } from '@alloy-js/core';
-import { Reference, SourceFile } from '@alloy-js/typescript';
+import { render } from '@alloy-js/core';
 import { t, type TesterInstance } from '@typespec/compiler/testing';
 import { Output } from '@typespec/emitter-framework';
-import { FunctionDeclaration } from '@typespec/emitter-framework/typescript';
 import { beforeEach, it } from 'vitest';
-import { NamespaceContent } from '../src/components/namespace.jsx';
+import {
+  NamespaceContent,
+  NamespaceStructure,
+} from '../src/components/namespace.jsx';
 import { assertFileContents, expectRender, Tester } from './utils.jsx';
 
 let runner: TesterInstance;
@@ -45,37 +46,82 @@ it('complex', async () => {
         value: string;
       };
 
-      export * as Foo from "./Foo.js";
+      export * as Foo from "./Base/Foo.js"
+      export * as Other from "./Base/Other.js";
     `,
   );
 });
 
-it('works with named imports', async () => {
-  const { program } = await runner.compile(`
-    enum Test {
-      A, B
+it('directory structure', async () => {
+  const { Base, program } = await runner.compile(t.code`
+    @get
+    op getPet(): void;
+    namespace ${t.namespace('Base')} {
+      model Tag {
+        value: string;
+      }
+      namespace Foo {
+        model Bar {
+          name: string;
+        }
+      }
+      namespace Other {
+        model More {
+          name: string;
+          where?: Here.Everywhere.Where;
+        }
+        namespace Here {
+          model There {
+            name: string;
+          }
+          namespace Everywhere {
+            model Where {
+              location?: string;
+            }
+          }
+        }
+      }
     }
   `);
+
   const res = render(
     <Output program={program}>
-      <SourceFile path="test1.ts">
-        <FunctionDeclaration export name="test" refkey={refkey('test')} />
-      </SourceFile>
-
-      <SourceFile path="test2.ts">
-        const v = <Reference refkey={refkey('test')} />;
-      </SourceFile>
+      <NamespaceStructure ns={Base} />
     </Output>,
   );
 
   assertFileContents(res, {
-    'test1.ts': `
-      export function test() {}
-    `,
-    'test2.ts': `
-      import { test } from "./test1.js";
+    'Base.ts': `
+      export type Tag = {
+        value: string;
+      };
 
-      const v = test;
+      export * as Foo from "./Base/Foo.js"
+      export * as Other from "./Base/Other.js";
+    `,
+    'Base/Foo.ts': `
+      export type Bar = {
+        name: string;
+      };
+    `,
+    'Base/Other.ts': `
+      export type More = {
+        name: string;
+      };
+
+      export * as Here from "./Other/Here.js";
+    `,
+    'Base/Other/Here.ts': `
+      export type There = {
+        name: string;
+      };
+
+      export * as Everywhere from "./Here/Everywhere.js";
+    `,
+    'Base/Other/Here/Everywhere.ts': `
+      export type Where = {
+        location?: string;
+      };
     `,
   });
 });
