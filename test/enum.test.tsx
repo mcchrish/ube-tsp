@@ -1,7 +1,7 @@
+import { t, type TesterInstance } from '@typespec/compiler/testing';
 import { beforeEach, it } from 'vitest';
 import { TsSchema } from '../src/components/ts-schema.jsx';
 import { Tester, expectRender } from './utils.jsx';
-import { t, type TesterInstance } from '@typespec/compiler/testing';
 
 let runner: TesterInstance;
 
