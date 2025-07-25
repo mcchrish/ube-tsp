@@ -3,15 +3,11 @@
   "version": "0.0.1",
   "description": "A Ky-based HTTP client generator that consumes TypeScript types from @mc-typespec/emitter",
   "type": "module",
-  "main": "dist/src/index.js",
+  "main": "dist/src/main.js",
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
-    },
-    "./runtime": {
-      "types": "./dist/src/runtime/index.d.ts",
-      "default": "./dist/src/runtime/index.js"
+      "types": "./dist/src/main.d.ts",
+      "default": "./dist/src/main.js"
     }
   },
   "files": [

@@ -43,4 +43,3 @@ it('works with string literal unions', async () => {
     '"available" | "pending" | "sold"',
   );
 });
-
