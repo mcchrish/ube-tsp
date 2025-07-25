@@ -10,6 +10,7 @@ import { getNamespaceFullName, type Namespace } from '@typespec/compiler';
 import { TsSchema } from './ts-schema.jsx';
 import { OperationPart } from './operation.jsx';
 import { useTsp } from '@typespec/emitter-framework';
+import { InterfaceContent } from './interface.jsx';
 
 interface Props {
   name: string;
@@ -17,10 +18,10 @@ interface Props {
 }
 export function NamespaceContent({ name, ns }: Props) {
   const { $ } = useTsp();
-  const namespaces = [...ns.namespaces.values()].filter((ns) =>
-    $.type.isUserDefined(ns),
-  );
-
+  const childRef = [
+    ...ns.namespaces.values(),
+    ...ns.interfaces.values(),
+  ].filter((ref) => $.type.isUserDefined(ref));
   return (
     <>
       <For each={ns.models}>
@@ -45,13 +46,13 @@ export function NamespaceContent({ name, ns }: Props) {
         </>
       )}
 
-      {namespaces.length > 0 && (
+      {childRef.length > 0 && (
         <>
           {'\n\n'}
           <StatementList>
-            <For each={namespaces}>
-              {(ns) =>
-                code`export * as ${ns.name} from "./${name}/${ns.name}.js"`
+            <For each={childRef}>
+              {(ref) =>
+                code`export * as ${ref.name} from "./${name}/${ref.name}.js"`
               }
             </For>
           </StatementList>
@@ -73,16 +74,26 @@ export function NamespaceStructure({
   const namespaces = [...ns.namespaces.values()].filter((ns) =>
     $.type.isUserDefined(ns),
   );
+  const inters = [...ns.interfaces.values()].filter(
+    (inter) => $.type.isUserDefined(inter) && inter.operations.size > 0,
+  );
 
   return (
     <>
       <SourceFile path={`${name}.ts`}>
         <NamespaceContent name={name} ns={ns} />
       </SourceFile>
-      {namespaces.length > 0 && (
+      {(namespaces.length > 0 || inters.length > 0) && (
         <SourceDirectory path={name}>
           <For each={namespaces}>
             {(ns) => <NamespaceStructure name={ns.name} ns={ns} path={name} />}
+          </For>
+          <For each={inters}>
+            {(inter) => (
+              <SourceFile path={`${inter.name}.ts`}>
+                <InterfaceContent inter={inter} />
+              </SourceFile>
+            )}
           </For>
         </SourceDirectory>
       )}

@@ -69,6 +69,11 @@ it('directory structure', async () => {
         model Bar {
           name: string;
         }
+        interface Buzz {
+          @get
+          @route("/pets")
+          op listPets(): Pet[];
+        }
       }
       namespace Other {
         model More {
@@ -135,6 +140,28 @@ it('directory structure', async () => {
     'Base/Foo.ts': `
       export type Bar = {
         name: string;
+      };
+
+      export * as Buzz from "./Foo/Buzz.js";
+    `,
+    'Base/Foo/Buzz.ts': `
+      export const listPets = {
+        operationId: "listPets",
+        method: "GET",
+        path: "/pets",
+        statusCodes: [200],
+      };
+      export type ListPetsRequest = {
+        params?: never;
+        body?: never;
+      };
+      export type ListPetsResponse = {
+        statusCode: 200;
+        contentType: "application/json";
+        headers?: never;
+        content: {
+          name: string;
+        }[];
       };
     `,
     'Base/Other.ts': `
