@@ -9,7 +9,7 @@ type Response = {
   body?: Type;
 };
 
-export function createResponseMember(
+export function createResponseModel(
   $: Typekit,
   httpOperation: HttpOperation,
 ): Union {
@@ -59,12 +59,14 @@ export function createResponseMember(
           }),
           contentTypes: $.modelProperty.create({
             name: 'contentType',
+            optional: !res.contentType,
             type: res.contentType
               ? $.literal.create(res.contentType)
-              : $.builtin.string,
+              : $.intrinsic.never,
           }),
           headers: $.modelProperty.create({
             name: 'headers',
+            optional: !res.headers.length,
             type: res.headers.length
               ? $.model.create({
                   properties: res.headers.reduce(
@@ -80,11 +82,12 @@ export function createResponseMember(
                     {} as Record<string, ModelProperty>,
                   ),
                 })
-              : $.intrinsic.null,
+              : $.intrinsic.never,
           }),
           content: $.modelProperty.create({
             name: 'content',
-            type: res.body ? res.body : $.intrinsic.null,
+            optional: !res.body,
+            type: res.body ? res.body : $.intrinsic.never,
           }),
         },
       }),

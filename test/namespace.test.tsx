@@ -40,7 +40,7 @@ it('complex', async () => {
 
   expectRender(
     runner.program,
-    <NamespaceContent ns={Base} />,
+    <NamespaceContent name="Base" ns={Base} />,
     `
       export type Tag = {
         value: string;
@@ -90,7 +90,7 @@ it('directory structure', async () => {
 
   const res = render(
     <Output program={program}>
-      <NamespaceStructure ns={Base} />
+      <NamespaceStructure name="Base" ns={Base} />
     </Output>,
   );
 
@@ -103,13 +103,30 @@ it('directory structure', async () => {
         value: string;
       };
 
-      export const getPet_meta = {
-        operationId: 'getPet',
-        method: 'GET',
-        path: '/pet/{petId}',
+      export const getPet = {
+        operationId: "getPet",
+        method: "GET",
+        path: "/pet/{petId}",
+        statusCodes: [200],
       };
-      export function getPet() {
-        console.log('hell')
+      export type GetPetRequest = {
+        params: {
+          path: {
+            petId: number;
+          };
+          query?: never;
+          header?: never;
+          cookie?: never;
+        };
+        body?: never;
+      };
+      export type GetPetResponse = {
+        statusCode: 200;
+        contentType: "application/json";
+        headers?: never;
+        content: {
+          name: string;
+        };
       };
 
       export * as Foo from "./Base/Foo.js"
@@ -137,6 +154,40 @@ it('directory structure', async () => {
     'Base/Other/Here/Everywhere.ts': `
       export type Where = {
         location?: string;
+      };
+    `,
+  });
+});
+
+it('Global namespace', async () => {
+  const { program } = await runner.compile(t.code`
+    model Tag {
+      value: string;
+    }
+    namespace Foo {
+      model Bar {
+        name: string;
+      }
+    }
+  `);
+
+  const res = render(
+    <Output program={program}>
+      <NamespaceStructure name="Spec" ns={program.getGlobalNamespaceType()} />
+    </Output>,
+  );
+
+  assertFileContents(res, {
+    'Spec.ts': `
+      export type Tag = {
+        value: string;
+      };
+
+      export * as Foo from "./Spec/Foo.js";
+    `,
+    'Spec/Foo.ts': `
+      export type Bar = {
+        name: string;
       };
     `,
   });

@@ -1,8 +1,5 @@
 import { beforeEach, it } from 'vitest';
-import {
-  OperationObjectExpression,
-  OperationTypeExpression,
-} from '../src/components/operation.jsx';
+import { OperationPart } from '../src/components/operation.jsx';
 import { expectRender, Tester } from './utils.jsx';
 import { t, type TesterInstance } from '@typespec/compiler/testing';
 
@@ -60,66 +57,66 @@ it('complex', async () => {
 
   expectRender(
     runner.program,
-    <OperationObjectExpression op={getPet} />,
+    <OperationPart op={getPet} />,
     `
-      {
-        operationId: 'getPet',
-        method: 'GET',
-        path: '/pets/{petId}',
-      }
-    `,
-  );
-  expectRender(
-    runner.program,
-    <OperationTypeExpression op={getPet} />,
-    `
-      {
-        request: {
-          parameters: {
-            path: {
-              petId: number
-            };
+      export const getPet = {
+        operationId: "getPet",
+        method: "GET",
+        path: "/pets/{petId}",
+        statusCodes: [200, "5XX"],
+      };
+      export type GetPetRequest = {
+        params: {
+          path: {
+            petId: number;
+          };
+          query?: never;
+          header?: never;
+          cookie?: never;
+        };
+        body?: never;
+      };
+      export type GetPetResponse = {
+        statusCode: 200;
+        contentType: "application/json";
+        headers: {
+          "x-extra-key": string;
+        };
+        content: {
+          id: number;
+          name: string;
+          tag?: {
+            value: string;
+          } | {
+            label: string;
+            value: string;
+          };
+          status: "available" | "pending" | "sold";
+        };
+      } | {
+        statusCode: 200;
+        contentType: "application/json";
+        headers?: never;
+        content: string;
+      } | {
+        statusCode: "4XX";
+        contentType: "application/json";
+        headers?: never;
+        content: {
+          prop: {
+            value: string;
           };
         };
-        response: {
-          statusCode: 200;
-          contentType: "application/json";
-          headers: {
-            "x-extra-key": string;
-          };
-          content: {
-            id: number;
-            name: string;
-            tag?: {
-              value: string;
-            } | {
-              label: string;
-              value: string;
-            };
-            status: "available" | "pending" | "sold";
-          };
-        } | {
-          statusCode: 200;
-          contentType: "application/json";
-          content: string;
-        } | {
-          statusCode: "4XX";
-          contentType: "application/json";
-          content: {
-            prop: {
-              value: string;
-            };
-          };
-        } | {
-          statusCode: "5XX";
-          contentType: "application/json";
-          content: {
-            prop: {
-              value: string;
-            };
+      } | {
+        statusCode: "5XX";
+        contentType: "application/json";
+        headers?: never;
+        content: {
+          prop: {
+            value: string;
           };
         };
-      }
+      };
     `,
   );
 });
@@ -141,36 +138,34 @@ it('default response', async () => {
 
   expectRender(
     runner.program,
-    <OperationObjectExpression op={getPet} />,
+    <OperationPart op={getPet} />,
     `
-      {
-        operationId: 'getPet',
-        method: 'GET',
-        path: '/pets/{petId}',
-      }
-    `,
-  );
-  expectRender(
-    runner.program,
-    <OperationTypeExpression op={getPet} />,
-    `
-      {
-        request: {
-          parameters: {
-            path: {
-              petId: number
-            };
+      export const getPet = {
+        operationId: "getPet",
+        method: "GET",
+        path: "/pets/{petId}",
+        statusCodes: ["default"],
+      };
+      export type GetPetRequest = {
+        params: {
+          path: {
+            petId: number;
           };
+          query?: never;
+          header?: never;
+          cookie?: never;
         };
-        response: {
-          statusCode: "default";
-          contentType: "application/json";
-          content: {
-            id: number;
-            name: string;
-          };
+        body?: never;
+      };
+      export type GetPetResponse = {
+        statusCode: "default";
+        contentType: "application/json";
+        headers?: never;
+        content: {
+          id: number;
+          name: string;
         };
-      }
+      };
     `,
   );
 });
@@ -192,32 +187,27 @@ it('@operationId', async () => {
 
   expectRender(
     runner.program,
-    <OperationObjectExpression op={listPets} />,
+    <OperationPart op={listPets} />,
     `
-      {
-        operationId: 'listAllPets',
-        method: 'GET',
-        path: '/pets',
-      }
-    `,
-  );
-  expectRender(
-    runner.program,
-    <OperationTypeExpression op={listPets} />,
-    `
-      {
-        request: {
-
-        };
-        response: {
-          statusCode: 200;
-          contentType: "application/json";
-          content: {
-            id: number;
-            name: string;
-          }[];
-        };
-      }
+      export const listPets = {
+        operationId: "listAllPets",
+        method: "GET",
+        path: "/pets",
+        statusCodes: [200],
+      };
+      export type ListPetsRequest = {
+        params?: never;
+        body?: never;
+      };
+      export type ListPetsResponse = {
+        statusCode: 200;
+        contentType: "application/json";
+        headers?: never;
+        content: {
+          id: number;
+          name: string;
+        }[];
+      };
     `,
   );
 });
@@ -237,34 +227,31 @@ it('request body', async () => {
         @statusCode _: 201;
       };
     }
-  `);
+    `);
 
   expectRender(
     runner.program,
-    <OperationObjectExpression op={createPet} />,
+    <OperationPart op={createPet} />,
     `
-      {
-        operationId: 'createPet',
-        method: 'POST',
-        path: '/pets',
-      }
-    `,
-  );
-  expectRender(
-    runner.program,
-    <OperationTypeExpression op={createPet} />,
-    `
-      {
-        request: {
-          body: {
-            id: number;
-            name: string;
-          };
+      export const createPet = {
+        operationId: "createPet",
+        method: "POST",
+        path: "/pets",
+        statusCodes: [201],
+      };
+      export type CreatePetRequest = {
+        params?: never;
+        body: {
+          id: number;
+          name: string;
         };
-        response: {
-          statusCode: 201;
-        };
-      }
+      };
+      export type CreatePetResponse = {
+        statusCode: 201;
+        contentType?: never;
+        headers?: never;
+        content?: never;
+      };
     `,
   );
 });

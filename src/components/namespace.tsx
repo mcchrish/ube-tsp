@@ -5,28 +5,22 @@ import {
   SourceDirectory,
   StatementList,
 } from '@alloy-js/core';
-import {
-  FunctionDeclaration,
-  SourceFile,
-  TypeDeclaration,
-  VarDeclaration,
-} from '@alloy-js/typescript';
-import {
-  getNamespaceFullName,
-  type Namespace,
-  type Operation,
-} from '@typespec/compiler';
+import { SourceFile, TypeDeclaration } from '@alloy-js/typescript';
+import { getNamespaceFullName, type Namespace } from '@typespec/compiler';
 import { TsSchema } from './ts-schema.jsx';
+import { OperationPart } from './operation.jsx';
 import { useTsp } from '@typespec/emitter-framework';
-import { getOperationId } from '@typespec/openapi';
-import { OperationObjectExpression } from './operation.jsx';
-import { createRequestModel } from '../parts/request.jsx';
-import { createResponseMember } from '../parts/response.jsx';
 
 interface Props {
+  name: string;
   ns: Namespace;
 }
-export function NamespaceContent({ ns }: Props) {
+export function NamespaceContent({ name, ns }: Props) {
+  const { $ } = useTsp();
+  const namespaces = [...ns.namespaces.values()].filter((ns) =>
+    $.type.isUserDefined(ns),
+  );
+
   return (
     <>
       <For each={ns.models}>
@@ -51,13 +45,13 @@ export function NamespaceContent({ ns }: Props) {
         </>
       )}
 
-      {ns.namespaces.size > 0 && (
+      {namespaces.length > 0 && (
         <>
           {'\n\n'}
           <StatementList>
-            <For each={ns.namespaces}>
-              {(name) =>
-                code`export * as ${name} from "./${ns.name}/${name}.js"`
+            <For each={namespaces}>
+              {(ns) =>
+                code`export * as ${ns.name} from "./${name}/${ns.name}.js"`
               }
             </For>
           </StatementList>
@@ -67,60 +61,31 @@ export function NamespaceContent({ ns }: Props) {
   );
 }
 
-export function NamespaceStructure({ ns }: { ns: Namespace; path?: string }) {
+export function NamespaceStructure({
+  name,
+  ns,
+}: {
+  name: string;
+  ns: Namespace;
+  path?: string;
+}) {
+  const { $ } = useTsp();
+  const namespaces = [...ns.namespaces.values()].filter((ns) =>
+    $.type.isUserDefined(ns),
+  );
+
   return (
     <>
-      <SourceFile path={`${ns.name}.ts`}>
-        <NamespaceContent ns={ns} />
+      <SourceFile path={`${name}.ts`}>
+        <NamespaceContent name={name} ns={ns} />
       </SourceFile>
-      {ns.namespaces.size > 0 && (
-        <SourceDirectory path={ns.name}>
-          <For each={ns.namespaces}>
-            {(_, childNs) => <NamespaceStructure ns={childNs} path={ns.name} />}
+      {namespaces.length > 0 && (
+        <SourceDirectory path={name}>
+          <For each={namespaces}>
+            {(ns) => <NamespaceStructure name={ns.name} ns={ns} path={name} />}
           </For>
         </SourceDirectory>
       )}
     </>
-  );
-}
-
-interface OperationPartProps {
-  op: Operation;
-}
-export function OperationPart({ op }: OperationPartProps) {
-  const { $ } = useTsp();
-  const typeName = op.name.charAt(0).toUpperCase() + op.name.substring(1);
-  const requestName = `${typeName}Request`;
-  const refKeyPrefix = op.namespace
-    ? `${getNamespaceFullName(op.namespace)}.${op.name}`
-    : op.name;
-  return (
-    <StatementList>
-      <VarDeclaration name={`${op.name}_meta`} const export>
-        <OperationObjectExpression op={op} />
-      </VarDeclaration>
-      <TypeDeclaration
-        name={`${typeName}Request`}
-        refkey={refkey(`${refKeyPrefix}.RequestParams`)}
-      >
-        <TsSchema type={createRequestModel($, op)} />
-      </TypeDeclaration>
-      <FunctionDeclaration
-        name={op.name}
-        parameters={[
-          {
-            name: 'params',
-            type: requestName,
-            refkey: refkey(`${refKeyPrefix}.RequestParams`),
-          },
-        ]}
-        returnType={
-          <TsSchema type={createResponseMember($, $.httpOperation.get(op))} />
-        }
-        export
-      >
-        {code`kyHelper(params, ${op.name}_meta);`}
-      </FunctionDeclaration>
-    </StatementList>
   );
 }
