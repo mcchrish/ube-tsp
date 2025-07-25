@@ -1,4 +1,4 @@
-import { SourceFile, tsNameConflictResolver } from '@alloy-js/typescript';
+import { tsNameConflictResolver } from '@alloy-js/typescript';
 import { type EmitContext } from '@typespec/compiler';
 import { Output, writeOutput } from '@typespec/emitter-framework';
 import { NamespaceStructure } from './components/namespace.jsx';
@@ -16,9 +16,7 @@ export async function $onEmit(context: EmitContext) {
       namePolicy={tsNamePolicy}
       nameConflictResolver={tsNameConflictResolver}
     >
-      <SourceFile path={'api.ts'}>
-        <NamespaceStructure name="Spec" ns={globalNs} />
-      </SourceFile>
+      <NamespaceStructure name="Spec" ns={globalNs} />
     </Output>,
     context.emitterOutputDir,
   );

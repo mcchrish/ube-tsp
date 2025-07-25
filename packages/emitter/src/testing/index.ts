@@ -6,6 +6,6 @@ import {
 
 export const TypeScriptEmitterTestLibrary: TypeSpecTestLibrary =
   createTestLibrary({
-    name: 'typespec-typescript-operation',
+    name: '@mc-typespec/emitter',
     packageRoot: await findTestPackageRoot(import.meta.url),
   });

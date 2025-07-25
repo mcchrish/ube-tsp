@@ -5,17 +5,20 @@ import {
   type OutputFile,
   type PrintTreeOptions,
 } from '@alloy-js/core';
+import { dedent } from '@alloy-js/core/testing';
 import { SourceFile, tsNameConflictResolver } from '@alloy-js/typescript';
 import { resolvePath, type Program } from '@typespec/compiler';
 import { createTester } from '@typespec/compiler/testing';
 import { Output } from '@typespec/emitter-framework';
 import { expect } from 'vitest';
 import { createTSNamePolicy } from '../src/name-policy.js';
-import { dedent } from '@alloy-js/core/testing';
 
-export const Tester = createTester(resolvePath(import.meta.dirname, '..'), {
-  libraries: ['@typespec/http', '@typespec/rest', '@typespec/openapi'],
-})
+export const Tester = createTester(
+  resolvePath(import.meta.dirname, '../../..'),
+  {
+    libraries: ['@typespec/http', '@typespec/rest', '@typespec/openapi'],
+  },
+)
   .importLibraries()
   .using('Http', 'Rest', 'OpenAPI');
 
