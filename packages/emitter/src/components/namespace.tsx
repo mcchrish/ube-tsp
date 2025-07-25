@@ -5,12 +5,19 @@ import {
   SourceDirectory,
   StatementList,
 } from '@alloy-js/core';
-import { SourceFile, TypeDeclaration } from '@alloy-js/typescript';
+import {
+  InterfaceExpression,
+  InterfaceMember,
+  Reference,
+  SourceFile,
+  TypeDeclaration,
+} from '@alloy-js/typescript';
 import { getNamespaceFullName, type Namespace } from '@typespec/compiler';
 import { TsSchema } from './ts-schema.jsx';
 import { OperationPart } from './operation.jsx';
 import { useTsp } from '@typespec/emitter-framework';
 import { InterfaceContent } from './interface.jsx';
+import { List } from '@alloy-js/core/stc';
 
 interface Props {
   name: string;
@@ -22,6 +29,9 @@ export function NamespaceContent({ name, ns }: Props) {
     ...ns.namespaces.values(),
     ...ns.interfaces.values(),
   ].filter((ref) => $.type.isUserDefined(ref));
+
+  const refKeyPrefix = ns.name ? getNamespaceFullName(ns) : name;
+
   return (
     <>
       <For each={ns.models}>
@@ -40,9 +50,50 @@ export function NamespaceContent({ name, ns }: Props) {
       {ns.operations.size > 0 && (
         <>
           {'\n\n'}
-          <For each={ns.operations} hardline>
-            {(_, op) => <OperationPart op={op} />}
-          </For>
+          <List hardline>
+            <For each={ns.operations} hardline>
+              {(_, op) => <OperationPart op={op} />}
+            </For>
+
+            <TypeDeclaration
+              name="OperationMap"
+              refkey={refkey(`${refKeyPrefix}.OperationMap`)}
+              export
+            >
+              <InterfaceExpression>
+                <For each={ns.operations} hardline semicolon enderPunctuation>
+                  {(_, op) => (
+                    <InterfaceMember name={op.name}>
+                      <InterfaceExpression>
+                        <StatementList>
+                          <InterfaceMember
+                            name="request"
+                            type={
+                              <Reference
+                                refkey={refkey(
+                                  `${refKeyPrefix}.${op.name}.Request`,
+                                )}
+                              />
+                            }
+                          />
+                          <InterfaceMember
+                            name="response"
+                            type={
+                              <Reference
+                                refkey={refkey(
+                                  `${refKeyPrefix}.${op.name}.Response`,
+                                )}
+                              />
+                            }
+                          />
+                        </StatementList>
+                      </InterfaceExpression>
+                    </InterfaceMember>
+                  )}
+                </For>
+              </InterfaceExpression>
+            </TypeDeclaration>
+          </List>
         </>
       )}
 

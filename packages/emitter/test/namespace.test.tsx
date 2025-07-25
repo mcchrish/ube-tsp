@@ -61,6 +61,11 @@ it('directory structure', async () => {
       @get
       @route("/pet/{petId}")
       op getPet(@path petId: int32): Pet;
+      @delete
+      @route("/pet/{petId}")
+      op deletePet(@path petId: int32): {
+        @statusCode _: 204;
+      };
 
       model Tag {
         value: string;
@@ -133,6 +138,39 @@ it('directory structure', async () => {
           name: string;
         };
       };
+      export const deletePet = {
+        operationId: "deletePet",
+        method: "DELETE",
+        path: "/pet/{petId}",
+        statusCodes: [204],
+      };
+      export type DeletePetRequest = {
+        params: {
+          path: {
+            petId: number;
+          };
+          query?: never;
+          header?: never;
+          cookie?: never;
+        };
+        body?: never;
+      };
+      export type DeletePetResponse = {
+        statusCode: 204;
+        contentType?: never;
+        headers?: never;
+        content?: never;
+      };
+      export type OperationMap = {
+        getPet: {
+          request: GetPetRequest;
+          response: GetPetResponse;
+        };
+        deletePet: {
+          request: DeletePetRequest;
+          response: DeletePetResponse;
+        };
+      };
 
       export * as Foo from "./Base/Foo.js"
       export * as Other from "./Base/Other.js";
@@ -162,6 +200,12 @@ it('directory structure', async () => {
         content: {
           name: string;
         }[];
+      };
+      export type OperationMap = {
+        listPets: {
+          request: ListPetsRequest;
+          response: ListPetsResponse;
+        };
       };
     `,
     'Base/Other.ts': `

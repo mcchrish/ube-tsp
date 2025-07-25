@@ -72,14 +72,22 @@ export function OperationPart({ op }: OperationPartProps) {
   const typeName = op.name.charAt(0).toUpperCase() + op.name.substring(1);
   const requestName = `${typeName}Request`;
   const responseName = `${typeName}Response`;
-  const refKeyPrefix = op.namespace
-    ? `${getNamespaceFullName(op.namespace)}.${op.name}`
+  const interfaceName = op.interface
+    ? `${op.interface.name}.${op.name}`
     : op.name;
+  const refKeyPrefix = op.namespace
+    ? `${getNamespaceFullName(op.namespace)}.${interfaceName}`
+    : interfaceName;
   return (
     <>
       <List hardline>
         <StatementList>
-          <VarDeclaration name={op.name} const export>
+          <VarDeclaration
+            name={op.name}
+            refkey={refkey(`${refKeyPrefix}.Meta`)}
+            const
+            export
+          >
             <OperationObjectExpression op={op} />
           </VarDeclaration>
         </StatementList>
