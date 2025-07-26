@@ -6,6 +6,6 @@ import {
 
 export const TypeScriptEmitterTestLibrary: TypeSpecTestLibrary =
   createTestLibrary({
-    name: '@mc-typespec/emitter',
+    name: '@kamote-tsp/emitter',
     packageRoot: await findTestPackageRoot(import.meta.url),
   });

@@ -1,5 +1,5 @@
 {
-  "name": "mc-typespec",
+  "name": "kamote-tsp",
   "version": "0.0.1",
   "description": "A monorepo containing TypeSpec tools: emitter and Ky HTTP client generator",
   "type": "module",
@@ -24,12 +24,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/mc-typespec.git"
+    "url": "https://github.com/your-username/kamote-tsp.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/mc-typespec/issues"
+    "url": "https://github.com/your-username/kamote-tsp/issues"
   },
-  "homepage": "https://github.com/your-username/mc-typespec#readme",
+  "homepage": "https://github.com/your-username/kamote-tsp#readme",
   "devDependencies": {
     "@alloy-js/cli": "^0.18.0",
     "@types/node": "latest",

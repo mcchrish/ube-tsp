@@ -1,7 +1,7 @@
 {
-  "name": "@mc-typespec/ky-client",
+  "name": "@kamote-tsp/ky-client",
   "version": "0.0.1",
-  "description": "A Ky-based HTTP client generator that consumes TypeScript types from @mc-typespec/emitter",
+  "description": "A Ky-based HTTP client generator that consumes TypeScript types from @kamote-tsp/emitter",
   "type": "module",
   "main": "dist/src/main.js",
   "exports": {
@@ -28,13 +28,13 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/mc-typespec.git",
+    "url": "https://github.com/your-username/kamote-tsp.git",
     "directory": "packages/ky-client"
   },
   "bugs": {
-    "url": "https://github.com/your-username/mc-typespec/issues"
+    "url": "https://github.com/your-username/kamote-tsp/issues"
   },
-  "homepage": "https://github.com/your-username/mc-typespec/tree/main/packages/ky-client#readme",
+  "homepage": "https://github.com/your-username/kamote-tsp/tree/main/packages/ky-client#readme",
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
@@ -43,7 +43,7 @@
     "prepublishOnly": "npm run build && npm run test && npm run lint"
   },
   "dependencies": {
-    "@mc-typespec/emitter": "file:../emitter",
+    "@kamote-tsp/emitter": "file:../emitter",
     "ky": "^1.8.2"
   },
   "devDependencies": {
