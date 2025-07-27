@@ -7,10 +7,10 @@ Type-safe HTTP client generator using Ky that transforms operation maps into nes
 ```typescript
 import ky from "ky";
 import { createClient } from "@ube-tsp/ky-client";
-import { operationMap } from "./generated/operation-map.js";
+import { operationMap, type OperationMap } from "./generated/operation-map.js";
 
 const kyInstance = ky.create({ prefixUrl: "https://api.example.com" });
-const client = createClient(kyInstance, operationMap);
+const client = createClient<OperationMap>(kyInstance, operationMap);
 
 // Use nested methods
 await client.PetStore.getPet({ params: { path: { petId: 123 } } });
