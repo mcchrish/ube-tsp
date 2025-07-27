@@ -49,6 +49,6 @@
     "@types/node": "latest"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "ky": "^1.0.0"
   }
 }
