@@ -1,5 +1,11 @@
 # @ube-tsp/ky-emitter
 
+## 0.0.5
+
+### Patch Changes
+
+- 18a1eeb: Release
+
 ## 0.0.4
 
 ### Patch Changes
