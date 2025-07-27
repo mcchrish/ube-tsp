@@ -1,6 +1,6 @@
 {
   "name": "ube-tsp",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A monorepo containing TypeSpec tools: emitter and Ky HTTP client generator",
   "type": "module",
   "private": true,
