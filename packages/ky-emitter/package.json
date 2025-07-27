@@ -38,7 +38,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/ube-tsp.git",
+    "url": "git+https://github.com/your-username/ube-tsp.git",
     "directory": "packages/ky-emitter"
   },
   "bugs": {
