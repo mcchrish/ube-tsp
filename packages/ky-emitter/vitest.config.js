@@ -3,9 +3,9 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    include: ["test/**/*.test.ts", "test/**/*.test.tsx"],
-    exclude: ["test/**/*.d.ts"],
-    setupFiles: ["./test/vitest.setup.ts"],
+    include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
+    exclude: ["tests/**/*.d.ts"],
+    setupFiles: ["./tests/vitest.setup.ts"],
   },
   esbuild: {
     jsx: "preserve",
