@@ -1,6 +1,6 @@
 {
   "name": "@ube-tsp/ky-emitter",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A TypeSpec emitter that generates TypeScript operation files with flat structure using Alloy-JS",
   "type": "module",
   "main": "dist/src/main.js",
