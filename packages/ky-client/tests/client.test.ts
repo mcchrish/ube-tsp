@@ -8,36 +8,56 @@ const testOperationMap = {
     operationId: "getPet",
     method: "GET",
     path: "/pets/{petId}",
-    statusCodes: [200],
-    contentTypes: [],
+    response: {
+      "200": {
+        headers: [],
+        contentTypes: ["application/json"],
+      },
+    },
   },
   "Api.Pets.listPets": {
     operationId: "listPets",
     method: "GET",
     path: "/pets",
-    statusCodes: [200],
-    contentTypes: [],
+    response: {
+      "200": {
+        headers: [],
+        contentTypes: ["application/json"],
+      },
+    },
   },
   "Api.Pets.createPet": {
     operationId: "createPet",
     method: "POST",
     path: "/pets",
-    statusCodes: [201],
-    contentTypes: [],
+    response: {
+      "201": {
+        headers: [],
+        contentTypes: ["application/json"],
+      },
+    },
   },
   "simple": {
     operationId: "simple",
     method: "GET",
     path: "/simple",
-    statusCodes: [200],
-    contentTypes: [],
+    response: {
+      "200": {
+        headers: [],
+        contentTypes: ["application/json"],
+      },
+    },
   },
   "Api.V1.Users.getUser": {
     operationId: "getUser",
     method: "GET",
     path: "/users/{userId}",
-    statusCodes: [200],
-    contentTypes: [],
+    response: {
+      "200": {
+        headers: [],
+        contentTypes: ["application/json"],
+      },
+    },
   },
 };
 

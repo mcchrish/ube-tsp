@@ -10,17 +10,17 @@ describe("resolveResponseStatus", () => {
 
   it("should return response status when no status codes provided", () => {
     const response = createMockResponse(200);
-    expect(resolveResponseStatus(response)).toBe(200);
+    expect(resolveResponseStatus(response, [])).toBe(200);
   });
 
   it("should return response status when status is in allowed list", () => {
     const response = createMockResponse(200);
-    expect(resolveResponseStatus(response, [200, 404])).toBe(200);
+    expect(resolveResponseStatus(response, ["200", "404"])).toBe(200);
   });
 
   it("should return response status when status is not in allowed list", () => {
     const response = createMockResponse(500);
-    expect(resolveResponseStatus(response, [200, 404])).toBe(500);
+    expect(resolveResponseStatus(response, ["200", "404"])).toBe(500);
   });
 
   it("should return '2XX' for 2xx status codes", () => {
@@ -59,8 +59,8 @@ describe("resolveResponseStatus", () => {
   });
 
   it("should prioritize exact status codes over patterns", () => {
-    expect(resolveResponseStatus(createMockResponse(200), [200, "2XX"])).toBe(200);
-    expect(resolveResponseStatus(createMockResponse(404), [404, "4XX"])).toBe(404);
+    expect(resolveResponseStatus(createMockResponse(200), ["200", "2XX"])).toBe(200);
+    expect(resolveResponseStatus(createMockResponse(404), ["404", "4XX"])).toBe(404);
   });
 
   it("should return actual status when no patterns match", () => {
@@ -69,7 +69,7 @@ describe("resolveResponseStatus", () => {
   });
 
   it("should handle mixed status codes and patterns", () => {
-    const statusCodes = [200, "4XX", 500, "default"];
+    const statusCodes = ["200", "4XX", "500", "default"];
 
     expect(resolveResponseStatus(createMockResponse(200), statusCodes)).toBe(200);
     expect(resolveResponseStatus(createMockResponse(404), statusCodes)).toBe("4XX");

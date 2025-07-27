@@ -3,12 +3,12 @@ import type { KyResponse } from "ky";
 /**
  * Determines the response status based on operation status codes
  */
-export function resolveResponseStatus(response: KyResponse, statusCodes?: (string | number)[]): string | number {
+export function resolveResponseStatus(response: KyResponse, statusCodes: string[]): string | number {
   if (!statusCodes) {
     return response.status;
   }
 
-  if (statusCodes.includes(response.status)) {
+  if (statusCodes.includes(response.status.toString())) {
     return response.status;
   }
 

@@ -13,7 +13,7 @@ import { resolveResponseStatus } from "./utils/response.js";
  */
 export function createClient<T>(ky: KyInstance, operationMap: OperationMap): T {
   const makeRequest = async (
-    { path, method, statusCodes }: Operation,
+    { path, method, response }: Operation,
     params?: RequestParams,
     kyOptions?: Options,
   ): Promise<ApiResponse> => {
@@ -33,7 +33,7 @@ export function createClient<T>(ky: KyInstance, operationMap: OperationMap): T {
 
     const kyResponse = await ky(url, options);
     const content = await kyResponse.json();
-    const statusCode = resolveResponseStatus(kyResponse, statusCodes);
+    const statusCode = resolveResponseStatus(kyResponse, Object.keys(response));
 
     return {
       response: {

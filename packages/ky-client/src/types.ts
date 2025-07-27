@@ -33,8 +33,7 @@ export interface Operation {
   method: string;
   path: string;
   operationId: string;
-  statusCodes: (string | number)[];
-  contentTypes: string[];
+  response: Record<string, { headers: string[]; contentTypes: [] }>;
 }
 /**
  * Runtime operation specification mapping flat keys to HTTP operation details
