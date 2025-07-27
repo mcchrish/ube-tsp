@@ -6,6 +6,7 @@ import {
   buildRequestBody,
   buildUrlWithPathParams,
   parseResponseBody,
+  extractResponseHeaders,
 } from "../src/utils/params.js";
 
 describe("buildUrlWithPathParams", () => {
@@ -163,15 +164,13 @@ describe("buildRequestBody", () => {
 
 describe("parseResponseBody", () => {
   const createMockResponse = (contentType: string, body: unknown): KyResponse => {
+    const headers = new Headers();
+    if (contentType) {
+      headers.set("content-type", contentType);
+    }
+    
     return {
-      headers: {
-        get: vi.fn().mockImplementation((header: string) => {
-          if (header.toLowerCase() === "content-type") {
-            return contentType;
-          }
-          return null;
-        }),
-      },
+      headers,
       json: vi.fn().mockResolvedValue(body),
       text: vi.fn().mockResolvedValue(body),
       body: body,
@@ -270,5 +269,108 @@ describe("parseResponseBody", () => {
     expect(response.json).not.toHaveBeenCalled();
     expect(response.text).not.toHaveBeenCalled();
     expect(result).toBe(mockBody);
+  });
+});
+
+describe("extractResponseHeaders", () => {
+  const createMockResponseWithHeaders = (headers: Record<string, string>): KyResponse => {
+    const headersObj = new Headers(headers);
+    return {
+      headers: headersObj,
+    } as unknown as KyResponse;
+  };
+
+  it("should extract specified headers when they exist", () => {
+    const response = createMockResponseWithHeaders({
+      "content-type": "application/json",
+      "x-custom-header": "custom-value",
+      "authorization": "Bearer token",
+    });
+
+    const result = extractResponseHeaders(response, ["content-type", "x-custom-header"]);
+
+    expect(result).toEqual({
+      "content-type": "application/json",
+      "x-custom-header": "custom-value",
+    });
+  });
+
+  it("should only include headers that exist", () => {
+    const response = createMockResponseWithHeaders({
+      "content-type": "application/json",
+    });
+
+    const result = extractResponseHeaders(response, ["content-type", "missing-header"]);
+
+    expect(result).toEqual({
+      "content-type": "application/json",
+    });
+  });
+
+  it("should return undefined when no headers match", () => {
+    const response = createMockResponseWithHeaders({
+      "content-type": "application/json",
+    });
+
+    const result = extractResponseHeaders(response, ["missing-header", "another-missing"]);
+
+    expect(result).toBeUndefined();
+  });
+
+  it("should return undefined when headerNames is empty", () => {
+    const response = createMockResponseWithHeaders({
+      "content-type": "application/json",
+    });
+
+    const result = extractResponseHeaders(response, []);
+
+    expect(result).toBeUndefined();
+  });
+
+  it("should handle case-insensitive header names correctly", () => {
+    const response = createMockResponseWithHeaders({
+      "content-type": "application/json",
+      "x-rate-limit": "100",
+    });
+
+    const result = extractResponseHeaders(response, ["Content-Type", "X-Rate-Limit"]);
+
+    // HTTP headers are case-insensitive, so these should match
+    expect(result).toEqual({
+      "Content-Type": "application/json",
+      "X-Rate-Limit": "100",
+    });
+  });
+
+  it("should handle mixed case header names", () => {
+    const response = createMockResponseWithHeaders({
+      "authorization": "Bearer token",
+      "content-length": "1234",
+    });
+
+    const result = extractResponseHeaders(response, ["Authorization", "Content-Length", "ACCEPT"]);
+
+    expect(result).toEqual({
+      "Authorization": "Bearer token",
+      "Content-Length": "1234",
+    });
+  });
+
+  it("should extract all headers when all are present", () => {
+    const response = createMockResponseWithHeaders({
+      "content-type": "application/json",
+      "x-rate-limit": "100",
+      "etag": "123456",
+      "cache-control": "no-cache",
+    });
+
+    const result = extractResponseHeaders(response, ["content-type", "x-rate-limit", "etag", "cache-control"]);
+
+    expect(result).toEqual({
+      "content-type": "application/json",
+      "x-rate-limit": "100",
+      "etag": "123456",
+      "cache-control": "no-cache",
+    });
   });
 });

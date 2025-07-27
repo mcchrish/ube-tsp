@@ -17,7 +17,7 @@ export interface RequestParams {
  */
 export interface ApiResponseData {
   statusCode: number | string;
-  headers?: Record<string, string>;
+  headers?: Record<string, unknown>;
   content: unknown;
 }
 
@@ -33,7 +33,7 @@ export interface Operation {
   method: string;
   path: string;
   operationId: string;
-  response: Record<string, { headers: string[]; contentTypes: [] }>;
+  response: Record<string, { headers: string[]; contentTypes: string[] }>;
 }
 /**
  * Runtime operation specification mapping flat keys to HTTP operation details

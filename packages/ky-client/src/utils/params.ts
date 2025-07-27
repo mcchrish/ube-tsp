@@ -85,7 +85,7 @@ export function buildRequestBody(params?: RequestParams): BodyInit | undefined {
  * Parses response body based on content-type header
  */
 export async function parseResponseBody(response: KyResponse): Promise<unknown> {
-  const contentType = response.headers.get("content-type") || "";
+  const contentType = response.headers.get("content-type") ?? "";
 
   if (contentType.includes("application/json")) {
     return response.json();
@@ -96,4 +96,27 @@ export async function parseResponseBody(response: KyResponse): Promise<unknown> 
   }
 
   return response.body;
+}
+
+/**
+ * Extracts response headers based on operation metadata
+ */
+export function extractResponseHeaders(
+  response: KyResponse,
+  headerNames: string[],
+): Record<string, unknown> | undefined {
+  if (!headerNames || headerNames.length === 0) {
+    return undefined;
+  }
+
+  const headers: Record<string, unknown> = {};
+
+  headerNames.forEach((headerName) => {
+    const value = response.headers.get(headerName);
+    if (value !== null) {
+      headers[headerName] = value;
+    }
+  });
+
+  return Object.keys(headers).length > 0 ? headers : undefined;
 }

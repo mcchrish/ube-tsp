@@ -5,6 +5,7 @@ import {
   buildQueryParams,
   buildRequestBody,
   buildUrlWithPathParams,
+  extractResponseHeaders,
   parseResponseBody,
 } from "./utils/params.js";
 import { resolveResponseStatus } from "./utils/response.js";
@@ -41,9 +42,16 @@ export function createClient<T>(ky: KyInstance, operationMap: OperationMap): T {
     const content = await parseResponseBody(kyResponse);
     const statusCode = resolveResponseStatus(kyResponse, Object.keys(response));
 
+    // Extract headers based on the resolved status code
+    const responseMetadata = response[statusCode.toString()];
+    const responseHeaders = responseMetadata ? extractResponseHeaders(kyResponse, responseMetadata.headers) : undefined;
+
     return {
       response: {
         statusCode,
+        ...(!!responseHeaders && {
+          headers: responseHeaders,
+        }),
         content,
       },
       kyResponse,
