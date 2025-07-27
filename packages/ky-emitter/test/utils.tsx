@@ -4,23 +4,23 @@ import {
   type OutputDirectory,
   type OutputFile,
   type PrintTreeOptions,
-} from '@alloy-js/core';
-import { dedent } from '@alloy-js/core/testing';
-import { SourceFile, tsNameConflictResolver } from '@alloy-js/typescript';
-import { resolvePath, type Program } from '@typespec/compiler';
-import { createTester } from '@typespec/compiler/testing';
-import { Output } from '@typespec/emitter-framework';
-import { expect } from 'vitest';
-import { createTSNamePolicy } from '../src/name-policy.js';
+} from "@alloy-js/core";
+import { dedent } from "@alloy-js/core/testing";
+import { SourceFile, tsNameConflictResolver } from "@alloy-js/typescript";
+import { resolvePath, type Program } from "@typespec/compiler";
+import { createTester } from "@typespec/compiler/testing";
+import { Output } from "@typespec/emitter-framework";
+import { expect } from "vitest";
+import { createTSNamePolicy } from "../src/name-policy.js";
 
 export const Tester = createTester(
-  resolvePath(import.meta.dirname, '../../..'),
+  resolvePath(import.meta.dirname, "../../.."),
   {
-    libraries: ['@typespec/http', '@typespec/rest', '@typespec/openapi'],
+    libraries: ["@typespec/http", "@typespec/rest", "@typespec/openapi"],
   },
 )
   .importLibraries()
-  .using('Http', 'Rest', 'OpenAPI');
+  .using("Http", "Rest", "OpenAPI");
 
 export function expectRender(
   program: Program,
@@ -59,7 +59,7 @@ export function findFile(res: OutputDirectory, path: string): OutputFile {
   const result = findFileWorker(res, path);
 
   if (!result) {
-    throw new Error('Expected to find file ' + path);
+    throw new Error("Expected to find file " + path);
   }
   return result;
 
@@ -68,7 +68,7 @@ export function findFile(res: OutputDirectory, path: string): OutputFile {
     path: string,
   ): OutputFile | null {
     for (const item of res.contents) {
-      if (item.kind === 'file') {
+      if (item.kind === "file") {
         if (item.path === path) {
           return item;
         }

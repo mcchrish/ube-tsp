@@ -1,10 +1,10 @@
-import { t, type TesterInstance } from '@typespec/compiler/testing';
-import { beforeEach, it } from 'vitest';
+import { t, type TesterInstance } from "@typespec/compiler/testing";
+import { beforeEach, it } from "vitest";
 import {
   OperationMap,
   OperationTypeMap,
-} from '../src/components/operation-map.jsx';
-import { expectRender, Tester } from './utils.jsx';
+} from "../src/components/operation-map.jsx";
+import { expectRender, Tester } from "./utils.jsx";
 
 let runner: TesterInstance;
 
@@ -12,9 +12,9 @@ beforeEach(async () => {
   runner = await Tester.createInstance();
 });
 
-it('complex', async () => {
+it("complex", async () => {
   const { Base } = await runner.compile(t.code`
-    namespace ${t.namespace('Base')} {
+    namespace ${t.namespace("Base")} {
       model Pet {
         name: string;
       }
@@ -103,9 +103,9 @@ it('complex', async () => {
   );
 });
 
-it('operation type map', async () => {
+it("operation type map", async () => {
   const { Base } = await runner.compile(t.code`
-    namespace ${t.namespace('Base')} {
+    namespace ${t.namespace("Base")} {
       model Pet {
         name: string;
       }

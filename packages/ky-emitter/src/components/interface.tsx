@@ -1,12 +1,12 @@
-import { For, List, refkey, StatementList } from '@alloy-js/core';
-import { getNamespaceFullName, type Interface } from '@typespec/compiler';
-import { OperationPart } from './operation.jsx';
+import { For, List, refkey, StatementList } from "@alloy-js/core";
+import { getNamespaceFullName, type Interface } from "@typespec/compiler";
+import { OperationPart } from "./operation.jsx";
 import {
   InterfaceExpression,
   InterfaceMember,
   Reference,
   TypeDeclaration,
-} from '@alloy-js/typescript';
+} from "@alloy-js/typescript";
 
 interface Props {
   inter: Interface;

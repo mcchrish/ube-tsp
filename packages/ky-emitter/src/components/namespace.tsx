@@ -5,19 +5,19 @@ import {
   refkey,
   SourceDirectory,
   StatementList,
-} from '@alloy-js/core';
+} from "@alloy-js/core";
 import {
   InterfaceExpression,
   InterfaceMember,
   Reference,
   SourceFile,
   TypeDeclaration,
-} from '@alloy-js/typescript';
-import { getNamespaceFullName, type Namespace } from '@typespec/compiler';
-import { useTsp } from '@typespec/emitter-framework';
-import { InterfaceContent } from './interface.jsx';
-import { OperationPart } from './operation.jsx';
-import { TsSchema } from './ts-schema.jsx';
+} from "@alloy-js/typescript";
+import { getNamespaceFullName, type Namespace } from "@typespec/compiler";
+import { useTsp } from "@typespec/emitter-framework";
+import { InterfaceContent } from "./interface.jsx";
+import { OperationPart } from "./operation.jsx";
+import { TsSchema } from "./ts-schema.jsx";
 
 interface Props {
   name: string;
@@ -49,7 +49,7 @@ export function NamespaceContent({ name, ns }: Props) {
       </For>
       {ns.operations.size > 0 && (
         <>
-          {'\n\n'}
+          {"\n\n"}
           <List hardline>
             <For each={ns.operations} hardline>
               {(_, op) => <OperationPart op={op} />}
@@ -99,7 +99,7 @@ export function NamespaceContent({ name, ns }: Props) {
 
       {childRef.length > 0 && (
         <>
-          {'\n\n'}
+          {"\n\n"}
           <StatementList>
             <For each={childRef}>
               {(ref) =>

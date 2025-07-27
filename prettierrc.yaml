@@ -1,8 +1,8 @@
-trailingComma: 'all'
+trailingComma: "all"
 printWidth: 120
-quoteProps: 'consistent'
+quoteProps: "consistent"
 endOfLine: lf
 arrowParens: always
 plugins:
-  - './node_modules/@typespec/prettier-plugin-typespec/dist/index.js'
-overrides: [{ 'files': '*.tsp', 'options': { 'parser': 'typespec' } }]
+  - "./node_modules/@typespec/prettier-plugin-typespec/dist/index.js"
+overrides: [{ "files": "*.tsp", "options": { "parser": "typespec" } }]

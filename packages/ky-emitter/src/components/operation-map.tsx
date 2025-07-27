@@ -1,5 +1,5 @@
-import { code, For } from '@alloy-js/core';
-import { StatementList } from '@alloy-js/core/stc';
+import { code, For } from "@alloy-js/core";
+import { StatementList } from "@alloy-js/core/stc";
 import {
   InterfaceExpression,
   InterfaceMember,
@@ -7,19 +7,19 @@ import {
   ObjectProperty,
   TypeDeclaration,
   VarDeclaration,
-} from '@alloy-js/typescript';
+} from "@alloy-js/typescript";
 import {
   getNamespaceFullName,
   type Interface,
   type Namespace,
   type Operation,
-} from '@typespec/compiler';
-import type { Typekit } from '@typespec/compiler/typekit';
-import { useTsp } from '@typespec/emitter-framework';
-import { createRequestModel } from '../parts/request.js';
-import { createResponseModel } from '../parts/response.js';
-import { getOpNamespacePath, OperationObjectExpression } from './operation.jsx';
-import { TsSchema } from './ts-schema.jsx';
+} from "@typespec/compiler";
+import type { Typekit } from "@typespec/compiler/typekit";
+import { useTsp } from "@typespec/emitter-framework";
+import { createRequestModel } from "../parts/request.js";
+import { createResponseModel } from "../parts/response.js";
+import { getOpNamespacePath, OperationObjectExpression } from "./operation.jsx";
+import { TsSchema } from "./ts-schema.jsx";
 
 interface OperationMapProps {
   ns: Namespace;
@@ -36,7 +36,7 @@ export function OperationMap({ ns }: OperationMapProps) {
           <OperationObjectMap operations={operations} baseNs={ns} />
         </VarDeclaration>
       </StatementList>
-      {'\n'}
+      {"\n"}
       <TypeDeclaration name="OperationMap" export>
         <OperationTypeMap ns={ns} />
       </TypeDeclaration>
@@ -54,7 +54,7 @@ function OperationObjectMap({ operations, baseNs }: Props) {
     <ObjectExpression>
       <For each={operations} comma hardline enderPunctuation>
         {(op) => {
-          const nsPath = getOpNamespacePath(op).replace(`${baseNsPath}.`, '');
+          const nsPath = getOpNamespacePath(op).replace(`${baseNsPath}.`, "");
           return (
             <ObjectProperty name={nsPath}>
               <OperationObjectExpression op={op} />
@@ -106,7 +106,7 @@ function OperationObjectMap({ operations, baseNs }: Props) {
 export function OperationTypeMap({ ns }: { ns: Namespace | Interface }) {
   const { $ } = useTsp();
   const childNsOrInter =
-    'namespaces' in ns
+    "namespaces" in ns
       ? [...ns.namespaces.values(), ...ns.interfaces.values()].filter((ns) =>
           $.type.isUserDefined(ns),
         )
@@ -133,7 +133,7 @@ export function OperationTypeMap({ ns }: { ns: Namespace | Interface }) {
       </StatementList>
     </InterfaceExpression>
   ) : (
-    'never'
+    "never"
   );
 }
 
@@ -147,7 +147,7 @@ function OperationSignature({ op }: { op: Operation }) {
   return (
     <InterfaceMember
       name={op.name}
-      type={code`(params${allOptional ? '?' : ''}: ${(<TsSchema type={requestModel} />)}, kyOptions?: Options) => Promise<${(
+      type={code`(params${allOptional ? "?" : ""}: ${(<TsSchema type={requestModel} />)}, kyOptions?: Options) => Promise<${(
         <InterfaceExpression>
           <StatementList>
             <InterfaceMember
@@ -165,7 +165,7 @@ function OperationSignature({ op }: { op: Operation }) {
 function getOperations($: Typekit, ns: Namespace | Interface): Operation[] {
   return [
     ...ns.operations.values(),
-    ...('namespaces' in ns
+    ...("namespaces" in ns
       ? [
           ...[...ns.namespaces.values()].flatMap((ns) =>
             $.type.isUserDefined(ns) ? getOperations($, ns) : [],

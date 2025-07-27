@@ -1,2 +1,2 @@
-export { $onEmit } from './emitter.jsx';
-export * from './testing/index.js';
+export { $onEmit } from "./emitter.jsx";
+export * from "./testing/index.js";

@@ -1,9 +1,9 @@
-import { code, For, Match, Prose, Switch } from '@alloy-js/core';
+import { code, For, Match, Prose, Switch } from "@alloy-js/core";
 import {
   ArrayExpression,
   InterfaceExpression,
   InterfaceMember,
-} from '@alloy-js/typescript';
+} from "@alloy-js/typescript";
 import type {
   Enum,
   Model,
@@ -12,10 +12,10 @@ import type {
   Tuple,
   Type,
   Union,
-} from '@typespec/compiler';
-import { type Typekit } from '@typespec/compiler/typekit';
-import { useTsp } from '@typespec/emitter-framework';
-import { ValueExpression } from '@typespec/emitter-framework/typescript';
+} from "@typespec/compiler";
+import { type Typekit } from "@typespec/compiler/typekit";
+import { useTsp } from "@typespec/emitter-framework";
+import { ValueExpression } from "@typespec/emitter-framework/typescript";
 
 interface Props {
   type: Type;
@@ -24,34 +24,34 @@ interface Props {
 export function TsSchema({ type, rootNs }: Props) {
   const { $ } = useTsp();
   switch (type.kind) {
-    case 'Intrinsic':
+    case "Intrinsic":
       switch (type.name) {
-        case 'void':
-          return 'void';
-        case 'null':
-          return 'null';
-        case 'never':
-          return 'never';
-        case 'unknown':
+        case "void":
+          return "void";
+        case "null":
+          return "null";
+        case "never":
+          return "never";
+        case "unknown":
         default:
-          return 'unknown';
+          return "unknown";
       }
-    case 'String':
+    case "String":
       return `"${type.value}"`;
-    case 'Number':
-    case 'Boolean':
+    case "Number":
+    case "Boolean":
       return type.value.toString();
-    case 'Scalar':
+    case "Scalar":
       return scalarBaseType($, type);
-    case 'Model':
+    case "Model":
       return modelBaseType($, type);
-    case 'Union':
+    case "Union":
       return unionBaseType($, type);
-    case 'Enum':
+    case "Enum":
       return enumBaseType(type);
-    case 'ModelProperty':
+    case "ModelProperty":
       return <TsSchema type={type} {...(!!rootNs && { rootNs })} />;
-    case 'EnumMember':
+    case "EnumMember":
       return (
         <Switch>
           <Match when={!!type.value}>
@@ -68,34 +68,34 @@ export function TsSchema({ type, rootNs }: Props) {
           </Match>
         </Switch>
       );
-    case 'Tuple':
+    case "Tuple":
       return tupleBaseType(type);
     default:
-      return 'unknown';
+      return "unknown";
   }
 }
 
 function scalarBaseType($: Typekit, type: Scalar) {
   if ($.scalar.extendsBoolean(type)) {
-    return 'boolean';
+    return "boolean";
   } else if ($.scalar.extendsNumeric(type)) {
-    return 'number';
+    return "number";
   } else if ($.scalar.extendsString(type)) {
-    return 'string';
+    return "string";
   } else if ($.scalar.extendsBytes(type)) {
-    return 'any';
+    return "any";
   } else if ($.scalar.extendsPlainDate(type)) {
-    return 'string';
+    return "string";
   } else if ($.scalar.extendsPlainTime(type)) {
-    return 'string';
+    return "string";
   } else if ($.scalar.extendsUtcDateTime(type)) {
-    return 'string';
+    return "string";
   } else if ($.scalar.extendsOffsetDateTime(type)) {
-    return 'string';
+    return "string";
   } else if ($.scalar.extendsDuration(type)) {
-    return 'string';
+    return "string";
   } else {
-    return 'any';
+    return "any";
   }
 }
 
@@ -157,7 +157,7 @@ function unionBaseType($: Typekit, type: Union) {
   return (
     <For each={type.variants} joiner=" | ">
       {(_, variant) => {
-        if (discriminated.options.envelope === 'object') {
+        if (discriminated.options.envelope === "object") {
           const envelope = $.model.create({
             properties: {
               [propKey]: $.modelProperty.create({

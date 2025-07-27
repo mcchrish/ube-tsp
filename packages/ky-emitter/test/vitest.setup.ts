@@ -1,1 +1,1 @@
-import '@alloy-js/core/testing';
+import "@alloy-js/core/testing";

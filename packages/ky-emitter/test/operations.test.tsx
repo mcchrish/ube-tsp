@@ -1,7 +1,7 @@
-import { t, type TesterInstance } from '@typespec/compiler/testing';
-import { beforeEach, it } from 'vitest';
-import { OperationPart } from '../src/components/operation.jsx';
-import { expectRender, Tester } from './utils.jsx';
+import { t, type TesterInstance } from "@typespec/compiler/testing";
+import { beforeEach, it } from "vitest";
+import { OperationPart } from "../src/components/operation.jsx";
+import { expectRender, Tester } from "./utils.jsx";
 
 let runner: TesterInstance;
 
@@ -9,7 +9,7 @@ beforeEach(async () => {
   runner = await Tester.createInstance();
 });
 
-it('complex', async () => {
+it("complex", async () => {
   const { getPet } = await runner.compile(t.code`
     namespace Base {
       model Tag {
@@ -37,7 +37,7 @@ it('complex', async () => {
     @route("/pets")
     interface Pets {
       @get
-      op ${t.op('getPet')}(@path petId: int32): {
+      op ${t.op("getPet")}(@path petId: int32): {
         @statusCode statusCode: 200;
         @header
         "x-extra-key": string;
@@ -122,7 +122,7 @@ it('complex', async () => {
   );
 });
 
-it('default response', async () => {
+it("default response", async () => {
   const { getPet } = await runner.compile(t.code`
     @defaultResponse
     model Pet {
@@ -133,7 +133,7 @@ it('default response', async () => {
     @route("/pets")
     interface Pets {
       @get
-      op ${t.op('getPet')}(@path petId: int32): Pet;
+      op ${t.op("getPet")}(@path petId: int32): Pet;
     }
   `);
 
@@ -172,7 +172,7 @@ it('default response', async () => {
   );
 });
 
-it('@operationId', async () => {
+it("@operationId", async () => {
   const { listPets } = await runner.compile(t.code`
     model Pet {
       id: int32;
@@ -183,7 +183,7 @@ it('@operationId', async () => {
     interface Pets {
       @operationId("listAllPets")
       @get
-      op ${t.op('listPets')}(): Pet[];
+      op ${t.op("listPets")}(): Pet[];
     }
   `);
 
@@ -215,7 +215,7 @@ it('@operationId', async () => {
   );
 });
 
-it('request body', async () => {
+it("request body", async () => {
   const { createPet } = await runner.compile(t.code`
     model Pet {
       id: int32;
@@ -226,7 +226,7 @@ it('request body', async () => {
     interface Pets {
       @operationId("createPet")
       @post
-      op ${t.op('createPet')}(@body pet: Pet | string): {
+      op ${t.op("createPet")}(@body pet: Pet | string): {
         @statusCode _: 201;
       };
     }

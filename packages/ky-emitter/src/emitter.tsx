@@ -1,9 +1,9 @@
-import { SourceFile, tsNameConflictResolver } from '@alloy-js/typescript';
-import { type EmitContext } from '@typespec/compiler';
-import { Output, writeOutput } from '@typespec/emitter-framework';
-import { NamespaceStructure } from './components/namespace.jsx';
-import { OperationMap } from './components/operation-map.jsx';
-import { createTSNamePolicy } from './name-policy.js';
+import { SourceFile, tsNameConflictResolver } from "@alloy-js/typescript";
+import { type EmitContext } from "@typespec/compiler";
+import { Output, writeOutput } from "@typespec/emitter-framework";
+import { NamespaceStructure } from "./components/namespace.jsx";
+import { OperationMap } from "./components/operation-map.jsx";
+import { createTSNamePolicy } from "./name-policy.js";
 
 export async function $onEmit(context: EmitContext) {
   const tsNamePolicy = createTSNamePolicy();

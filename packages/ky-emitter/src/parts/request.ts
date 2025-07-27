@@ -1,10 +1,10 @@
-import { type HttpOperation } from '@typespec/http';
+import { type HttpOperation } from "@typespec/http";
 import {
   type Model,
   type ModelProperty,
   type Operation,
-} from '@typespec/compiler';
-import type { Typekit } from '@typespec/compiler/typekit';
+} from "@typespec/compiler";
+import type { Typekit } from "@typespec/compiler/typekit";
 
 export function createRequestModel($: Typekit, op: Operation): Model {
   const httpOperation = $.httpOperation.get(op);
@@ -14,21 +14,21 @@ export function createRequestModel($: Typekit, op: Operation): Model {
     name: typeName,
     properties: {
       params: $.modelProperty.create({
-        name: 'params',
+        name: "params",
         optional: !hasParams,
         type: hasParams
           ? $.model.create({
               properties: {
-                ...createParameterProp($, httpOperation, 'path'),
-                ...createParameterProp($, httpOperation, 'query'),
-                ...createParameterProp($, httpOperation, 'header'),
-                ...createParameterProp($, httpOperation, 'cookie'),
+                ...createParameterProp($, httpOperation, "path"),
+                ...createParameterProp($, httpOperation, "query"),
+                ...createParameterProp($, httpOperation, "header"),
+                ...createParameterProp($, httpOperation, "cookie"),
               },
             })
           : $.intrinsic.never,
       }),
       body: $.modelProperty.create({
-        name: 'body',
+        name: "body",
         optional: !httpOperation.parameters.body,
         type: httpOperation.parameters.body
           ? httpOperation.parameters.body.type
@@ -41,7 +41,7 @@ export function createRequestModel($: Typekit, op: Operation): Model {
 export function createParameterProp(
   $: Typekit,
   httpOperation: HttpOperation,
-  type: 'query' | 'path' | 'header' | 'cookie',
+  type: "query" | "path" | "header" | "cookie",
 ) {
   const params = httpOperation.parameters.parameters.filter(
     (param) => param.type === type,

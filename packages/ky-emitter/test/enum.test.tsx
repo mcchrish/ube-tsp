@@ -1,7 +1,7 @@
-import { t, type TesterInstance } from '@typespec/compiler/testing';
-import { beforeEach, it } from 'vitest';
-import { TsSchema } from '../src/components/ts-schema.jsx';
-import { Tester, expectRender } from './utils.jsx';
+import { t, type TesterInstance } from "@typespec/compiler/testing";
+import { beforeEach, it } from "vitest";
+import { TsSchema } from "../src/components/ts-schema.jsx";
+import { Tester, expectRender } from "./utils.jsx";
 
 let runner: TesterInstance;
 
@@ -9,9 +9,9 @@ beforeEach(async () => {
   runner = await Tester.createInstance();
 });
 
-it('works with no values', async () => {
+it("works with no values", async () => {
   const { Test } = await runner.compile(t.code`
-    enum ${t.enum('Test')} {
+    enum ${t.enum("Test")} {
       A, B
     }
   `);
@@ -19,9 +19,9 @@ it('works with no values', async () => {
   expectRender(runner.program, <TsSchema type={Test} />, '"A" | "B"');
 });
 
-it('works with string values', async () => {
+it("works with string values", async () => {
   const { Test } = await runner.compile(t.code`
-    enum ${t.enum('Test')} {
+    enum ${t.enum("Test")} {
       A: "a", B: "b"
     }
   `);
@@ -29,12 +29,12 @@ it('works with string values', async () => {
   expectRender(runner.program, <TsSchema type={Test} />, '"a" | "b"');
 });
 
-it('works with number values', async () => {
+it("works with number values", async () => {
   const { Test } = await runner.compile(t.code`
-    enum ${t.enum('Test')} {
+    enum ${t.enum("Test")} {
       A: 1, B: 2
     }
   `);
 
-  expectRender(runner.program, <TsSchema type={Test} />, '1 | 2');
+  expectRender(runner.program, <TsSchema type={Test} />, "1 | 2");
 });

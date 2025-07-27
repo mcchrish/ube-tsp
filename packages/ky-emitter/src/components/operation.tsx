@@ -1,18 +1,18 @@
-import { List, refkey, StatementList } from '@alloy-js/core';
+import { List, refkey, StatementList } from "@alloy-js/core";
 import {
   ObjectExpression,
   ObjectProperty,
   VarDeclaration,
-} from '@alloy-js/typescript';
-import { getNamespaceFullName, type Operation } from '@typespec/compiler';
-import { useTsp } from '@typespec/emitter-framework';
-import { TypeDeclaration } from '@typespec/emitter-framework/typescript';
-import { getOperationId } from '@typespec/openapi';
-import { createRequestModel } from '../parts/request.js';
-import { TsSchema } from './ts-schema.jsx';
-import { createResponseModel } from '../parts/response.js';
+} from "@alloy-js/typescript";
+import { getNamespaceFullName, type Operation } from "@typespec/compiler";
+import { useTsp } from "@typespec/emitter-framework";
+import { TypeDeclaration } from "@typespec/emitter-framework/typescript";
+import { getOperationId } from "@typespec/openapi";
+import { createRequestModel } from "../parts/request.js";
+import { TsSchema } from "./ts-schema.jsx";
+import { createResponseModel } from "../parts/response.js";
 
-type HttpMethod = 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE' | 'HEAD';
+type HttpMethod = "GET" | "PUT" | "POST" | "PATCH" | "DELETE" | "HEAD";
 
 interface Props {
   op: Operation;
@@ -27,13 +27,13 @@ export function OperationObjectExpression({ op }: Props) {
   const statusCodes = $.tuple.create([
     ...new Set(
       httpOperation.responses.map((res) => {
-        if (typeof res.statusCodes === 'object') {
+        if (typeof res.statusCodes === "object") {
           return $.literal.create(
-            res.statusCodes.end.toString().charAt(0) + 'XX',
+            res.statusCodes.end.toString().charAt(0) + "XX",
           );
         }
-        if (res.statusCodes === '*') {
-          return $.literal.create('default');
+        if (res.statusCodes === "*") {
+          return $.literal.create("default");
         }
         return $.literal.create(res.statusCodes);
       }),
@@ -64,7 +64,7 @@ export function OperationObjectExpression({ op }: Props) {
           value={
             httpOperation.parameters.body
               ? `["${httpOperation.parameters.body?.contentTypes.join('", "')}"]`
-              : '[]'
+              : "[]"
           }
         />
       </List>

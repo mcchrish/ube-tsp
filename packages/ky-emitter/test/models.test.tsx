@@ -1,7 +1,7 @@
-import { beforeEach, it } from 'vitest';
-import { TsSchema } from '../src/components/ts-schema.jsx';
-import { Tester, expectRender } from './utils.jsx';
-import { t, type TesterInstance } from '@typespec/compiler/testing';
+import { beforeEach, it } from "vitest";
+import { TsSchema } from "../src/components/ts-schema.jsx";
+import { Tester, expectRender } from "./utils.jsx";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 
 let runner: TesterInstance;
 
@@ -9,9 +9,9 @@ beforeEach(async () => {
   runner = await Tester.createInstance();
 });
 
-it('works with basic models', async () => {
+it("works with basic models", async () => {
   const { Test } = await runner.compile(t.code`
-    model ${t.model('Test')} {
+    model ${t.model("Test")} {
       stringProp: string,
       optionalStringProp?: string
     }
@@ -29,9 +29,9 @@ it('works with basic models', async () => {
   );
 });
 
-it('works with models with basic constraints', async () => {
+it("works with models with basic constraints", async () => {
   const { Test } = await runner.compile(t.code`
-    model ${t.model('Test')} {
+    model ${t.model("Test")} {
       @maxLength(10)
       stringProp: string,
 
@@ -52,13 +52,13 @@ it('works with models with basic constraints', async () => {
   );
 });
 
-it('works with records', async () => {
+it("works with records", async () => {
   const { Test, Test2 } = await runner.compile(t.code`
-    model ${t.model('Test')} {
+    model ${t.model("Test")} {
       ... Record<string>
     }
 
-    model ${t.model('Test2')} extends Record<string> {}
+    model ${t.model("Test2")} extends Record<string> {}
   `);
 
   expectRender(
@@ -80,9 +80,9 @@ Record<string, string>
 
 // Like Typebox we probably shouldn't handle additional props
 // TypeScript does not support it
-it('works with records with properties', async () => {
+it("works with records with properties", async () => {
   const { Test } = await runner.compile(t.code`
-    model ${t.model('Test')} {
+    model ${t.model("Test")} {
       prop: "hi",
       ... Record<float64>
     }
@@ -99,9 +99,9 @@ it('works with records with properties', async () => {
   );
 });
 
-it('works with nested objects', async () => {
+it("works with nested objects", async () => {
   const { Test } = await runner.compile(t.code`
-    model ${t.model('Test')} {
+    model ${t.model("Test")} {
       prop: {
         nested: true
       }
@@ -121,24 +121,24 @@ it('works with nested objects', async () => {
   );
 });
 
-it('works with arrays', async () => {
+it("works with arrays", async () => {
   const { scalarArray, scalarArray2, modelArray } = await runner.compile(t.code`
     model Test {
-      ${t.modelProperty('scalarArray')}: string[];
-      ${t.modelProperty('scalarArray2')}: string[][];
-      ${t.modelProperty('modelArray')}: {x: string, y: string}[];
+      ${t.modelProperty("scalarArray")}: string[];
+      ${t.modelProperty("scalarArray2")}: string[][];
+      ${t.modelProperty("modelArray")}: {x: string, y: string}[];
     }
   `);
 
   expectRender(
     runner.program,
     <TsSchema type={scalarArray.type} />,
-    'string[]',
+    "string[]",
   );
   expectRender(
     runner.program,
     <TsSchema type={scalarArray2.type} />,
-    'string[][]',
+    "string[][]",
   );
   expectRender(
     runner.program,
@@ -152,9 +152,9 @@ it('works with arrays', async () => {
   );
 });
 
-it('works with model properties with array constraints', async () => {
+it("works with model properties with array constraints", async () => {
   const { Test } = await runner.compile(t.code`
-    model ${t.model('Test')} {
+    model ${t.model("Test")} {
       @maxItems(2)
       prop: string[]
     }
@@ -171,25 +171,25 @@ it('works with model properties with array constraints', async () => {
   );
 });
 
-it('works with array declarations', async () => {
+it("works with array declarations", async () => {
   const { Test } = await runner.compile(t.code`
     @maxItems(5)
-    model ${t.model('Test')} is Array<string>{}
+    model ${t.model("Test")} is Array<string>{}
   `);
 
-  expectRender(runner.program, <TsSchema type={Test} />, 'string[]');
+  expectRender(runner.program, <TsSchema type={Test} />, "string[]");
 });
 
-it('handles references', async () => {
+it("handles references", async () => {
   const { Test, Test2, Item } = await runner.compile(t.code`
-    model ${t.model('Item')} {
+    model ${t.model("Item")} {
       prop: string;
     };
 
     /** Simple array */
-    model ${t.model('Test')} is Array<Item>{}
+    model ${t.model("Test")} is Array<Item>{}
 
-    model ${t.model('Test2')} {
+    model ${t.model("Test2")} {
       /** single array */
       prop1: Item[],
 
@@ -233,9 +233,9 @@ it('handles references', async () => {
   );
 });
 
-it('makes default optional', async () => {
+it("makes default optional", async () => {
   const { Test } = await runner.compile(t.code`
-    model ${t.model('Test')} {
+    model ${t.model("Test")} {
       number: float64 = 5;
       string: string = "hello";
       boolean: boolean = true;

@@ -44,7 +44,7 @@
   "bugs": {
     "url": "https://github.com/your-username/ube-tsp/issues"
   },
-  "homepage": "https://github.com/your-username/ube-tsp/tree/main/packages/emitter#readme",
+  "homepage": "https://github.com/your-username/ube-tsp/tree/main/packages/ky-emitter#readme",
   "peerDependencies": {
     "@alloy-js/core": "^0.18.0",
     "@alloy-js/typescript": "^0.18.0",

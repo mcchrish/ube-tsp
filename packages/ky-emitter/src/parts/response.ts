@@ -1,6 +1,6 @@
-import { type Typekit } from '@typespec/compiler/typekit';
-import { type HttpOperation } from '@typespec/http';
-import { type ModelProperty, type Type, type Union } from '@typespec/compiler';
+import { type Typekit } from "@typespec/compiler/typekit";
+import { type HttpOperation } from "@typespec/http";
+import { type ModelProperty, type Type, type Union } from "@typespec/compiler";
 
 type Response = {
   statusCode: string | number;
@@ -19,7 +19,7 @@ export function createResponseModel(
       const headers = Object.entries(res.responseContent.headers ?? {});
       const body = res.responseContent.body?.type;
       const contentType = res.contentType;
-      if (typeof res.statusCode === 'object') {
+      if (typeof res.statusCode === "object") {
         // If range is 400 to 499 then iterate 1
         // If range is 400 to 599 then iterate 2
         const iterCount = (res.statusCode.end + 1 - res.statusCode.start) / 100;
@@ -34,7 +34,7 @@ export function createResponseModel(
           });
         }
         return responses;
-      } else if (typeof res.statusCode === 'number') {
+      } else if (typeof res.statusCode === "number") {
         return {
           statusCode: res.statusCode,
           ...(!!contentType && { contentType }),
@@ -43,7 +43,7 @@ export function createResponseModel(
         };
       } else {
         return {
-          statusCode: 'default',
+          statusCode: "default",
           ...(!!contentType && { contentType }),
           headers,
           ...(!!body && { body }),
@@ -54,18 +54,18 @@ export function createResponseModel(
       $.model.create({
         properties: {
           statusCode: $.modelProperty.create({
-            name: 'statusCode',
+            name: "statusCode",
             type: $.literal.create(res.statusCode),
           }),
           contentTypes: $.modelProperty.create({
-            name: 'contentType',
+            name: "contentType",
             optional: !res.contentType,
             type: res.contentType
               ? $.literal.create(res.contentType)
               : $.intrinsic.never,
           }),
           headers: $.modelProperty.create({
-            name: 'headers',
+            name: "headers",
             optional: !res.headers.length,
             type: res.headers.length
               ? $.model.create({
@@ -85,7 +85,7 @@ export function createResponseModel(
               : $.intrinsic.never,
           }),
           content: $.modelProperty.create({
-            name: 'content',
+            name: "content",
             optional: !res.body,
             type: res.body ? res.body : $.intrinsic.never,
           }),

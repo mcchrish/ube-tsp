@@ -1,12 +1,12 @@
-import { render } from '@alloy-js/core';
-import { t, type TesterInstance } from '@typespec/compiler/testing';
-import { Output } from '@typespec/emitter-framework';
-import { beforeEach, it } from 'vitest';
+import { render } from "@alloy-js/core";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
+import { Output } from "@typespec/emitter-framework";
+import { beforeEach, it } from "vitest";
 import {
   NamespaceContent,
   NamespaceStructure,
-} from '../src/components/namespace.jsx';
-import { assertFileContents, expectRender, Tester } from './utils.jsx';
+} from "../src/components/namespace.jsx";
+import { assertFileContents, expectRender, Tester } from "./utils.jsx";
 
 let runner: TesterInstance;
 
@@ -14,9 +14,9 @@ beforeEach(async () => {
   runner = await Tester.createInstance();
 });
 
-it('complex', async () => {
+it("complex", async () => {
   const { Base } = await runner.compile(t.code`
-    namespace ${t.namespace('Base')} {
+    namespace ${t.namespace("Base")} {
       model Tag {
         value: string;
       }
@@ -52,9 +52,9 @@ it('complex', async () => {
   );
 });
 
-it('directory structure', async () => {
+it("directory structure", async () => {
   const { Base, program } = await runner.compile(t.code`
-    namespace ${t.namespace('Base')} {
+    namespace ${t.namespace("Base")} {
       model Pet {
         name: string;
       }
@@ -105,7 +105,7 @@ it('directory structure', async () => {
   );
 
   assertFileContents(res, {
-    'Base.ts': `
+    "Base.ts": `
       export type Pet = {
         name: string;
       };
@@ -177,14 +177,14 @@ it('directory structure', async () => {
       export * as Foo from "./Base/Foo.js"
       export * as Other from "./Base/Other.js";
     `,
-    'Base/Foo.ts': `
+    "Base/Foo.ts": `
       export type Bar = {
         name: string;
       };
 
       export * as Buzz from "./Foo/Buzz.js";
     `,
-    'Base/Foo/Buzz.ts': `
+    "Base/Foo/Buzz.ts": `
       export const listPets = {
         operationId: "listPets",
         method: "GET",
@@ -211,21 +211,21 @@ it('directory structure', async () => {
         };
       };
     `,
-    'Base/Other.ts': `
+    "Base/Other.ts": `
       export type More = {
         name: string;
       };
 
       export * as Here from "./Other/Here.js";
     `,
-    'Base/Other/Here.ts': `
+    "Base/Other/Here.ts": `
       export type There = {
         name: string;
       };
 
       export * as Everywhere from "./Here/Everywhere.js";
     `,
-    'Base/Other/Here/Everywhere.ts': `
+    "Base/Other/Here/Everywhere.ts": `
       export type Where = {
         location?: string;
       };
@@ -233,7 +233,7 @@ it('directory structure', async () => {
   });
 });
 
-it('Global namespace', async () => {
+it("Global namespace", async () => {
   const { program } = await runner.compile(t.code`
     model Tag {
       value: string;
@@ -252,14 +252,14 @@ it('Global namespace', async () => {
   );
 
   assertFileContents(res, {
-    'Spec.ts': `
+    "Spec.ts": `
       export type Tag = {
         value: string;
       };
 
       export * as Foo from "./Spec/Foo.js";
     `,
-    'Spec/Foo.ts': `
+    "Spec/Foo.ts": `
       export type Bar = {
         name: string;
       };
