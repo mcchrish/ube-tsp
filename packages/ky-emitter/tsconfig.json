@@ -16,6 +16,7 @@
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "verbatimModuleSyntax": true,
 
     "skipLibCheck": true,
     "isolatedModules": true,
@@ -27,7 +28,6 @@
     "emitDeclarationOnly": true,
     "outDir": "dist",
     "rootDir": "./",
-    "verbatimModuleSyntax": true,
     "composite": true,
     "types": ["@alloy-js/core/testing/matchers"]
   },
