@@ -50,15 +50,21 @@ export function TsSchema({ type, rootNs }: Props) {
     case 'Enum':
       return enumBaseType(type);
     case 'ModelProperty':
-      return <TsSchema type={type} rootNs={rootNs} />;
+      return <TsSchema type={type} {...(!!rootNs && { rootNs })} />;
     case 'EnumMember':
       return (
         <Switch>
           <Match when={!!type.value}>
-            <TsSchema type={$.literal.create(type.value!)} rootNs={rootNs} />
+            <TsSchema
+              type={$.literal.create(type.value!)}
+              {...(!!rootNs && { rootNs })}
+            />
           </Match>
           <Match else>
-            <TsSchema type={$.literal.create(type.name)} rootNs={rootNs} />
+            <TsSchema
+              type={$.literal.create(type.name)}
+              {...(!!rootNs && { rootNs })}
+            />
           </Match>
         </Switch>
       );

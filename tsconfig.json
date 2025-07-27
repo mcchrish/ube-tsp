@@ -2,7 +2,7 @@
   "files": [],
   "references": [
     {
-      "path": "./packages/emitter"
+      "path": "./packages/ky-emitter"
     },
     {
       "path": "./packages/ky-client"

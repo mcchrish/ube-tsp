@@ -52,7 +52,7 @@ export function toSourceText(
     options,
   );
 
-  return res.contents[0].contents as string;
+  return res.contents[0]?.contents as string;
 }
 
 export function findFile(res: OutputDirectory, path: string): OutputFile {

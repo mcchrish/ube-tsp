@@ -1,7 +1,7 @@
 {
   "name": "@ube-tsp/ky-client",
   "version": "0.0.1",
-  "description": "A Ky-based HTTP client generator that consumes TypeScript types from @ube-tsp/emitter",
+  "description": "A Ky-based HTTP client generator that consumes TypeScript types from @ube-tsp/ky-emitter",
   "type": "module",
   "main": "dist/src/main.js",
   "exports": {
@@ -43,7 +43,6 @@
     "prepublishOnly": "npm run build && npm run test && npm run lint"
   },
   "dependencies": {
-    "@ube-tsp/emitter": "file:../emitter",
     "ky": "^1.8.2"
   },
   "devDependencies": {

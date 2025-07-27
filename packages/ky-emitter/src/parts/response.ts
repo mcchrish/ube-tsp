@@ -28,25 +28,25 @@ export function createResponseModel(
         for (let index = 0; index < iterCount; index++) {
           responses.push({
             statusCode: `${startCode + index}XX`,
-            contentType,
+            ...(!!contentType && { contentType }),
             headers,
-            body,
+            ...(!!body && { body }),
           });
         }
         return responses;
       } else if (typeof res.statusCode === 'number') {
         return {
           statusCode: res.statusCode,
-          contentType,
+          ...(!!contentType && { contentType }),
           headers,
-          body,
+          ...(!!body && { body }),
         };
       } else {
         return {
           statusCode: 'default',
-          contentType,
+          ...(!!contentType && { contentType }),
           headers,
-          body,
+          ...(!!body && { body }),
         };
       }
     })
