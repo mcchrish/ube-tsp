@@ -42,15 +42,23 @@ it("complex", async () => {
           operationId: "getPet",
           method: "GET",
           path: "/pets/{petId}",
-          statusCodes: [200],
-          contentTypes: [],
+          response: {
+            "200": {
+              headers: [],
+              contentTypes: ["application/json"],
+            },
+          },
         },
         "Foo.Bar.Buzz.listPets": {
           operationId: "listPets",
           method: "GET",
           path: "/pets",
-          statusCodes: [200],
-          contentTypes: [],
+          response: {
+            "200": {
+              headers: [],
+              contentTypes: ["application/json"],
+            },
+          },
         },
       };
       export type OperationMap = {

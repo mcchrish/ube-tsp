@@ -114,8 +114,12 @@ it("directory structure", async () => {
         operationId: "getPet",
         method: "GET",
         path: "/pet/{petId}",
-        statusCodes: [200],
-        contentTypes: [],
+        response: {
+          "200": {
+            headers: [],
+            contentTypes: ["application/json"],
+          },
+        },
       };
       export type GetPetRequest = {
         params: {
@@ -139,8 +143,12 @@ it("directory structure", async () => {
         operationId: "deletePet",
         method: "DELETE",
         path: "/pet/{petId}",
-        statusCodes: [204],
-        contentTypes: [],
+        response: {
+          "204": {
+            headers: [],
+            contentTypes: [],
+          },
+        },
       };
       export type DeletePetRequest = {
         params: {
@@ -184,8 +192,12 @@ it("directory structure", async () => {
         operationId: "listPets",
         method: "GET",
         path: "/pets",
-        statusCodes: [200],
-        contentTypes: [],
+        response: {
+          "200": {
+            headers: [],
+            contentTypes: ["application/json"],
+          },
+        },
       };
       export type ListPetsRequest = {
         params?: never;

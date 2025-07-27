@@ -10,7 +10,7 @@ const GLOBAL_RESERVED_WORDS = new Set([
   "const",
   "continue",
   "debugger",
-  "default",
+  // "default",
   "delete",
   "do",
   "else",

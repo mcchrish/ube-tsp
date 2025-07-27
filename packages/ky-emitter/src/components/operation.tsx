@@ -1,4 +1,4 @@
-import { List, refkey, StatementList } from "@alloy-js/core";
+import { For, List, refkey, StatementList } from "@alloy-js/core";
 import { ObjectExpression, ObjectProperty, VarDeclaration } from "@alloy-js/typescript";
 import { getNamespaceFullName, type Operation } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
@@ -6,7 +6,7 @@ import { TypeDeclaration } from "@typespec/emitter-framework/typescript";
 import { getOperationId } from "@typespec/openapi";
 import { createRequestModel } from "../parts/request.js";
 import { TsSchema } from "./ts-schema.jsx";
-import { createResponseModel } from "../parts/response.js";
+import { createResponseModel, getFlattenResponse } from "../parts/response.js";
 
 type HttpMethod = "GET" | "PUT" | "POST" | "PATCH" | "DELETE" | "HEAD";
 
@@ -20,19 +20,7 @@ export function OperationObjectExpression({ op }: Props) {
   const method = httpOperation.verb.toUpperCase() as HttpMethod;
   const path = httpOperation.path;
 
-  const statusCodes = $.tuple.create([
-    ...new Set(
-      httpOperation.responses.map((res) => {
-        if (typeof res.statusCodes === "object") {
-          return $.literal.create(res.statusCodes.end.toString().charAt(0) + "XX");
-        }
-        if (res.statusCodes === "*") {
-          return $.literal.create("default");
-        }
-        return $.literal.create(res.statusCodes);
-      }),
-    ),
-  ]);
+  const responses = getFlattenResponse($, httpOperation);
 
   return (
     <ObjectExpression>
@@ -40,11 +28,34 @@ export function OperationObjectExpression({ op }: Props) {
         <ObjectProperty name="operationId" value={<TsSchema type={$.literal.create(operationId)} />} />
         <ObjectProperty name="method" value={<TsSchema type={$.literal.create(method)} />} />
         <ObjectProperty name="path" value={<TsSchema type={$.literal.create(path)} />} />
-        <ObjectProperty name="statusCodes" value={<TsSchema type={statusCodes} />} />
         <ObjectProperty
-          name="contentTypes"
+          name="response"
           value={
-            httpOperation.parameters.body ? `["${httpOperation.parameters.body?.contentTypes.join('", "')}"]` : "[]"
+            <ObjectExpression>
+              <For each={responses} comma hardline enderPunctuation>
+                {(res) => (
+                  <ObjectProperty
+                    name={res.statusCode.toString()}
+                    value={
+                      <ObjectExpression>
+                        <List comma hardline enderPunctuation>
+                          <ObjectProperty
+                            name="headers"
+                            value={
+                              res.headers.length ? `["${res.headers.map((header) => header[0]).join('", "')}"]` : "[]"
+                            }
+                          />
+                          <ObjectProperty
+                            name="contentTypes"
+                            value={res.body ? `["${res.body.contentTypes.join('", "')}"]` : "[]"}
+                          />
+                        </List>
+                      </ObjectExpression>
+                    }
+                  />
+                )}
+              </For>
+            </ObjectExpression>
           }
         />
       </List>

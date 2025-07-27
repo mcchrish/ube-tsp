@@ -63,8 +63,24 @@ it("complex", async () => {
         operationId: "getPet",
         method: "GET",
         path: "/pets/{petId}",
-        statusCodes: [200, "5XX"],
-        contentTypes: [],
+        response: {
+          "200": {
+            headers: ["x-extra-key"],
+            contentTypes: ["application/json", "text/plain"],
+          },
+          "200": {
+            headers: [],
+            contentTypes: ["text/plain"],
+          },
+          "4XX": {
+            headers: [],
+            contentTypes: ["application/json"],
+          },
+          "5XX": {
+            headers: [],
+            contentTypes: ["application/json"],
+          },
+        },
       };
       export type GetPetRequest = {
         params: {
@@ -141,8 +157,12 @@ it("default response", async () => {
         operationId: "getPet",
         method: "GET",
         path: "/pets/{petId}",
-        statusCodes: ["default"],
-        contentTypes: [],
+        response: {
+          default: {
+            headers: [],
+            contentTypes: ["application/json"],
+          },
+        },
       };
       export type GetPetRequest = {
         params: {
@@ -190,8 +210,12 @@ it("@operationId", async () => {
         operationId: "listAllPets",
         method: "GET",
         path: "/pets",
-        statusCodes: [200],
-        contentTypes: [],
+        response: {
+          "200": {
+            headers: [],
+            contentTypes: ["application/json"],
+          },
+        },
       };
       export type ListPetsRequest = {
         params?: never;
@@ -234,8 +258,12 @@ it("request body", async () => {
         operationId: "createPet",
         method: "POST",
         path: "/pets",
-        statusCodes: [201],
-        contentTypes: ["application/json", "text/plain"],
+        response: {
+          "201": {
+            headers: [],
+            contentTypes: [],
+          },
+        },
       };
       export type CreatePetRequest = {
         params?: never;
