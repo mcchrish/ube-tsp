@@ -1,7 +1,7 @@
+import { t, type TesterInstance } from '@typespec/compiler/testing';
 import { beforeEach, it } from 'vitest';
 import { OperationPart } from '../src/components/operation.jsx';
 import { expectRender, Tester } from './utils.jsx';
-import { t, type TesterInstance } from '@typespec/compiler/testing';
 
 let runner: TesterInstance;
 
@@ -41,7 +41,7 @@ it('complex', async () => {
         @statusCode statusCode: 200;
         @header
         "x-extra-key": string;
-        @body body: Pet;
+        @body body: Pet | string;
       } | {
         @statusCode statusCode: 200;
         @body body: string;
@@ -64,6 +64,7 @@ it('complex', async () => {
         method: "GET",
         path: "/pets/{petId}",
         statusCodes: [200, "5XX"],
+        contentTypes: [],
       };
       export type GetPetRequest = {
         params: {
@@ -92,7 +93,7 @@ it('complex', async () => {
             value: string;
           };
           status: "available" | "pending" | "sold";
-        };
+        } | string;
       } | {
         statusCode: 200;
         contentType: "application/json";
@@ -145,6 +146,7 @@ it('default response', async () => {
         method: "GET",
         path: "/pets/{petId}",
         statusCodes: ["default"],
+        contentTypes: [],
       };
       export type GetPetRequest = {
         params: {
@@ -194,6 +196,7 @@ it('@operationId', async () => {
         method: "GET",
         path: "/pets",
         statusCodes: [200],
+        contentTypes: [],
       };
       export type ListPetsRequest = {
         params?: never;
@@ -223,7 +226,7 @@ it('request body', async () => {
     interface Pets {
       @operationId("createPet")
       @post
-      op ${t.op('createPet')}(@body pet: Pet): {
+      op ${t.op('createPet')}(@body pet: Pet | string): {
         @statusCode _: 201;
       };
     }
@@ -238,13 +241,14 @@ it('request body', async () => {
         method: "POST",
         path: "/pets",
         statusCodes: [201],
+        contentTypes: ["application/json", "text/plain"],
       };
       export type CreatePetRequest = {
         params?: never;
         body: {
           id: number;
           name: string;
-        };
+        } | string;
       };
       export type CreatePetResponse = {
         statusCode: 201;

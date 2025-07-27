@@ -59,6 +59,14 @@ export function OperationObjectExpression({ op }: Props) {
           name="statusCodes"
           value={<TsSchema type={statusCodes} />}
         />
+        <ObjectProperty
+          name="contentTypes"
+          value={
+            httpOperation.parameters.body
+              ? `["${httpOperation.parameters.body?.contentTypes.join('", "')}"]`
+              : '[]'
+          }
+        />
       </List>
     </ObjectExpression>
   );

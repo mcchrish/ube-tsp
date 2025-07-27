@@ -31,7 +31,7 @@ export function OperationMap({ ns }: OperationMapProps) {
   return (
     <>
       <StatementList>
-        {code`import { type Options } from "ky"`}
+        {code`import { type Options, type KyResponse } from "ky"`}
         <VarDeclaration name="operationMap" const export>
           <OperationObjectMap operations={operations} baseNs={ns} />
         </VarDeclaration>
@@ -147,7 +147,17 @@ function OperationSignature({ op }: { op: Operation }) {
   return (
     <InterfaceMember
       name={op.name}
-      type={code`(params${allOptional ? '?' : ''}: ${(<TsSchema type={requestModel} />)}, kyOptions?: Options) => Promise<${(<TsSchema type={responseModel} />)}>`}
+      type={code`(params${allOptional ? '?' : ''}: ${(<TsSchema type={requestModel} />)}, kyOptions?: Options) => Promise<${(
+        <InterfaceExpression>
+          <StatementList>
+            <InterfaceMember
+              name="response"
+              type={<TsSchema type={responseModel} />}
+            />
+            <InterfaceMember name="kyResponse" type="KyResponse" />
+          </StatementList>
+        </InterfaceExpression>
+      )}>`}
     />
   );
 }

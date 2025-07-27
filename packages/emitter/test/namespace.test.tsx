@@ -118,6 +118,7 @@ it('directory structure', async () => {
         method: "GET",
         path: "/pet/{petId}",
         statusCodes: [200],
+        contentTypes: [],
       };
       export type GetPetRequest = {
         params: {
@@ -143,6 +144,7 @@ it('directory structure', async () => {
         method: "DELETE",
         path: "/pet/{petId}",
         statusCodes: [204],
+        contentTypes: [],
       };
       export type DeletePetRequest = {
         params: {
@@ -188,6 +190,7 @@ it('directory structure', async () => {
         method: "GET",
         path: "/pets",
         statusCodes: [200],
+        contentTypes: [],
       };
       export type ListPetsRequest = {
         params?: never;

@@ -39,19 +39,21 @@ it('complex', async () => {
     runner.program,
     <OperationMap ns={Base} />,
     `
-      import { type Options } from "ky";
+      import { type Options, type KyResponse } from "ky";
       export const operationMap = {
         getPet: {
           operationId: "getPet",
           method: "GET",
           path: "/pets/{petId}",
           statusCodes: [200],
+          contentTypes: [],
         },
         "Foo.Bar.Buzz.listPets": {
           operationId: "listPets",
           method: "GET",
           path: "/pets",
           statusCodes: [200],
+          contentTypes: [],
         },
       };
       export type OperationMap = {
@@ -66,12 +68,15 @@ it('complex', async () => {
           };
           body?: never;
         }, kyOptions?: Options) => Promise<{
-          statusCode: 200;
-          contentType: "application/json";
-          headers?: never;
-          content: {
-            name: string;
+          response: {
+            statusCode: 200;
+            contentType: "application/json";
+            headers?: never;
+            content: {
+              name: string;
+            };
           };
+          kyResponse: KyResponse;
         }>;
         Foo: {
           Bar: {
@@ -80,12 +85,15 @@ it('complex', async () => {
                 params?: never;
                 body?: never;
               }, kyOptions?: Options) => Promise<{
-                statusCode: 200;
-                contentType: "application/json";
-                headers?: never;
-                content: {
-                  name: string;
-                }[];
+                response: {
+                  statusCode: 200;
+                  contentType: "application/json";
+                  headers?: never;
+                  content: {
+                    name: string;
+                  }[];
+                };
+                kyResponse: KyResponse;
               }>;
             };
           };
@@ -157,12 +165,15 @@ it('operation type map', async () => {
           };
           body?: never;
         }, kyOptions?: Options) => Promise<{
-          statusCode: 200;
-          contentType: "application/json";
-          headers?: never;
-          content: {
-            name: string;
+          response: {
+            statusCode: 200;
+            contentType: "application/json";
+            headers?: never;
+            content: {
+              name: string;
+            };
           };
+          kyResponse: KyResponse;
         }>;
         deletePet: (params: {
           params: {
@@ -175,10 +186,13 @@ it('operation type map', async () => {
           };
           body?: never;
         }, kyOptions?: Options) => Promise<{
-          statusCode: 204;
-          contentType?: never;
-          headers?: never;
-          content?: never;
+          response: {
+            statusCode: 204;
+            contentType?: never;
+            headers?: never;
+            content?: never;
+          };
+          kyResponse: KyResponse;
         }>;
         Foo: {
           Buzz: {
@@ -186,12 +200,15 @@ it('operation type map', async () => {
               params?: never;
               body?: never;
             }, kyOptions?: Options) => Promise<{
-              statusCode: 200;
-              contentType: "application/json";
-              headers?: never;
-              content: {
-                name: string;
-              }[];
+              response: {
+                statusCode: 200;
+                contentType: "application/json";
+                headers?: never;
+                content: {
+                  name: string;
+                }[];
+              };
+              kyResponse: KyResponse;
             }>;
           };
         };
