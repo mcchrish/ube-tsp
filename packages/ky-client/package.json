@@ -1,6 +1,6 @@
 {
   "name": "@ube-tsp/ky-client",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A Ky-based HTTP client generator that consumes TypeScript types from @ube-tsp/ky-emitter",
   "type": "module",
   "main": "dist/src/main.js",
