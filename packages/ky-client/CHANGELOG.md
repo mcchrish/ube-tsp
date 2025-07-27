@@ -1,5 +1,11 @@
 # @ube-tsp/ky-client
 
+## 0.0.7
+
+### Patch Changes
+
+- 9f21292: release
+
 ## 0.0.6
 
 ### Patch Changes
