@@ -2,6 +2,8 @@
 
 Type-safe HTTP client generator using Ky that transforms operation maps into nested client methods.
 
+Based on [typespec-zod](https://github.com/bterlson/typespec-zod) implementation patterns.
+
 ## Usage
 
 ```typescript

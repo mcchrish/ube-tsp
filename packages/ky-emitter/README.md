@@ -2,6 +2,8 @@
 
 TypeSpec emitter generating namespace-structured TypeScript using Alloy-JS.
 
+Based on [typespec-zod](https://github.com/bterlson/typespec-zod) implementation patterns.
+
 ## Usage
 
 ```yaml
