@@ -168,7 +168,7 @@ describe("parseResponseBody", () => {
     if (contentType) {
       headers.set("content-type", contentType);
     }
-    
+
     return {
       headers,
       json: vi.fn().mockResolvedValue(body),
