@@ -208,10 +208,6 @@ it('@operationId', async () => {
           name: string;
         }[];
       };
-      export type listPets = {
-        request: ListPetsRequest;
-        response: ListPetsResponse;
-      };
     `,
   );
 });

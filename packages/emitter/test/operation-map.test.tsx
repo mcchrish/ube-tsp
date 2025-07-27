@@ -1,6 +1,9 @@
 import { t, type TesterInstance } from '@typespec/compiler/testing';
 import { beforeEach, it } from 'vitest';
-import { OperationMap } from '../src/components/operation-map.jsx';
+import {
+  OperationMap,
+  OperationTypeMap,
+} from '../src/components/operation-map.jsx';
 import { expectRender, Tester } from './utils.jsx';
 
 let runner: TesterInstance;
@@ -25,7 +28,7 @@ it('complex', async () => {
           interface Buzz {
             @get
             @route("/pets")
-            op listPet(): Pet[];
+            op listPets(): Pet[];
           }
         }
       }
@@ -36,57 +39,168 @@ it('complex', async () => {
     runner.program,
     <OperationMap ns={Base} />,
     `
+      import { type Options } from "ky";
       export const operationMap = {
-        "Base.getPet": {
+        getPet: {
           operationId: "getPet",
           method: "GET",
           path: "/pets/{petId}",
           statusCodes: [200],
         },
-        "Base.Foo.Bar.Buzz.listPet": {
-          operationId: "listPet",
+        "Foo.Bar.Buzz.listPets": {
+          operationId: "listPets",
           method: "GET",
           path: "/pets",
           statusCodes: [200],
         },
       };
       export type OperationMap = {
-        "Base.getPet": {
-          request: {
-            params: {
-              path: {
-                petId: number;
-              };
-              query?: never;
-              header?: never;
-              cookie?: never;
+        getPet: (params: {
+          params: {
+            path: {
+              petId: number;
             };
-            body?: never;
+            query?: never;
+            header?: never;
+            cookie?: never;
           };
-          response: {
-            statusCode: 200;
-            contentType: "application/json";
-            headers?: never;
-            content: {
-              name: string;
+          body?: never;
+        }, kyOptions?: Options) => Promise<{
+          statusCode: 200;
+          contentType: "application/json";
+          headers?: never;
+          content: {
+            name: string;
+          };
+        }>;
+        Foo: {
+          Bar: {
+            Buzz: {
+              listPets: (params?: {
+                params?: never;
+                body?: never;
+              }, kyOptions?: Options) => Promise<{
+                statusCode: 200;
+                contentType: "application/json";
+                headers?: never;
+                content: {
+                  name: string;
+                }[];
+              }>;
             };
-          };
-        };
-        "Base.Foo.Bar.Buzz.listPet": {
-          request: {
-            params?: never;
-            body?: never;
-          };
-          response: {
-            statusCode: 200;
-            contentType: "application/json";
-            headers?: never;
-            content: {
-              name: string;
-            }[];
           };
         };
       };
+    `,
+  );
+});
+
+it('operation type map', async () => {
+  const { Base } = await runner.compile(t.code`
+    namespace ${t.namespace('Base')} {
+      model Pet {
+        name: string;
+      }
+      @get
+      @route("/pet/{petId}")
+      op getPet(@path petId: int32): Pet;
+      @delete
+      @route("/pet/{petId}")
+      op deletePet(@path petId: int32): {
+        @statusCode _: 204;
+      };
+
+      model Tag {
+        value: string;
+      }
+      namespace Foo {
+        model Bar {
+          name: string;
+        }
+        interface Buzz {
+          @get
+          @route("/pets")
+          op listPets(): Pet[];
+        }
+      }
+      namespace Other {
+        model More {
+          name: string;
+        }
+        namespace Here {
+          model There {
+            name: string;
+          }
+          namespace Everywhere {
+            model Where {
+              location?: string;
+            }
+          }
+        }
+      }
+    }
+  `);
+
+  expectRender(
+    runner.program,
+    <OperationTypeMap ns={Base} />,
+    `
+      {
+        getPet: (params: {
+          params: {
+            path: {
+              petId: number;
+            };
+            query?: never;
+            header?: never;
+            cookie?: never;
+          };
+          body?: never;
+        }, kyOptions?: Options) => Promise<{
+          statusCode: 200;
+          contentType: "application/json";
+          headers?: never;
+          content: {
+            name: string;
+          };
+        }>;
+        deletePet: (params: {
+          params: {
+            path: {
+              petId: number;
+            };
+            query?: never;
+            header?: never;
+            cookie?: never;
+          };
+          body?: never;
+        }, kyOptions?: Options) => Promise<{
+          statusCode: 204;
+          contentType?: never;
+          headers?: never;
+          content?: never;
+        }>;
+        Foo: {
+          Buzz: {
+            listPets: (params?: {
+              params?: never;
+              body?: never;
+            }, kyOptions?: Options) => Promise<{
+              statusCode: 200;
+              contentType: "application/json";
+              headers?: never;
+              content: {
+                name: string;
+              }[];
+            }>;
+          };
+        };
+        Other: {
+          Here: {
+            Everywhere: never;
+          };
+        };
+      }
     `,
   );
 });

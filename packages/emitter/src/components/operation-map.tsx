@@ -1,4 +1,4 @@
-import { For } from '@alloy-js/core';
+import { code, For } from '@alloy-js/core';
 import { StatementList } from '@alloy-js/core/stc';
 import {
   InterfaceExpression,
@@ -8,7 +8,12 @@ import {
   TypeDeclaration,
   VarDeclaration,
 } from '@alloy-js/typescript';
-import type { Interface, Namespace, Operation } from '@typespec/compiler';
+import {
+  getNamespaceFullName,
+  type Interface,
+  type Namespace,
+  type Operation,
+} from '@typespec/compiler';
 import type { Typekit } from '@typespec/compiler/typekit';
 import { useTsp } from '@typespec/emitter-framework';
 import { createRequestModel } from '../parts/request.js';
@@ -26,15 +31,14 @@ export function OperationMap({ ns }: OperationMapProps) {
   return (
     <>
       <StatementList>
+        {code`import { type Options } from "ky"`}
         <VarDeclaration name="operationMap" const export>
-          <OperationObjectMap operations={operations} />
+          <OperationObjectMap operations={operations} baseNs={ns} />
         </VarDeclaration>
       </StatementList>
       {'\n'}
       <TypeDeclaration name="OperationMap" export>
-        <InterfaceExpression>
-          <OperationTypeMap operations={operations} />
-        </InterfaceExpression>
+        <OperationTypeMap ns={ns} />
       </TypeDeclaration>
     </>
   );
@@ -42,13 +46,15 @@ export function OperationMap({ ns }: OperationMapProps) {
 
 interface Props {
   operations: Operation[];
+  baseNs: Namespace;
 }
-function OperationObjectMap({ operations }: Props) {
+function OperationObjectMap({ operations, baseNs }: Props) {
+  const baseNsPath = getNamespaceFullName(baseNs);
   return (
     <ObjectExpression>
       <For each={operations} comma hardline enderPunctuation>
         {(op) => {
-          const nsPath = getOpNamespacePath(op);
+          const nsPath = getOpNamespacePath(op).replace(`${baseNsPath}.`, '');
           return (
             <ObjectProperty name={nsPath}>
               <OperationObjectExpression op={op} />
@@ -60,40 +66,89 @@ function OperationObjectMap({ operations }: Props) {
   );
 }
 
-interface Props {
-  operations: Operation[];
-}
-function OperationTypeMap({ operations }: Props) {
+// interface Props {
+//   operations: Operation[];
+// }
+// function OperationTypeMap({ operations }: Props) {
+//   const { $ } = useTsp();
+//   return (
+//     <For each={operations} semicolon hardline enderPunctuation>
+//       {(op) => {
+//         const nsPath = getOpNamespacePath(op);
+//         return (
+//           <InterfaceMember
+//             name={nsPath}
+//             type={
+//               <InterfaceExpression>
+//                 <StatementList>
+//                   <InterfaceMember
+//                     name="request"
+//                     type={<TsSchema type={createRequestModel($, op)} />}
+//                   />
+//                   <InterfaceMember
+//                     name="response"
+//                     type={
+//                       <TsSchema
+//                         type={createResponseModel($, $.httpOperation.get(op))}
+//                       />
+//                     }
+//                   />
+//                 </StatementList>
+//               </InterfaceExpression>
+//             }
+//           />
+//         );
+//       }}
+//     </For>
+//   );
+// }
+
+export function OperationTypeMap({ ns }: { ns: Namespace | Interface }) {
   const { $ } = useTsp();
+  const childNsOrInter =
+    'namespaces' in ns
+      ? [...ns.namespaces.values(), ...ns.interfaces.values()].filter((ns) =>
+          $.type.isUserDefined(ns),
+        )
+      : [];
+
+  return ns.operations.size > 0 || childNsOrInter.length > 0 ? (
+    <InterfaceExpression>
+      <StatementList>
+        {ns.operations.size > 0 && (
+          <For each={ns.operations} semicolon hardline>
+            {(_, op) => <OperationSignature op={op} />}
+          </For>
+        )}
+        {childNsOrInter.length > 0 && (
+          <For each={childNsOrInter} semicolon hardline>
+            {(ns) => (
+              <InterfaceMember
+                name={ns.name}
+                type={<OperationTypeMap ns={ns} />}
+              />
+            )}
+          </For>
+        )}
+      </StatementList>
+    </InterfaceExpression>
+  ) : (
+    'never'
+  );
+}
+
+function OperationSignature({ op }: { op: Operation }) {
+  const { $ } = useTsp();
+  const requestModel = createRequestModel($, op);
+  const allOptional = [...requestModel.properties.values()].every(
+    (param) => param.optional,
+  );
+  const responseModel = createResponseModel($, $.httpOperation.get(op));
   return (
-    <For each={operations} semicolon hardline enderPunctuation>
-      {(op) => {
-        const nsPath = getOpNamespacePath(op);
-        return (
-          <InterfaceMember
-            name={nsPath}
-            type={
-              <InterfaceExpression>
-                <StatementList>
-                  <InterfaceMember
-                    name="request"
-                    type={<TsSchema type={createRequestModel($, op)} />}
-                  />
-                  <InterfaceMember
-                    name="response"
-                    type={
-                      <TsSchema
-                        type={createResponseModel($, $.httpOperation.get(op))}
-                      />
-                    }
-                  />
-                </StatementList>
-              </InterfaceExpression>
-            }
-          />
-        );
-      }}
-    </For>
+    <InterfaceMember
+      name={op.name}
+      type={code`(params${allOptional ? '?' : ''}: ${(<TsSchema type={requestModel} />)}, kyOptions?: Options) => Promise<${(<TsSchema type={responseModel} />)}>`}
+    />
   );
 }
 
