@@ -1,3 +1,4 @@
+import type { KyResponse } from "ky";
 import type { RequestParams } from "../types.js";
 
 /**
@@ -78,4 +79,21 @@ export function buildRequestBody(params?: RequestParams): BodyInit | undefined {
 
   // For objects or any other JS primitives, JSON stringify to body
   return JSON.stringify(params.body);
+}
+
+/**
+ * Parses response body based on content-type header
+ */
+export async function parseResponseBody(response: KyResponse): Promise<unknown> {
+  const contentType = response.headers.get("content-type") || "";
+
+  if (contentType.includes("application/json")) {
+    return response.json();
+  }
+
+  if (contentType.includes("text/")) {
+    return response.text();
+  }
+
+  return response.body;
 }

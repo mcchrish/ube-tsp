@@ -1,6 +1,12 @@
 import type { KyInstance, Options } from "ky";
 import type { ApiResponse, Operation, OperationMap, RequestParams } from "./types.js";
-import { buildHeaders, buildQueryParams, buildRequestBody, buildUrlWithPathParams } from "./utils/params.js";
+import {
+  buildHeaders,
+  buildQueryParams,
+  buildRequestBody,
+  buildUrlWithPathParams,
+  parseResponseBody,
+} from "./utils/params.js";
 import { resolveResponseStatus } from "./utils/response.js";
 
 /**
@@ -32,7 +38,7 @@ export function createClient<T>(ky: KyInstance, operationMap: OperationMap): T {
     };
 
     const kyResponse = await ky(url, options);
-    const content = await kyResponse.json();
+    const content = await parseResponseBody(kyResponse);
     const statusCode = resolveResponseStatus(kyResponse, Object.keys(response));
 
     return {

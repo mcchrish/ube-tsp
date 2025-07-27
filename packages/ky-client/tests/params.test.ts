@@ -1,5 +1,12 @@
-import { describe, expect, it } from "vitest";
-import { buildHeaders, buildQueryParams, buildRequestBody, buildUrlWithPathParams } from "../src/utils/params.js";
+import type { KyResponse } from "ky";
+import { describe, expect, it, vi } from "vitest";
+import {
+  buildHeaders,
+  buildQueryParams,
+  buildRequestBody,
+  buildUrlWithPathParams,
+  parseResponseBody,
+} from "../src/utils/params.js";
 
 describe("buildUrlWithPathParams", () => {
   describe("URL trimming", () => {
@@ -151,5 +158,117 @@ describe("buildRequestBody", () => {
     };
     const result = buildRequestBody(params);
     expect(result).toBe('{"user":{"name":"John","tags":["admin","user"]}}');
+  });
+});
+
+describe("parseResponseBody", () => {
+  const createMockResponse = (contentType: string, body: unknown): KyResponse => {
+    return {
+      headers: {
+        get: vi.fn().mockImplementation((header: string) => {
+          if (header.toLowerCase() === "content-type") {
+            return contentType;
+          }
+          return null;
+        }),
+      },
+      json: vi.fn().mockResolvedValue(body),
+      text: vi.fn().mockResolvedValue(body),
+      body: body,
+    } as unknown as KyResponse;
+  };
+
+  it("should parse JSON content when content-type is application/json", async () => {
+    const mockData = { message: "hello" };
+    const response = createMockResponse("application/json", mockData);
+
+    const result = await parseResponseBody(response);
+
+    expect(response.json).toHaveBeenCalled();
+    expect(result).toEqual(mockData);
+  });
+
+  it("should parse JSON content when content-type includes application/json with charset", async () => {
+    const mockData = { id: 123 };
+    const response = createMockResponse("application/json; charset=utf-8", mockData);
+
+    const result = await parseResponseBody(response);
+
+    expect(response.json).toHaveBeenCalled();
+    expect(result).toEqual(mockData);
+  });
+
+  it("should parse text content when content-type is text/plain", async () => {
+    const mockText = "Hello, World!";
+    const response = createMockResponse("text/plain", mockText);
+
+    const result = await parseResponseBody(response);
+
+    expect(response.text).toHaveBeenCalled();
+    expect(result).toBe(mockText);
+  });
+
+  it("should parse text content when content-type is text/html", async () => {
+    const mockHtml = "<html><body>Hello</body></html>";
+    const response = createMockResponse("text/html", mockHtml);
+
+    const result = await parseResponseBody(response);
+
+    expect(response.text).toHaveBeenCalled();
+    expect(result).toBe(mockHtml);
+  });
+
+  it("should parse text content when content-type includes text/ with charset", async () => {
+    const mockText = "Some text content";
+    const response = createMockResponse("text/plain; charset=utf-8", mockText);
+
+    const result = await parseResponseBody(response);
+
+    expect(response.text).toHaveBeenCalled();
+    expect(result).toBe(mockText);
+  });
+
+  it("should return raw body for binary content types", async () => {
+    const mockBody = new ArrayBuffer(8);
+    const response = createMockResponse("application/octet-stream", mockBody);
+
+    const result = await parseResponseBody(response);
+
+    expect(response.json).not.toHaveBeenCalled();
+    expect(response.text).not.toHaveBeenCalled();
+    expect(result).toBe(mockBody);
+  });
+
+  it("should return raw body for image content types", async () => {
+    const mockBody = new Uint8Array([1, 2, 3, 4]);
+    const response = createMockResponse("image/png", mockBody);
+
+    const result = await parseResponseBody(response);
+
+    expect(response.json).not.toHaveBeenCalled();
+    expect(response.text).not.toHaveBeenCalled();
+    expect(result).toBe(mockBody);
+  });
+
+  it("should return raw body when content-type is missing", async () => {
+    const mockBody = "some data";
+    const response = createMockResponse("", mockBody);
+
+    const result = await parseResponseBody(response);
+
+    expect(response.json).not.toHaveBeenCalled();
+    expect(response.text).not.toHaveBeenCalled();
+    expect(result).toBe(mockBody);
+  });
+
+  it("should return raw body for unknown content types", async () => {
+    const mockBody = "custom data";
+    const response = createMockResponse("application/custom", mockBody);
+
+    const result = await parseResponseBody(response);
+
+    expect(response.json).not.toHaveBeenCalled();
+    expect(response.text).not.toHaveBeenCalled();
+    expect(result).toBe(mockBody);
   });
 });
