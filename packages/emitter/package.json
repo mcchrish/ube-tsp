@@ -1,5 +1,5 @@
 {
-  "name": "@kamote-tsp/emitter",
+  "name": "@ube-tsp/emitter",
   "version": "0.0.1",
   "description": "A TypeSpec emitter that generates TypeScript operation files with flat structure using Alloy-JS",
   "type": "module",
@@ -14,7 +14,7 @@
     "compilerVersion": "1.1.0",
     "emitters": {
       ".": {
-        "name": "@kamote-tsp/emitter"
+        "name": "@ube-tsp/emitter"
       }
     }
   },
@@ -38,13 +38,13 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/kamote-tsp.git",
+    "url": "https://github.com/your-username/ube-tsp.git",
     "directory": "packages/emitter"
   },
   "bugs": {
-    "url": "https://github.com/your-username/kamote-tsp/issues"
+    "url": "https://github.com/your-username/ube-tsp/issues"
   },
-  "homepage": "https://github.com/your-username/kamote-tsp/tree/main/packages/emitter#readme",
+  "homepage": "https://github.com/your-username/ube-tsp/tree/main/packages/emitter#readme",
   "peerDependencies": {
     "@alloy-js/core": "^0.18.0",
     "@alloy-js/typescript": "^0.18.0",

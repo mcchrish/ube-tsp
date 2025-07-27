@@ -12,12 +12,19 @@ import {
   SourceFile,
   TypeDeclaration,
 } from '@alloy-js/typescript';
-import { getNamespaceFullName, type Namespace } from '@typespec/compiler';
+import {
+  getNamespaceFullName,
+  type Interface,
+  type Namespace,
+  type Operation,
+} from '@typespec/compiler';
 import { TsSchema } from './ts-schema.jsx';
 import { OperationPart } from './operation.jsx';
 import { useTsp } from '@typespec/emitter-framework';
 import { InterfaceContent } from './interface.jsx';
 import { List } from '@alloy-js/core/stc';
+import { createRequestModel } from '../parts/request.js';
+import { createResponseModel } from '../parts/response.js';
 
 interface Props {
   name: string;
@@ -149,5 +156,51 @@ export function NamespaceStructure({
         </SourceDirectory>
       )}
     </>
+  );
+}
+
+export function OperationMap({ ns }: { ns: Namespace | Interface }) {
+  const { $ } = useTsp();
+  const childNsOrInter =
+    'namespaces' in ns
+      ? [...ns.namespaces.values(), ...ns.interfaces.values()].filter((ns) =>
+          $.type.isUserDefined(ns),
+        )
+      : [];
+
+  return ns.operations.size > 0 || childNsOrInter.length > 0 ? (
+    <InterfaceExpression>
+      <StatementList>
+        {ns.operations.size > 0 && (
+          <For each={ns.operations} semicolon hardline>
+            {(_, op) => <OperationSignature op={op} />}
+          </For>
+        )}
+        {childNsOrInter.length > 0 && (
+          <For each={childNsOrInter} semicolon hardline>
+            {(ns) => (
+              <InterfaceMember name={ns.name} type={<OperationMap ns={ns} />} />
+            )}
+          </For>
+        )}
+      </StatementList>
+    </InterfaceExpression>
+  ) : (
+    'never'
+  );
+}
+
+function OperationSignature({ op }: { op: Operation }) {
+  const { $ } = useTsp();
+  const requestModel = createRequestModel($, op);
+  const allOptional = [...requestModel.properties.values()].every(
+    (param) => param.optional,
+  );
+  const responseModel = createResponseModel($, $.httpOperation.get(op));
+  return (
+    <InterfaceMember
+      name={op.name}
+      type={code`(params${allOptional ? '?' : ''}: ${(<TsSchema type={requestModel} />)}, kyOptions?: Options) => Promise<${(<TsSchema type={responseModel} />)}>`}
+    />
   );
 }

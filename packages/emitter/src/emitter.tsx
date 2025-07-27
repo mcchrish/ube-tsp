@@ -1,7 +1,8 @@
-import { tsNameConflictResolver } from '@alloy-js/typescript';
+import { SourceFile, tsNameConflictResolver } from '@alloy-js/typescript';
 import { type EmitContext } from '@typespec/compiler';
 import { Output, writeOutput } from '@typespec/emitter-framework';
 import { NamespaceStructure } from './components/namespace.jsx';
+import { OperationMap } from './components/operation-map.jsx';
 import { createTSNamePolicy } from './name-policy.js';
 
 export async function $onEmit(context: EmitContext) {
@@ -17,6 +18,9 @@ export async function $onEmit(context: EmitContext) {
       nameConflictResolver={tsNameConflictResolver}
     >
       <NamespaceStructure name="Spec" ns={globalNs} />
+      <SourceFile path="operation-map.ts">
+        <OperationMap ns={globalNs} />
+      </SourceFile>
     </Output>,
     context.emitterOutputDir,
   );

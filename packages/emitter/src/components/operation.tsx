@@ -17,7 +17,7 @@ type HttpMethod = 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE' | 'HEAD';
 interface Props {
   op: Operation;
 }
-function OperationObjectExpression({ op }: Props) {
+export function OperationObjectExpression({ op }: Props) {
   const { $ } = useTsp();
   const operationId = getOperationId($.program, op) ?? op.name;
   const httpOperation = $.httpOperation.get(op);
@@ -69,15 +69,10 @@ interface OperationPartProps {
 }
 export function OperationPart({ op }: OperationPartProps) {
   const { $ } = useTsp();
-  const typeName = op.name.charAt(0).toUpperCase() + op.name.substring(1);
+  const typeName = getOpTypeName(op);
   const requestName = `${typeName}Request`;
   const responseName = `${typeName}Response`;
-  const interfaceName = op.interface
-    ? `${op.interface.name}.${op.name}`
-    : op.name;
-  const refKeyPrefix = op.namespace
-    ? `${getNamespaceFullName(op.namespace)}.${interfaceName}`
-    : interfaceName;
+  const refKeyPrefix = getOpNamespacePath(op);
   return (
     <>
       <List hardline>
@@ -108,4 +103,17 @@ export function OperationPart({ op }: OperationPartProps) {
       </List>
     </>
   );
+}
+
+export function getOpTypeName(op: Operation) {
+  return op.name.charAt(0).toUpperCase() + op.name.substring(1);
+}
+
+export function getOpNamespacePath(op: Operation) {
+  const interfaceName = op.interface
+    ? `${op.interface.name}.${op.name}`
+    : op.name;
+  return op.namespace
+    ? `${getNamespaceFullName(op.namespace)}.${interfaceName}`
+    : interfaceName;
 }
