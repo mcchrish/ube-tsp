@@ -4,7 +4,6 @@ import { type ModelProperty, type Type, type Union } from "@typespec/compiler";
 
 type Response = {
   statusCode: string | number;
-  contentType?: string;
   headers: [string, ModelProperty][];
   body?: Type;
 };
@@ -15,7 +14,6 @@ export function createResponseModel($: Typekit, httpOperation: HttpOperation): U
     .flatMap<Response>((res) => {
       const headers = Object.entries(res.responseContent.headers ?? {});
       const body = res.responseContent.body?.type;
-      const contentType = res.contentType;
       if (typeof res.statusCode === "object") {
         // If range is 400 to 499 then iterate 1
         // If range is 400 to 599 then iterate 2
@@ -25,7 +23,6 @@ export function createResponseModel($: Typekit, httpOperation: HttpOperation): U
         for (let index = 0; index < iterCount; index++) {
           responses.push({
             statusCode: `${startCode + index}XX`,
-            ...(!!contentType && { contentType }),
             headers,
             ...(!!body && { body }),
           });
@@ -34,14 +31,12 @@ export function createResponseModel($: Typekit, httpOperation: HttpOperation): U
       } else if (typeof res.statusCode === "number") {
         return {
           statusCode: res.statusCode,
-          ...(!!contentType && { contentType }),
           headers,
           ...(!!body && { body }),
         };
       } else {
         return {
           statusCode: "default",
-          ...(!!contentType && { contentType }),
           headers,
           ...(!!body && { body }),
         };
@@ -53,11 +48,6 @@ export function createResponseModel($: Typekit, httpOperation: HttpOperation): U
           statusCode: $.modelProperty.create({
             name: "statusCode",
             type: $.literal.create(res.statusCode),
-          }),
-          contentTypes: $.modelProperty.create({
-            name: "contentType",
-            optional: !res.contentType,
-            type: res.contentType ? $.literal.create(res.contentType) : $.intrinsic.never,
           }),
           headers: $.modelProperty.create({
             name: "headers",

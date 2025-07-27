@@ -303,7 +303,6 @@ describe("createClient", () => {
       expect(result).toMatchObject({
         response: {
           statusCode: 200,
-          contentType: "application/json",
           content: {
             id: 1,
             name: "Fluffy",
@@ -340,75 +339,6 @@ describe("createClient", () => {
         },
         kyResponse: {
           ok: false,
-        },
-      });
-    });
-
-    it("maps content-type header from ky response to response.contentType", async () => {
-      // Test different content types
-      const textHeaders = new Headers();
-      textHeaders.set("content-type", "text/plain; charset=utf-8");
-
-      const textResponse = {
-        ...mockResponse,
-        headers: textHeaders,
-        json: vi.fn().mockResolvedValue("plain text content"),
-      };
-
-      const textKy = vi.fn().mockResolvedValue(textResponse) as unknown as KyInstance;
-      const textClient = createClient<TestClient>(textKy, testOperationMap);
-
-      const result = await textClient.Api.Pets.getPet({
-        params: { path: { petId: 1 } },
-      });
-
-      expect(result).toMatchObject({
-        response: {
-          contentType: "text/plain; charset=utf-8",
-        },
-      });
-    });
-
-    it("handles missing content-type header", async () => {
-      const noContentTypeHeaders = new Headers();
-      // Deliberately not setting content-type
-
-      const noContentTypeResponse = {
-        ...mockResponse,
-        headers: noContentTypeHeaders,
-        json: vi.fn().mockResolvedValue({ data: "test" }),
-      };
-
-      const noContentTypeKy = vi.fn().mockResolvedValue(noContentTypeResponse) as unknown as KyInstance;
-      const noContentTypeClient = createClient<TestClient>(noContentTypeKy, testOperationMap);
-
-      const result = await noContentTypeClient.Api.Pets.getPet({
-        params: { path: { petId: 1 } },
-      });
-
-      expect(result).not.toHaveProperty("response.contentType");
-    });
-
-    it("preserves exact content-type value including parameters", async () => {
-      const xmlHeaders = new Headers();
-      xmlHeaders.set("content-type", "application/xml; charset=iso-8859-1; boundary=something");
-
-      const xmlResponse = {
-        ...mockResponse,
-        headers: xmlHeaders,
-        json: vi.fn().mockResolvedValue("<xml>data</xml>"),
-      };
-
-      const xmlKy = vi.fn().mockResolvedValue(xmlResponse) as unknown as KyInstance;
-      const xmlClient = createClient<TestClient>(xmlKy, testOperationMap);
-
-      const result = await xmlClient.Api.Pets.getPet({
-        params: { path: { petId: 1 } },
-      });
-
-      expect(result).toMatchObject({
-        response: {
-          contentType: "application/xml; charset=iso-8859-1; boundary=something",
         },
       });
     });

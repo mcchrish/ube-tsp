@@ -34,14 +34,10 @@ export function createClient<T>(ky: KyInstance, operationMap: OperationMap): T {
     const kyResponse = await ky(url, options);
     const content = await kyResponse.json();
     const statusCode = resolveResponseStatus(kyResponse, statusCodes);
-    const contentType = kyResponse.headers.get("content-type");
 
     return {
       response: {
         statusCode,
-        ...(!!contentType && {
-          contentType: contentType,
-        }),
         content,
       },
       kyResponse,

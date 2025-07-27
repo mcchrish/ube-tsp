@@ -17,7 +17,6 @@ export interface RequestParams {
  */
 export interface ApiResponseData {
   statusCode: number | string;
-  contentType?: string;
   headers?: Record<string, string>;
   content: unknown;
 }

@@ -79,7 +79,6 @@ it("complex", async () => {
       };
       export type GetPetResponse = {
         statusCode: 200;
-        contentType: "application/json";
         headers: {
           "x-extra-key": string;
         };
@@ -96,12 +95,10 @@ it("complex", async () => {
         } | string;
       } | {
         statusCode: 200;
-        contentType: "application/json";
         headers?: never;
         content: string;
       } | {
         statusCode: "4XX";
-        contentType: "application/json";
         headers?: never;
         content: {
           prop: {
@@ -110,7 +107,6 @@ it("complex", async () => {
         };
       } | {
         statusCode: "5XX";
-        contentType: "application/json";
         headers?: never;
         content: {
           prop: {
@@ -161,7 +157,6 @@ it("default response", async () => {
       };
       export type GetPetResponse = {
         statusCode: "default";
-        contentType: "application/json";
         headers?: never;
         content: {
           id: number;
@@ -204,7 +199,6 @@ it("@operationId", async () => {
       };
       export type ListPetsResponse = {
         statusCode: 200;
-        contentType: "application/json";
         headers?: never;
         content: {
           id: number;
@@ -252,7 +246,6 @@ it("request body", async () => {
       };
       export type CreatePetResponse = {
         statusCode: 201;
-        contentType?: never;
         headers?: never;
         content?: never;
       };

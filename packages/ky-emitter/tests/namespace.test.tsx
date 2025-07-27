@@ -130,7 +130,6 @@ it("directory structure", async () => {
       };
       export type GetPetResponse = {
         statusCode: 200;
-        contentType: "application/json";
         headers?: never;
         content: {
           name: string;
@@ -156,7 +155,6 @@ it("directory structure", async () => {
       };
       export type DeletePetResponse = {
         statusCode: 204;
-        contentType?: never;
         headers?: never;
         content?: never;
       };
@@ -195,7 +193,6 @@ it("directory structure", async () => {
       };
       export type ListPetsResponse = {
         statusCode: 200;
-        contentType: "application/json";
         headers?: never;
         content: {
           name: string;

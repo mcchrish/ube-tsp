@@ -67,7 +67,6 @@ it("complex", async () => {
         }, kyOptions?: Options) => Promise<{
           response: {
             statusCode: 200;
-            contentType: "application/json";
             headers?: never;
             content: {
               name: string;
@@ -84,7 +83,6 @@ it("complex", async () => {
               }, kyOptions?: Options) => Promise<{
                 response: {
                   statusCode: 200;
-                  contentType: "application/json";
                   headers?: never;
                   content: {
                     name: string;
@@ -164,7 +162,6 @@ it("operation type map", async () => {
         }, kyOptions?: Options) => Promise<{
           response: {
             statusCode: 200;
-            contentType: "application/json";
             headers?: never;
             content: {
               name: string;
@@ -185,7 +182,6 @@ it("operation type map", async () => {
         }, kyOptions?: Options) => Promise<{
           response: {
             statusCode: 204;
-            contentType?: never;
             headers?: never;
             content?: never;
           };
@@ -199,7 +195,6 @@ it("operation type map", async () => {
             }, kyOptions?: Options) => Promise<{
               response: {
                 statusCode: 200;
-                contentType: "application/json";
                 headers?: never;
                 content: {
                   name: string;
