@@ -1,9 +1,6 @@
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, it } from "vitest";
-import {
-  OperationMap,
-  OperationTypeMap,
-} from "../src/components/operation-map.jsx";
+import { OperationMap, OperationTypeMap } from "../src/components/operation-map.jsx";
 import { expectRender, Tester } from "./utils.jsx";
 
 let runner: TesterInstance;

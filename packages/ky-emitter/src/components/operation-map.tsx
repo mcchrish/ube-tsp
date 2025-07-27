@@ -8,12 +8,7 @@ import {
   TypeDeclaration,
   VarDeclaration,
 } from "@alloy-js/typescript";
-import {
-  getNamespaceFullName,
-  type Interface,
-  type Namespace,
-  type Operation,
-} from "@typespec/compiler";
+import { getNamespaceFullName, type Interface, type Namespace, type Operation } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
 import { useTsp } from "@typespec/emitter-framework";
 import { createRequestModel } from "../parts/request.js";
@@ -107,9 +102,7 @@ export function OperationTypeMap({ ns }: { ns: Namespace | Interface }) {
   const { $ } = useTsp();
   const childNsOrInter =
     "namespaces" in ns
-      ? [...ns.namespaces.values(), ...ns.interfaces.values()].filter((ns) =>
-          $.type.isUserDefined(ns),
-        )
+      ? [...ns.namespaces.values(), ...ns.interfaces.values()].filter((ns) => $.type.isUserDefined(ns))
       : [];
 
   return ns.operations.size > 0 || childNsOrInter.length > 0 ? (
@@ -122,12 +115,7 @@ export function OperationTypeMap({ ns }: { ns: Namespace | Interface }) {
         )}
         {childNsOrInter.length > 0 && (
           <For each={childNsOrInter} semicolon hardline>
-            {(ns) => (
-              <InterfaceMember
-                name={ns.name}
-                type={<OperationTypeMap ns={ns} />}
-              />
-            )}
+            {(ns) => <InterfaceMember name={ns.name} type={<OperationTypeMap ns={ns} />} />}
           </For>
         )}
       </StatementList>
@@ -140,9 +128,7 @@ export function OperationTypeMap({ ns }: { ns: Namespace | Interface }) {
 function OperationSignature({ op }: { op: Operation }) {
   const { $ } = useTsp();
   const requestModel = createRequestModel($, op);
-  const allOptional = [...requestModel.properties.values()].every(
-    (param) => param.optional,
-  );
+  const allOptional = [...requestModel.properties.values()].every((param) => param.optional);
   const responseModel = createResponseModel($, $.httpOperation.get(op));
   return (
     <InterfaceMember
@@ -150,10 +136,7 @@ function OperationSignature({ op }: { op: Operation }) {
       type={code`(params${allOptional ? "?" : ""}: ${(<TsSchema type={requestModel} />)}, kyOptions?: Options) => Promise<${(
         <InterfaceExpression>
           <StatementList>
-            <InterfaceMember
-              name="response"
-              type={<TsSchema type={responseModel} />}
-            />
+            <InterfaceMember name="response" type={<TsSchema type={responseModel} />} />
             <InterfaceMember name="kyResponse" type="KyResponse" />
           </StatementList>
         </InterfaceExpression>
@@ -167,9 +150,7 @@ function getOperations($: Typekit, ns: Namespace | Interface): Operation[] {
     ...ns.operations.values(),
     ...("namespaces" in ns
       ? [
-          ...[...ns.namespaces.values()].flatMap((ns) =>
-            $.type.isUserDefined(ns) ? getOperations($, ns) : [],
-          ),
+          ...[...ns.namespaces.values()].flatMap((ns) => ($.type.isUserDefined(ns) ? getOperations($, ns) : [])),
           ...[...ns.interfaces.values()].flatMap((inter) =>
             $.type.isUserDefined(inter) ? getOperations($, inter) : [],
           ),

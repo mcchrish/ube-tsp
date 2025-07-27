@@ -48,59 +48,33 @@ describe("resolveResponseStatus", () => {
   });
 
   it("should return 'default' for any status code", () => {
-    expect(resolveResponseStatus(createMockResponse(200), ["default"])).toBe(
-      "default",
-    );
-    expect(resolveResponseStatus(createMockResponse(404), ["default"])).toBe(
-      "default",
-    );
-    expect(resolveResponseStatus(createMockResponse(500), ["default"])).toBe(
-      "default",
-    );
+    expect(resolveResponseStatus(createMockResponse(200), ["default"])).toBe("default");
+    expect(resolveResponseStatus(createMockResponse(404), ["default"])).toBe("default");
+    expect(resolveResponseStatus(createMockResponse(500), ["default"])).toBe("default");
   });
 
   it("should return first matching pattern", () => {
-    expect(
-      resolveResponseStatus(createMockResponse(200), ["2XX", "default"]),
-    ).toBe("2XX");
-    expect(
-      resolveResponseStatus(createMockResponse(404), ["4XX", "default"]),
-    ).toBe("4XX");
+    expect(resolveResponseStatus(createMockResponse(200), ["2XX", "default"])).toBe("2XX");
+    expect(resolveResponseStatus(createMockResponse(404), ["4XX", "default"])).toBe("4XX");
   });
 
   it("should prioritize exact status codes over patterns", () => {
-    expect(resolveResponseStatus(createMockResponse(200), [200, "2XX"])).toBe(
-      200,
-    );
-    expect(resolveResponseStatus(createMockResponse(404), [404, "4XX"])).toBe(
-      404,
-    );
+    expect(resolveResponseStatus(createMockResponse(200), [200, "2XX"])).toBe(200);
+    expect(resolveResponseStatus(createMockResponse(404), [404, "4XX"])).toBe(404);
   });
 
   it("should return actual status when no patterns match", () => {
-    expect(resolveResponseStatus(createMockResponse(200), ["4XX", "5XX"])).toBe(
-      200,
-    );
-    expect(resolveResponseStatus(createMockResponse(404), ["2XX", "5XX"])).toBe(
-      404,
-    );
+    expect(resolveResponseStatus(createMockResponse(200), ["4XX", "5XX"])).toBe(200);
+    expect(resolveResponseStatus(createMockResponse(404), ["2XX", "5XX"])).toBe(404);
   });
 
   it("should handle mixed status codes and patterns", () => {
     const statusCodes = [200, "4XX", 500, "default"];
 
-    expect(resolveResponseStatus(createMockResponse(200), statusCodes)).toBe(
-      200,
-    );
-    expect(resolveResponseStatus(createMockResponse(404), statusCodes)).toBe(
-      "4XX",
-    );
-    expect(resolveResponseStatus(createMockResponse(500), statusCodes)).toBe(
-      500,
-    );
-    expect(resolveResponseStatus(createMockResponse(300), statusCodes)).toBe(
-      "default",
-    );
+    expect(resolveResponseStatus(createMockResponse(200), statusCodes)).toBe(200);
+    expect(resolveResponseStatus(createMockResponse(404), statusCodes)).toBe("4XX");
+    expect(resolveResponseStatus(createMockResponse(500), statusCodes)).toBe(500);
+    expect(resolveResponseStatus(createMockResponse(300), statusCodes)).toBe("default");
   });
 
   it("should handle edge cases for status code ranges", () => {

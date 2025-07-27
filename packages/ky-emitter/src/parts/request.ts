@@ -1,9 +1,5 @@
 import { type HttpOperation } from "@typespec/http";
-import {
-  type Model,
-  type ModelProperty,
-  type Operation,
-} from "@typespec/compiler";
+import { type Model, type ModelProperty, type Operation } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
 
 export function createRequestModel($: Typekit, op: Operation): Model {
@@ -30,9 +26,7 @@ export function createRequestModel($: Typekit, op: Operation): Model {
       body: $.modelProperty.create({
         name: "body",
         optional: !httpOperation.parameters.body,
-        type: httpOperation.parameters.body
-          ? httpOperation.parameters.body.type
-          : $.intrinsic.never,
+        type: httpOperation.parameters.body ? httpOperation.parameters.body.type : $.intrinsic.never,
       }),
     },
   });
@@ -43,9 +37,7 @@ export function createParameterProp(
   httpOperation: HttpOperation,
   type: "query" | "path" | "header" | "cookie",
 ) {
-  const params = httpOperation.parameters.parameters.filter(
-    (param) => param.type === type,
-  );
+  const params = httpOperation.parameters.parameters.filter((param) => param.type === type);
   const hasParams = params.length > 0;
   const allOptional = params.every((param) => param.param.optional);
   return {

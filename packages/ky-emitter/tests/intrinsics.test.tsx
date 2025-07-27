@@ -10,8 +10,7 @@ beforeEach(async () => {
 });
 
 it("works with intrinsics", async () => {
-  const { nullProp, neverProp, unknownProp, voidProp } =
-    await runner.compile(t.code`
+  const { nullProp, neverProp, unknownProp, voidProp } = await runner.compile(t.code`
     model Test {
       ${t.modelProperty("nullProp")}: null,
       ${t.modelProperty("neverProp")}: never,

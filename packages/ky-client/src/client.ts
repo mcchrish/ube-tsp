@@ -1,16 +1,6 @@
 import type { KyInstance, Options } from "ky";
-import type {
-  ApiResponse,
-  Operation,
-  OperationMap,
-  RequestParams,
-} from "./types.js";
-import {
-  buildHeaders,
-  buildQueryParams,
-  buildRequestBody,
-  buildUrlWithPathParams,
-} from "./utils/params.js";
+import type { ApiResponse, Operation, OperationMap, RequestParams } from "./types.js";
+import { buildHeaders, buildQueryParams, buildRequestBody, buildUrlWithPathParams } from "./utils/params.js";
 import { resolveResponseStatus } from "./utils/response.js";
 
 /**

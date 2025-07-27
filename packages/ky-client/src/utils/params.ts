@@ -4,10 +4,7 @@ import type { RequestParams } from "../types.js";
  * Replaces path parameters in URL template with actual values
  * Trims leading slash for ky compatibility (ky throws error with leading slash)
  */
-export function buildUrlWithPathParams(
-  path: string,
-  params?: RequestParams,
-): string {
+export function buildUrlWithPathParams(path: string, params?: RequestParams): string {
   let url = path;
 
   // Replace path parameters if they exist
@@ -24,9 +21,7 @@ export function buildUrlWithPathParams(
 /**
  * Builds query parameters from params object
  */
-export function buildQueryParams(
-  params?: RequestParams,
-): URLSearchParams | undefined {
+export function buildQueryParams(params?: RequestParams): URLSearchParams | undefined {
   if (!params?.params?.query) {
     return undefined;
   }
@@ -49,9 +44,7 @@ export function buildQueryParams(
 /**
  * Builds headers from params object
  */
-export function buildHeaders(
-  params?: RequestParams,
-): Record<string, string> | undefined {
+export function buildHeaders(params?: RequestParams): Record<string, string> | undefined {
   if (!params?.params?.header) {
     return undefined;
   }

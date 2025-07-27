@@ -52,14 +52,7 @@ const GLOBAL_RESERVED_WORDS = new Set([
   "await",
 ]);
 
-const CONTEXT_SAFE_WORDS = new Set([
-  "delete",
-  "default",
-  "super",
-  "this",
-  "typeof",
-  "instanceof",
-]);
+const CONTEXT_SAFE_WORDS = new Set(["delete", "default", "super", "this", "typeof", "instanceof"]);
 
 /**
  * Ensures a valid TypeScript identifier for the given element kind.
@@ -67,10 +60,7 @@ const CONTEXT_SAFE_WORDS = new Set([
  * @param element - The TypeScript element kind.
  * @returns A TypeScript-safe name.
  */
-function ensureNonReservedName(
-  name: string,
-  element: TypeScriptElements,
-): string {
+function ensureNonReservedName(name: string, element: TypeScriptElements): string {
   const suffix = "_";
 
   // Global reserved words always need handling
@@ -79,10 +69,7 @@ function ensureNonReservedName(
   }
 
   // Context-safe reserved words for properties
-  if (
-    CONTEXT_SAFE_WORDS.has(name) &&
-    (element.includes("member") || element.includes("object-member"))
-  ) {
+  if (CONTEXT_SAFE_WORDS.has(name) && (element.includes("member") || element.includes("object-member"))) {
     return name; // Safe as properties
   }
 
@@ -90,7 +77,5 @@ function ensureNonReservedName(
 }
 
 export function createTSNamePolicy(): NamePolicy<TypeScriptElements> {
-  return createNamePolicy((name, element) =>
-    ensureNonReservedName(name, element),
-  );
+  return createNamePolicy((name, element) => ensureNonReservedName(name, element));
 }

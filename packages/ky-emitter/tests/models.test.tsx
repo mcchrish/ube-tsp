@@ -130,16 +130,8 @@ it("works with arrays", async () => {
     }
   `);
 
-  expectRender(
-    runner.program,
-    <TsSchema type={scalarArray.type} />,
-    "string[]",
-  );
-  expectRender(
-    runner.program,
-    <TsSchema type={scalarArray2.type} />,
-    "string[][]",
-  );
+  expectRender(runner.program, <TsSchema type={scalarArray.type} />, "string[]");
+  expectRender(runner.program, <TsSchema type={scalarArray2.type} />, "string[][]");
   expectRender(
     runner.program,
     <TsSchema type={modelArray.type} />,

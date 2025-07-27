@@ -37,9 +37,5 @@ it("works with string literal unions", async () => {
     }
   `);
 
-  expectRender(
-    runner.program,
-    <TsSchema type={Status} />,
-    '"available" | "pending" | "sold"',
-  );
+  expectRender(runner.program, <TsSchema type={Status} />, '"available" | "pending" | "sold"');
 });

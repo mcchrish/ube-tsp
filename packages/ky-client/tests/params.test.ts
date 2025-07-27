@@ -1,10 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  buildHeaders,
-  buildQueryParams,
-  buildRequestBody,
-  buildUrlWithPathParams,
-} from "../src/utils/params.js";
+import { buildHeaders, buildQueryParams, buildRequestBody, buildUrlWithPathParams } from "../src/utils/params.js";
 
 describe("buildUrlWithPathParams", () => {
   describe("URL trimming", () => {
@@ -27,32 +22,24 @@ describe("buildUrlWithPathParams", () => {
 
     it("replaces multiple path parameters", () => {
       const params = { params: { path: { userId: 456, petId: 123 } } };
-      expect(
-        buildUrlWithPathParams("/users/{userId}/pets/{petId}", params),
-      ).toBe("users/456/pets/123");
+      expect(buildUrlWithPathParams("/users/{userId}/pets/{petId}", params)).toBe("users/456/pets/123");
     });
 
     it("converts parameter values to strings", () => {
       const params = { params: { path: { petId: 123, active: true } } };
-      expect(
-        buildUrlWithPathParams("/pets/{petId}/status/{active}", params),
-      ).toBe("pets/123/status/true");
+      expect(buildUrlWithPathParams("/pets/{petId}/status/{active}", params)).toBe("pets/123/status/true");
     });
   });
 
   describe("edge cases", () => {
     it("handles missing params", () => {
       expect(buildUrlWithPathParams("/pets/{petId}")).toBe("pets/{petId}");
-      expect(buildUrlWithPathParams("/pets/{petId}", { params: {} })).toBe(
-        "pets/{petId}",
-      );
+      expect(buildUrlWithPathParams("/pets/{petId}", { params: {} })).toBe("pets/{petId}");
     });
 
     it("works with paths without parameters", () => {
       const params = { params: { path: { id: 456 } } };
-      expect(buildUrlWithPathParams("api/items/{id}", params)).toBe(
-        "api/items/456",
-      );
+      expect(buildUrlWithPathParams("api/items/{id}", params)).toBe("api/items/456");
     });
   });
 });
@@ -102,12 +89,12 @@ describe("buildHeaders", () => {
   it("builds headers object", () => {
     const params = {
       params: {
-        header: { Authorization: "Bearer token", "X-Custom": "value" },
+        header: { "Authorization": "Bearer token", "X-Custom": "value" },
       },
     };
     const result = buildHeaders(params);
     expect(result).toEqual({
-      Authorization: "Bearer token",
+      "Authorization": "Bearer token",
       "X-Custom": "value",
     });
   });
@@ -116,7 +103,7 @@ describe("buildHeaders", () => {
     const params = {
       params: {
         header: {
-          Authorization: "Bearer token",
+          "Authorization": "Bearer token",
           "X-Null": null,
           "X-Undefined": undefined,
         },
@@ -150,9 +137,7 @@ describe("buildRequestBody", () => {
   });
 
   it("JSON stringifies objects and primitives", () => {
-    expect(buildRequestBody({ body: { name: "John", age: 30 } })).toBe(
-      '{"name":"John","age":30}',
-    );
+    expect(buildRequestBody({ body: { name: "John", age: 30 } })).toBe('{"name":"John","age":30}');
     expect(buildRequestBody({ body: [1, 2, 3] })).toBe("[1,2,3]");
     expect(buildRequestBody({ body: "test string" })).toBe('"test string"');
     expect(buildRequestBody({ body: 42 })).toBe("42");

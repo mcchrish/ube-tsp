@@ -12,11 +12,7 @@ export async function $onEmit(context: EmitContext) {
 
   writeOutput(
     context.program,
-    <Output
-      program={context.program}
-      namePolicy={tsNamePolicy}
-      nameConflictResolver={tsNameConflictResolver}
-    >
+    <Output program={context.program} namePolicy={tsNamePolicy} nameConflictResolver={tsNameConflictResolver}>
       <NamespaceStructure name="Spec" ns={globalNs} />
       <SourceFile path="operation-map.ts">
         <OperationMap ns={globalNs} />

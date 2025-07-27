@@ -1,18 +1,6 @@
 import { code, For, Match, Prose, Switch } from "@alloy-js/core";
-import {
-  ArrayExpression,
-  InterfaceExpression,
-  InterfaceMember,
-} from "@alloy-js/typescript";
-import type {
-  Enum,
-  Model,
-  Namespace,
-  Scalar,
-  Tuple,
-  Type,
-  Union,
-} from "@typespec/compiler";
+import { ArrayExpression, InterfaceExpression, InterfaceMember } from "@alloy-js/typescript";
+import type { Enum, Model, Namespace, Scalar, Tuple, Type, Union } from "@typespec/compiler";
 import { type Typekit } from "@typespec/compiler/typekit";
 import { useTsp } from "@typespec/emitter-framework";
 import { ValueExpression } from "@typespec/emitter-framework/typescript";
@@ -55,16 +43,10 @@ export function TsSchema({ type, rootNs }: Props) {
       return (
         <Switch>
           <Match when={!!type.value}>
-            <TsSchema
-              type={$.literal.create(type.value!)}
-              {...(!!rootNs && { rootNs })}
-            />
+            <TsSchema type={$.literal.create(type.value!)} {...(!!rootNs && { rootNs })} />
           </Match>
           <Match else>
-            <TsSchema
-              type={$.literal.create(type.name)}
-              {...(!!rootNs && { rootNs })}
-            />
+            <TsSchema type={$.literal.create(type.name)} {...(!!rootNs && { rootNs })} />
           </Match>
         </Switch>
       );
@@ -109,13 +91,8 @@ function modelBaseType($: Typekit, type: Model) {
     );
   }
 
-  if (
-    $.record.is(type) ||
-    (type.properties.size === 0 && !!type.baseModel?.indexer)
-  ) {
-    return code`Record<string, ${(
-      <TsSchema type={(type.indexer ?? type.baseModel!.indexer)!.value} />
-    )}>`;
+  if ($.record.is(type) || (type.properties.size === 0 && !!type.baseModel?.indexer)) {
+    return code`Record<string, ${(<TsSchema type={(type.indexer ?? type.baseModel!.indexer)!.value} />)}>`;
   }
 
   return (

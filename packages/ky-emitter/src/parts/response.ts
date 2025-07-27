@@ -9,10 +9,7 @@ type Response = {
   body?: Type;
 };
 
-export function createResponseModel(
-  $: Typekit,
-  httpOperation: HttpOperation,
-): Union {
+export function createResponseModel($: Typekit, httpOperation: HttpOperation): Union {
   const responses = $.httpOperation
     .flattenResponses(httpOperation)
     .flatMap<Response>((res) => {
@@ -60,9 +57,7 @@ export function createResponseModel(
           contentTypes: $.modelProperty.create({
             name: "contentType",
             optional: !res.contentType,
-            type: res.contentType
-              ? $.literal.create(res.contentType)
-              : $.intrinsic.never,
+            type: res.contentType ? $.literal.create(res.contentType) : $.intrinsic.never,
           }),
           headers: $.modelProperty.create({
             name: "headers",

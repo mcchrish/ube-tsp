@@ -25,7 +25,7 @@ const testOperationMap = {
     statusCodes: [201],
     contentTypes: [],
   },
-  simple: {
+  "simple": {
     operationId: "simple",
     method: "GET",
     path: "/simple",
@@ -72,9 +72,7 @@ const createMockKy = () => {
     url: "https://api.example.com/test",
   } as unknown as KyResponse;
 
-  const mockKy = vi
-    .fn()
-    .mockResolvedValue(mockResponse) as unknown as KyInstance;
+  const mockKy = vi.fn().mockResolvedValue(mockResponse) as unknown as KyInstance;
   return { mockKy, mockResponse };
 };
 
@@ -147,14 +145,14 @@ describe("createClient", () => {
       await client.Api.Pets.getPet({
         params: {
           path: { petId: 123 },
-          header: { Authorization: "Bearer token", "X-API-Key": "key123" },
+          header: { "Authorization": "Bearer token", "X-API-Key": "key123" },
         },
       });
 
       expect(mockKy).toHaveBeenCalledWith("pets/123", {
         method: "get",
         headers: {
-          Authorization: "Bearer token",
+          "Authorization": "Bearer token",
           "X-API-Key": "key123",
         },
       });
@@ -194,7 +192,7 @@ describe("createClient", () => {
         {
           params: {
             path: { petId: 123 },
-            header: { Authorization: "Bearer token", "X-Client": "test" },
+            header: { "Authorization": "Bearer token", "X-Client": "test" },
           },
         },
         {
@@ -207,7 +205,7 @@ describe("createClient", () => {
         headers: {
           "X-Request-ID": "req-456",
           "X-Custom": "value",
-          Authorization: "Bearer token",
+          "Authorization": "Bearer token",
           "X-Client": "test",
         },
       });
@@ -218,12 +216,12 @@ describe("createClient", () => {
         {
           params: {
             path: { petId: 123 },
-            header: { Authorization: "Bearer old-token", "X-Client": "test" },
+            header: { "Authorization": "Bearer old-token", "X-Client": "test" },
           },
         },
         {
           headers: {
-            Authorization: "Bearer new-token",
+            "Authorization": "Bearer new-token",
             "X-Request-ID": "req-456",
           },
         },
@@ -232,7 +230,7 @@ describe("createClient", () => {
       expect(mockKy).toHaveBeenCalledWith("pets/123", {
         method: "get",
         headers: {
-          Authorization: "Bearer new-token", // kyOptions takes precedence
+          "Authorization": "Bearer new-token", // kyOptions takes precedence
           "X-Request-ID": "req-456",
           "X-Client": "test",
         },
@@ -286,7 +284,7 @@ describe("createClient", () => {
         timeout: 10000,
         headers: {
           "X-Request-ID": "req456",
-          Authorization: "Bearer token",
+          "Authorization": "Bearer token",
         },
       });
     });
@@ -326,13 +324,8 @@ describe("createClient", () => {
         json: vi.fn().mockResolvedValue({ error: "Not Found" }),
       };
 
-      const notFoundKy = vi
-        .fn()
-        .mockResolvedValue(notFoundResponse) as unknown as KyInstance;
-      const notFoundClient = createClient<TestClient>(
-        notFoundKy,
-        testOperationMap,
-      );
+      const notFoundKy = vi.fn().mockResolvedValue(notFoundResponse) as unknown as KyInstance;
+      const notFoundClient = createClient<TestClient>(notFoundKy, testOperationMap);
 
       const result = await notFoundClient.Api.Pets.getPet({
         params: { path: { petId: 999 } },
@@ -362,9 +355,7 @@ describe("createClient", () => {
         json: vi.fn().mockResolvedValue("plain text content"),
       };
 
-      const textKy = vi
-        .fn()
-        .mockResolvedValue(textResponse) as unknown as KyInstance;
+      const textKy = vi.fn().mockResolvedValue(textResponse) as unknown as KyInstance;
       const textClient = createClient<TestClient>(textKy, testOperationMap);
 
       const result = await textClient.Api.Pets.getPet({
@@ -388,13 +379,8 @@ describe("createClient", () => {
         json: vi.fn().mockResolvedValue({ data: "test" }),
       };
 
-      const noContentTypeKy = vi
-        .fn()
-        .mockResolvedValue(noContentTypeResponse) as unknown as KyInstance;
-      const noContentTypeClient = createClient<TestClient>(
-        noContentTypeKy,
-        testOperationMap,
-      );
+      const noContentTypeKy = vi.fn().mockResolvedValue(noContentTypeResponse) as unknown as KyInstance;
+      const noContentTypeClient = createClient<TestClient>(noContentTypeKy, testOperationMap);
 
       const result = await noContentTypeClient.Api.Pets.getPet({
         params: { path: { petId: 1 } },
@@ -405,10 +391,7 @@ describe("createClient", () => {
 
     it("preserves exact content-type value including parameters", async () => {
       const xmlHeaders = new Headers();
-      xmlHeaders.set(
-        "content-type",
-        "application/xml; charset=iso-8859-1; boundary=something",
-      );
+      xmlHeaders.set("content-type", "application/xml; charset=iso-8859-1; boundary=something");
 
       const xmlResponse = {
         ...mockResponse,
@@ -416,9 +399,7 @@ describe("createClient", () => {
         json: vi.fn().mockResolvedValue("<xml>data</xml>"),
       };
 
-      const xmlKy = vi
-        .fn()
-        .mockResolvedValue(xmlResponse) as unknown as KyInstance;
+      const xmlKy = vi.fn().mockResolvedValue(xmlResponse) as unknown as KyInstance;
       const xmlClient = createClient<TestClient>(xmlKy, testOperationMap);
 
       const result = await xmlClient.Api.Pets.getPet({
@@ -427,8 +408,7 @@ describe("createClient", () => {
 
       expect(result).toMatchObject({
         response: {
-          contentType:
-            "application/xml; charset=iso-8859-1; boundary=something",
+          contentType: "application/xml; charset=iso-8859-1; boundary=something",
         },
       });
     });
@@ -436,9 +416,7 @@ describe("createClient", () => {
 
   describe("error handling", () => {
     it("handles ky request failures", async () => {
-      const errorKy = vi
-        .fn()
-        .mockRejectedValue(new Error("Network error")) as unknown as KyInstance;
+      const errorKy = vi.fn().mockRejectedValue(new Error("Network error")) as unknown as KyInstance;
       const errorClient = createClient<TestClient>(errorKy, testOperationMap);
 
       await expect(

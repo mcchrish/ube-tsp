@@ -1,9 +1,5 @@
 import { List, refkey, StatementList } from "@alloy-js/core";
-import {
-  ObjectExpression,
-  ObjectProperty,
-  VarDeclaration,
-} from "@alloy-js/typescript";
+import { ObjectExpression, ObjectProperty, VarDeclaration } from "@alloy-js/typescript";
 import { getNamespaceFullName, type Operation } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { TypeDeclaration } from "@typespec/emitter-framework/typescript";
@@ -28,9 +24,7 @@ export function OperationObjectExpression({ op }: Props) {
     ...new Set(
       httpOperation.responses.map((res) => {
         if (typeof res.statusCodes === "object") {
-          return $.literal.create(
-            res.statusCodes.end.toString().charAt(0) + "XX",
-          );
+          return $.literal.create(res.statusCodes.end.toString().charAt(0) + "XX");
         }
         if (res.statusCodes === "*") {
           return $.literal.create("default");
@@ -43,28 +37,14 @@ export function OperationObjectExpression({ op }: Props) {
   return (
     <ObjectExpression>
       <List comma hardline enderPunctuation>
-        <ObjectProperty
-          name="operationId"
-          value={<TsSchema type={$.literal.create(operationId)} />}
-        />
-        <ObjectProperty
-          name="method"
-          value={<TsSchema type={$.literal.create(method)} />}
-        />
-        <ObjectProperty
-          name="path"
-          value={<TsSchema type={$.literal.create(path)} />}
-        />
-        <ObjectProperty
-          name="statusCodes"
-          value={<TsSchema type={statusCodes} />}
-        />
+        <ObjectProperty name="operationId" value={<TsSchema type={$.literal.create(operationId)} />} />
+        <ObjectProperty name="method" value={<TsSchema type={$.literal.create(method)} />} />
+        <ObjectProperty name="path" value={<TsSchema type={$.literal.create(path)} />} />
+        <ObjectProperty name="statusCodes" value={<TsSchema type={statusCodes} />} />
         <ObjectProperty
           name="contentTypes"
           value={
-            httpOperation.parameters.body
-              ? `["${httpOperation.parameters.body?.contentTypes.join('", "')}"]`
-              : "[]"
+            httpOperation.parameters.body ? `["${httpOperation.parameters.body?.contentTypes.join('", "')}"]` : "[]"
           }
         />
       </List>
@@ -85,27 +65,14 @@ export function OperationPart({ op }: OperationPartProps) {
     <>
       <List hardline>
         <StatementList>
-          <VarDeclaration
-            name={op.name}
-            refkey={refkey(`${refKeyPrefix}.Meta`)}
-            const
-            export
-          >
+          <VarDeclaration name={op.name} refkey={refkey(`${refKeyPrefix}.Meta`)} const export>
             <OperationObjectExpression op={op} />
           </VarDeclaration>
         </StatementList>
-        <TypeDeclaration
-          name={requestName}
-          refkey={refkey(`${refKeyPrefix}.Request`)}
-          export
-        >
+        <TypeDeclaration name={requestName} refkey={refkey(`${refKeyPrefix}.Request`)} export>
           <TsSchema type={createRequestModel($, op)} />
         </TypeDeclaration>
-        <TypeDeclaration
-          name={responseName}
-          refkey={refkey(`${refKeyPrefix}.Response`)}
-          export
-        >
+        <TypeDeclaration name={responseName} refkey={refkey(`${refKeyPrefix}.Response`)} export>
           <TsSchema type={createResponseModel($, $.httpOperation.get(op))} />
         </TypeDeclaration>
       </List>
@@ -118,10 +85,6 @@ export function getOpTypeName(op: Operation) {
 }
 
 export function getOpNamespacePath(op: Operation) {
-  const interfaceName = op.interface
-    ? `${op.interface.name}.${op.name}`
-    : op.name;
-  return op.namespace
-    ? `${getNamespaceFullName(op.namespace)}.${interfaceName}`
-    : interfaceName;
+  const interfaceName = op.interface ? `${op.interface.name}.${op.name}` : op.name;
+  return op.namespace ? `${getNamespaceFullName(op.namespace)}.${interfaceName}` : interfaceName;
 }

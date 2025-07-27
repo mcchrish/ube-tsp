@@ -2,10 +2,7 @@ import { render } from "@alloy-js/core";
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { Output } from "@typespec/emitter-framework";
 import { beforeEach, it } from "vitest";
-import {
-  NamespaceContent,
-  NamespaceStructure,
-} from "../src/components/namespace.jsx";
+import { NamespaceContent, NamespaceStructure } from "../src/components/namespace.jsx";
 import { assertFileContents, expectRender, Tester } from "./utils.jsx";
 
 let runner: TesterInstance;
