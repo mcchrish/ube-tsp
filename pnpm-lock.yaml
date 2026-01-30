@@ -67,9 +67,6 @@ importers:
       '@typespec/openapi':
         specifier: ^1.2.1
         version: 1.8.0(@typespec/compiler@1.8.0(@types/node@25.1.0))(@typespec/http@1.8.0(@typespec/compiler@1.8.0(@types/node@25.1.0)))
-      '@typespec/rest':
-        specifier: ^0.78.0
-        version: 0.78.0(@typespec/compiler@1.8.0(@types/node@25.1.0))(@typespec/http@1.8.0(@typespec/compiler@1.8.0(@types/node@25.1.0)))
 
 packages:
 
@@ -856,13 +853,6 @@ packages:
 
   '@typespec/openapi@1.8.0':
     resolution: {integrity: sha512-v+RIJpx7vALBSGQmnUWemvXjnrk50HAVqJeg0RbaF3VUnh66Z4itsoNJJmIIc+HmBJng8Ie0V7xv3l02ek6HWA==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      '@typespec/compiler': ^1.8.0
-      '@typespec/http': ^1.8.0
-
-  '@typespec/rest@0.78.0':
-    resolution: {integrity: sha512-1clnDw1JbBvjLcfFvEvHdIrnsQuQI5/Cl6mRIrzWWX0pKJ+R89rCdZD1KpidEXw4B4qscD48LsssyrEIFLtuPg==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       '@typespec/compiler': ^1.8.0
@@ -2852,11 +2842,6 @@ snapshots:
       '@typespec/compiler': 1.8.0(@types/node@25.1.0)
 
   '@typespec/openapi@1.8.0(@typespec/compiler@1.8.0(@types/node@25.1.0))(@typespec/http@1.8.0(@typespec/compiler@1.8.0(@types/node@25.1.0)))':
-    dependencies:
-      '@typespec/compiler': 1.8.0(@types/node@25.1.0)
-      '@typespec/http': 1.8.0(@typespec/compiler@1.8.0(@types/node@25.1.0))
-
-  '@typespec/rest@0.78.0(@typespec/compiler@1.8.0(@types/node@25.1.0))(@typespec/http@1.8.0(@typespec/compiler@1.8.0(@types/node@25.1.0)))':
     dependencies:
       '@typespec/compiler': 1.8.0(@types/node@25.1.0)
       '@typespec/http': 1.8.0(@typespec/compiler@1.8.0(@types/node@25.1.0))
