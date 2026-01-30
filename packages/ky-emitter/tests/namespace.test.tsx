@@ -179,6 +179,7 @@ it("directory structure", async () => {
 
       export * as Foo from "./Base/Foo.js"
       export * as Other from "./Base/Other.js";
+
     `,
     "Base/Foo.ts": `
       export type Bar = {
@@ -186,6 +187,7 @@ it("directory structure", async () => {
       };
 
       export * as Buzz from "./Foo/Buzz.js";
+
     `,
     "Base/Foo/Buzz.ts": `
       export const listPets = {
@@ -216,6 +218,7 @@ it("directory structure", async () => {
           response: ListPetsResponse;
         };
       };
+
     `,
     "Base/Other.ts": `
       export type More = {
@@ -223,6 +226,7 @@ it("directory structure", async () => {
       };
 
       export * as Here from "./Other/Here.js";
+
     `,
     "Base/Other/Here.ts": `
       export type There = {
@@ -230,11 +234,13 @@ it("directory structure", async () => {
       };
 
       export * as Everywhere from "./Here/Everywhere.js";
+
     `,
     "Base/Other/Here/Everywhere.ts": `
       export type Where = {
         location?: string;
       };
+
     `,
   });
 });
@@ -264,11 +270,13 @@ it("Global namespace", async () => {
       };
 
       export * as Foo from "./Spec/Foo.js";
+
     `,
     "Spec/Foo.ts": `
       export type Bar = {
         name: string;
       };
+
     `,
   });
 });

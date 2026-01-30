@@ -66,9 +66,9 @@
     "prepublishOnly": "npm run build && npm run test && npm run lint"
   },
   "dependencies": {
-    "@alloy-js/core": "^0.18.2",
-    "@alloy-js/typescript": "^0.18.0",
-    "@typespec/emitter-framework": "^0.9.0"
+    "@alloy-js/core": "^0.22.0",
+    "@alloy-js/typescript": "^0.22.0",
+    "@typespec/emitter-framework": "^0.15.0"
   },
   "publishConfig": {
     "access": "public"

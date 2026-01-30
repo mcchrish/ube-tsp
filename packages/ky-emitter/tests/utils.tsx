@@ -4,14 +4,15 @@ import { SourceFile, tsNameConflictResolver } from "@alloy-js/typescript";
 import { resolvePath, type Program } from "@typespec/compiler";
 import { createTester } from "@typespec/compiler/testing";
 import { Output } from "@typespec/emitter-framework";
+import "@typespec/http/experimental/typekit";
 import { expect } from "vitest";
 import { createTSNamePolicy } from "../src/name-policy.js";
 
-export const Tester = createTester(resolvePath(import.meta.dirname, "../../.."), {
-  libraries: ["@typespec/http", "@typespec/rest", "@typespec/openapi"],
+export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
+  libraries: ["@typespec/http", "@typespec/openapi"],
 })
   .importLibraries()
-  .using("Http", "Rest", "OpenAPI");
+  .using("Http", "OpenAPI");
 
 export function expectRender(program: Program, children: Children, expected: string) {
   const tsNamePolicy = createTSNamePolicy();
