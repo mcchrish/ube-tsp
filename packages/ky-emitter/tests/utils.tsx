@@ -32,7 +32,11 @@ export function toSourceText(program: Program, c: Children, options?: PrintTreeO
     options,
   );
 
-  return res.contents[0]?.contents as string;
+  const file = res.contents[0];
+  if (file?.kind === "file" && "contents" in file) {
+    return file.contents as string;
+  }
+  throw new Error("Expected a source file with contents");
 }
 
 export function findFile(res: OutputDirectory, path: string): OutputFile {
@@ -64,6 +68,9 @@ export function findFile(res: OutputDirectory, path: string): OutputFile {
 export function assertFileContents(res: OutputDirectory, expectedFiles: Record<string, string>) {
   for (const [path, contents] of Object.entries(expectedFiles)) {
     const file = findFile(res, path);
+    if (!("contents" in file)) {
+      throw new Error(`Expected file ${path} to have contents`);
+    }
     expect(file.contents).toBe(dedent(contents));
   }
 }

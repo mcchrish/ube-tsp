@@ -39,6 +39,7 @@
     "build": "tsc -p tsconfig.build.json",
     "test": "vitest run",
     "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint src/ tests/",
     "prepublishOnly": "npm run build && npm run test && npm run lint"
   },

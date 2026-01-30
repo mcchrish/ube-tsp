@@ -29,6 +29,9 @@ jobs:
       - name: Check formatting
         run: pnpm run format:check
 
+      - name: Typecheck
+        run: pnpm -r run typecheck
+
       - name: Build packages
         run: pnpm run build
 
